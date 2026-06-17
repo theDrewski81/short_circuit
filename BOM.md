@@ -1,6 +1,6 @@
 # Johnny 5 — Bill of Materials (Phase 00)
 
-**Status:** Draft — pending Andrew's approval (gate condition).
+**Status:** Approved by Andrew, 2026-06-17. BOM half of the Phase 00 gate is met.
 **Target:** Floor-roaming, ~38–42 cm tall, assembled-weight ceiling **1.6 kg**.
 **Battery architecture:** Single 2S LiPo, three rails (motor battery-direct, regulated 5V, regulated 6V).
 
@@ -165,4 +165,4 @@ Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck ≥3 A (peak ~2 
 
 ## Gate Condition Status
 
-**Partial.** BOM drafted and ready for approval; FreeCAD body baseline (Task 7) outstanding. Gate is met when this BOM is approved **and** the body is baselined in FreeCAD 1.1.1.
+**Partial — BOM met, body outstanding.** BOM approved by Andrew 2026-06-17. FreeCAD body baseline (Task 7) is the remaining gate item. Full gate is met when the body is baselined in FreeCAD 1.1.1. Ordering and printing hold until then.

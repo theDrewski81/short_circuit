@@ -81,7 +81,7 @@ Hardware not yet selected (Phase 00 scope): DC motors, H-bridge driver, tread sy
 | Policy deployment format | ONNX (preferred) |
 | Inference routing | Home lab LiteLLM proxy (Agentic OS infrastructure) |
 | Primary language | Python |
-| Version control | GitHub (repo: `johnny5`) |
+| Version control | GitHub (repo: `short_circuit`) |
 
 ---
 

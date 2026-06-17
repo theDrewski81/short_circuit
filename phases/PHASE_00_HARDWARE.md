@@ -116,3 +116,46 @@ Begin by reviewing the GrowBot BOM.md (https://github.com/britcruise9/GrowBot/bl
 - 2S LiPo vs. dual 1S: any preference on battery form factor or sourcing?
 - Johnny 5 scale: rough target size? (e.g., fits on a standard desk vs. floor-roaming)
 - Tread material preference: purchased rubber treads, printed TPU treads, or belt-and-sprocket?
+
+---
+
+## Session 01 — Status & Handoff (2026-06-17)
+
+### Gate status: PARTIAL
+
+BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining gate item. Ordering and printing hold until the body is baselined.
+
+### Open questions — resolved
+
+- **Encoders:** Yes — N20-class geared motors with encoders (closed-loop driving + real velocity data for Phase 02 training).
+- **Battery:** Single 2S LiPo, dual regulation.
+- **Scale:** Floor-roaming, ~38–42 cm. Revised assembled-weight ceiling **1.6 kg**.
+- **Tread material:** Printed TPU.
+
+### Decision log (decisions + rationale)
+
+- **Drive — Path A:** N20-class 12V/150:1 encoder motors + TB6612FNG, battery-direct on 2S. Chose compact/light/cheap/clean-logic over torque margin; accepts ~0.13 m/s and ~1× continuous torque margin. Contingent on the 1.6 kg ceiling.
+- **Servos:** 4× SCS0009 (added a shoulder utility-box tilt servo) on one half-duplex bus via Waveshare Bus Servo Adapter (A). Arms kept light (≤50 g / ≤90 mm lever) to stay within rated torque and protect the weight budget.
+- **Utility box** mounts to the torso shoulder with its own servo, so it never loads the arm servos. Navigation light (1 W) added on Pi-V as a camera aid.
+- **Audio** consolidated on Pi-V (frees Pi-M's I²S). Needs a custom `simple-audio-card` overlay in Phase 01 (stock mic/amp overlays conflict).
+- **LEDs:** mouth on Pi-V (SPI, audio-synced); eyes + battery gauge + status chained on Pi-M (SPI). Custom layout replaces the GrowBot ring.
+- **Battery sensing** via ADS1115 — drives the gauge, a low-voltage cutoff, and telemetry.
+- **Power:** three rails (motor battery-direct, 5V buck, 6V servo buck). Added inline 7.5 A fuse and a TB6612 STBY interlock (motors off on boot/crash). Servos must be regulated — 8.4 V full charge exceeds the SCS0009 7.4 V max.
+
+### Deferred levers (not in V1 spend)
+
+- Motor-rail boost to ~9–10 V if the drive proves underpowered.
+- STS3215 servo upgrade if the arms lack authority.
+- Path B (25D motors + higher-current driver) if Path A is inadequate.
+
+### Next session — initiating prompt (Phase 00, Task 7)
+
+> Johnny 5 — Phase 00, Session 02. Read CLAUDE.md, then `phases/PHASE_00_HARDWARE.md` (note this Session 01 status and decision log) and `BOM.md`. We resume Phase 00 at **Task 7: baseline the body in FreeCAD 1.1.1**. The BOM is approved and dimensions are locked. Session config: Opus, Extended Thinking, High effort.
+>
+> Work the brief's design sequence (chassis → torso → arms → head), one printable subassembly at a time, honoring: floor-roaming ~38–42 cm; the **1.6 kg weight ceiling** (design light — thin walls, low infill, lightening pockets); Ender 3 Pro 220×220×250 mm splits with keyed alignment; provisional track geometry (40 mm sprocket pitch dia, 28 mm track width, ~150 mm track center-to-center, 15–20 mm clearance); and all mounting features from the BOM (N20 motors + TB6612, 2S 2200 mAh battery bay, 2× Pi Zero 2 W, VL53L1X forward-facing, IMU, 4× SCS0009 incl. shoulder utility box, head camera + mouth/eye LEDs, speaker). Deliver FreeCAD as **parametric Python build scripts** (driven by a parameters spreadsheet) to `mechanical/freecad/`, STL exports to `mechanical/stl/`. Start with the chassis/tread base and confirm geometry before proceeding up the stack. Expect an interactive, question-driven pace.
+
+### Attachments / docs for next session
+
+- `CLAUDE.md`, this phase file, `BOM.md` (locked dimensions + pin maps).
+- The two reference images Andrew shared (boombox-body photo; Lego-head photo) for head/torso proportions.
+- **To produce before ordering:** a formal power wiring/harness diagram (the architecture is documented in `BOM.md`; a schematic should accompany it).
