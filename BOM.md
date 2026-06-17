@@ -14,7 +14,7 @@ Costs are estimates in USD, parts only, excluding shipping and items Andrew alre
 |---|---|---|---|---|
 | Drive gearmotor | 150:1 Micro Metal Gearmotor HPCB 12V w/ 12 CPR encoder (N20-class, 12 mm) | 2 | $46 | Pololu — confirm side vs back connector variant. ~1800 counts/output-rev. Run battery-direct at ~7.4 V (≈62% of 12 V rating). |
 | Motor driver | TB6612FNG dual H-bridge breakout | 1 | $7 | SparkFun ROB-14451 or equiv. 3.3 V logic; VM from 2S pack. STBY → Pi-M GPIO (defaults off). |
-| Treads | Printed TPU tank treads | — | (filament) | Print-in-place / segmented. Track width 28 mm. |
+| Treads | Printed TPU tank treads, Shore 90A | — | (filament) | Track width 28 mm. 90A chosen for flex-fatigue life + grip (direct-drive Sprite Pro removes the printability constraint). Revisit toward 95A if Task 7 adopts segmented rigid-link treads. |
 | Sprockets / idlers | Printed PLA/PETG | — | (filament) | Drive sprocket pitch dia 40 mm. |
 | Bearings | 623ZZ (3×10×4) for idlers/road wheels | 8 | $5 | Generic. |
 
@@ -82,7 +82,7 @@ Servos **must** be regulated (6 V) — 8.4 V full-charge exceeds the SCS0009 7.4
 | Camera | 8 MP 1080p CSI | 1 (2 owned) | owned | On Pi-V head; one spare. |
 | Filament — PLA | Shell prototyping | — | ~$20 | Likely owned. |
 | Filament — PETG | Stress-bearing parts | — | ~$25 | |
-| Filament — TPU | Treads | — | ~$25 | |
+| Filament — TPU | Treads, Shore 90A | — | ~$25 | Polymaker PolyFlex TPU90, NinjaTek Cheetah (95A) or Armadillo as firmer fallback. Dry before printing; enable pressure advance. |
 | Fasteners | M2/M3 screws, heat-set inserts | — | $15 | |
 
 **Estimated new-spend total: ~$300–340** (excl. owned items, incl. balance charger).
