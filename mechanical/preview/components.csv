@@ -1,0 +1,61 @@
+item,category,qty,unit_g,option,est,note
+# Mass budget line items. option=base is the approved 4-servo build.
+# option=nod is the incremental cost of adding a 5th servo for a powered head nod.
+# est=1 = printed/estimated mass (soft, +/-20%); est=0 = datasheet/measured (firm).
+#
+# --- compute / electronics (firm) ---
+Pi Zero 2 W,compute,2,11,base,0,board only
+microSD card,compute,2,0.5,base,0,
+Camera 8MP + ribbon,compute,1,4,base,0,
+N20 150:1 gearmotor + encoder,drive,2,11,base,0,Pololu micro metal
+TB6612FNG breakout,drive,1,3,base,0,
+SCS0009 serial servo,servo,4,20,base,0,L/R shoulder + head yaw + util tilt
+Bus servo adapter,servo,1,5,base,0,Waveshare A
+VL53L1X carrier,sensor,1,2,base,0,Pololu 3415
+MPU-6050 GY-521,sensor,1,3,base,0,
+ADS1115 ADC,sensor,1,3,base,0,
+INMP441 mic,audio,1,2,base,0,
+MAX98357A amp,audio,1,3,base,0,
+Speaker 8ohm 3W,audio,1,12,base,0,with magnet
+WS2812B mouth 8-pixel,led,1,3,base,0,
+WS2812B eye pixel,led,2,1,base,0,
+WS2812B gauge 5-pixel,led,1,2,base,0,
+Nav light LED + lens,led,1,3,base,0,
+Level shifters + MOSFET + small boards,elec,1,5,base,0,
+2S LiPo 2200 mAh,power,1,130,base,0,
+Buck converter 5A,power,2,10,base,0,5V + 6V rails
+Master switch + fuse holder,power,1,10,base,0,
+Wiring harness,wiring,1,50,base,1,whole-robot estimate
+Connectors + caps + PDB,power,1,20,base,1,
+Fasteners + heat-set inserts,hardware,1,25,base,1,M2/M3 throughout
+#
+# --- printed structure (estimated) ---
+Chassis tub + deck (PLA),printed,1,190,base,1,validated shell+deck estimate
+Drive sprocket (PLA),printed,2,10,base,1,
+Idler wheel (PLA),printed,2,9,base,1,
+Road wheel (PLA),printed,4,8,base,1,
+TPU track loop,printed,2,22,base,1,lugged band estimate
+Torso front+back shell (PLA),printed,1,180,base,1,keyed two-part
+Neck riser + yaw mount (PLA),printed,1,30,base,1,
+Head shell + brow + eyes + antenna (PLA),printed,1,90,base,1,
+Arm assembly (PLA),printed,2,40,base,1,<=50 g/arm budget
+Utility box + bracket (PLA),printed,1,25,base,1,
+Misc brackets / mounts (PLA),printed,1,40,base,1,motor caps, board standoffs, sensor mounts
+#
+# --- 5th-servo head-nod option (incremental) ---
+SCS0009 serial servo (head nod),servo,1,20,nod,0,5th servo
+Head nod gimbal + bracket (PLA),printed,1,25,nod,1,pitch joint between yaw output and head
+Neck reinforcement (PLA),printed,1,12,nod,1,added structure for nod load
+Nod wiring + fasteners,wiring,1,8,nod,1,
+#
+# --- articulated brow option (6th servo, Session 02) ---
+SCS0009 serial servo (brow roll),servo,1,20,brow,0,6th servo
+Brow blade (PLA, thin),printed,2,5,brow,1,lightweight shader panel
+Brow rocker + gear bridge + idler (PLA),printed,1,8,brow,1,pinion + left gear + idler + right gear
+Brow wiring,wiring,1,4,brow,1,
+#
+# --- rear trailing caster (passive stability, approved Session 02) ---
+Trailing caster wheel (TPU/PLA),printed,1,10,wheel,1,swiveling stabilizer
+Trailing arm + rear pivot mount (PLA),printed,1,12,wheel,1,
+Caster preload spring,hardware,1,3,wheel,0,
+Caster pivot pins + bearings,hardware,1,8,wheel,1,

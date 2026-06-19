@@ -1,0 +1,150 @@
+name,value,unit,group,locked,note
+# Johnny 5 master parameter sheet. Single source of truth for all build scripts.
+# locked=1 values come from the approved BOM / Phase 00 handoff and must not change without a phase decision.
+# locked=0 values are design choices made during Task 7 and may be tuned.
+#
+# --- Print envelope (Ender 3 Pro) ---
+bed_x,220,mm,print,1,Ender 3 Pro bed X
+bed_y,220,mm,print,1,Ender 3 Pro bed Y
+bed_z,250,mm,print,1,Ender 3 Pro max Z
+#
+# --- Global ---
+weight_ceiling,1600,g,global,1,Assembled-weight ceiling (whole robot)
+height_target_min,380,mm,global,1,Floor-roaming height band min
+height_target_max,420,mm,global,1,Floor-roaming height band max
+pla_density,1.24,g/cm3,global,1,PLA density for mass estimate
+#
+# --- Track / drive (locked geometry) ---
+sprocket_pitch_dia,40,mm,track,1,Drive sprocket pitch diameter
+track_width,28,mm,track,1,TPU track width
+track_thickness,3.5,mm,track,0,TPU track band thickness (raises axle line above pitch circle)
+track_cc,150,mm,track,1,Track centre-to-centre (parallel stance, confirmed Session 02)
+ground_clearance,18,mm,track,1,Belly clearance target band 15-20
+idler_dia,40,mm,track,0,Front idler outer dia (matches sprocket for level top run)
+roadwheel_dia,24,mm,track,0,Road-wheel outer dia (supports TPU track between sprocket and idler)
+roadwheels_per_side,2,count,track,0,Road wheels per side
+wheelbase,120,mm,track,0,Sprocket centre to idler centre
+#
+# --- Drive motor (Pololu N20-class, 12 mm) ---
+motor_dia,12,mm,motor,1,N20 gearmotor body diameter
+motor_body_len,26,mm,motor,1,150:1 HPCB body length (approx)
+motor_shaft_dia,3,mm,motor,1,D-shaft diameter
+motor_shaft_len,9,mm,motor,1,Output shaft length
+motor_face_hole_cc,10.6,mm,motor,0,Pololu bracket face hole spacing (M2)
+motor_clamp_wall,2.6,mm,motor,0,Motor cradle/clamp wall thickness
+#
+# --- Chassis tub ---
+tub_wall,2.4,mm,chassis,0,Tub wall (6 perimeters @0.4); load zones thicker via bosses
+tub_width,118,mm,chassis,0,Tub outer width (sits 2mm inside inner track faces)
+tub_len,150,mm,chassis,0,Tub fore-aft length
+tub_height,50,mm,chassis,0,Tub internal height
+deck_wall,2.4,mm,chassis,0,Top deck plate thickness
+#
+# --- Battery bay (2S 2200 mAh) ---
+battery_l,106,mm,battery,0,Pack length (fore-aft)
+battery_w,35,mm,battery,0,Pack width
+battery_h,20,mm,battery,0,Pack height
+battery_clear,2,mm,battery,0,Clearance around pack in bay
+#
+# --- Pi-M (Zero 2 W) mount ---
+pi_l,65,mm,pi,1,Pi Zero 2 W board length
+pi_w,30,mm,pi,1,Pi Zero 2 W board width
+pi_hole_dx,58,mm,pi,1,Mount hole spacing long axis
+pi_hole_dy,23,mm,pi,1,Mount hole spacing short axis
+pi_standoff_h,5,mm,pi,0,Standoff height under Pi
+pi_shelf_z,26,mm,pi,0,Pi shelf height above tub floor (above battery)
+#
+# --- Fasteners ---
+m2_tap_dia,1.7,mm,fastener,0,M2 thread-form pilot
+m25_tap_dia,2.1,mm,fastener,0,M2.5 thread-form pilot
+m3_heatset_dia,4.0,mm,fastener,0,M3 heat-set insert bore
+boss_od,7.0,mm,fastener,0,Default screw-boss outer dia
+#
+# --- Sensor mounts ---
+tof_window_w,12,mm,sensor,0,VL53L1X front window width
+tof_window_h,8,mm,sensor,0,VL53L1X front window height
+tof_hole_cc,18,mm,sensor,0,Pololu 3415 mount hole spacing
+imu_hole_cc,15,mm,sensor,0,GY-521 mount hole spacing (square)
+#
+# --- Torso interface (top deck) ---
+torso_iface_dx,70,mm,iface,0,Torso bolt rectangle X (M3 heat-set)
+torso_iface_dy,70,mm,iface,0,Torso bolt rectangle Y (M3 heat-set; inboard of 90 mm torso depth)
+cable_slot_w,30,mm,iface,0,Central cable pass-through width
+cable_slot_l,20,mm,iface,0,Central cable pass-through length
+#
+# --- Keyed split joint (used higher in the stack) ---
+key_w,8,mm,split,0,Alignment key width
+key_h,4,mm,split,0,Alignment key height
+key_clear,0.2,mm,split,0,Key slip-fit clearance
+#
+# --- SCS0009 serial servo (shared: shoulders, head yaw/nod, utility tilt) ---
+scs_body_l,23.0,mm,servo,0,SCS0009 body length
+scs_body_w,12.4,mm,servo,0,SCS0009 body width
+scs_body_h,26.6,mm,servo,0,SCS0009 body height incl output boss
+scs_shaft_dia,4.0,mm,servo,0,Output spline boss diameter
+scs_horn_dia,20.0,mm,servo,0,Horn swept-clearance diameter
+scs_screw_cc,18.0,mm,servo,0,Mounting screw spacing (provisional)
+#
+# --- Torso ---
+torso_h,165,mm,torso,0,Torso height (deck top to torso top)
+torso_w_base,110,mm,torso,0,Torso width at base
+torso_w_top,96,mm,torso,0,Torso width at shoulders
+torso_depth,90,mm,torso,0,Torso fore-aft depth
+torso_wall,2.4,mm,torso,0,Shell wall thickness
+torso_lean,6,mm,torso,0,Front face forward lean over full height
+shoulder_z_off,130,mm,torso,0,Shoulder pitch axis above deck top
+piV_standoff_h,5,mm,torso,0,Pi-V standoff height
+#
+# --- Neck ---
+neck_h,45,mm,neck,0,Neck riser height (carries head-yaw servo)
+neck_dia,34,mm,neck,0,Neck riser diameter
+#
+# --- Head (envelope for stack/preview; detailed in head step) ---
+head_h,90,mm,head,0,Head height (wide film-accurate proportions)
+head_w,150,mm,head,0,Head width (binocular, eyes outboard)
+head_depth,88,mm,head,0,Head fore-aft depth
+head_wall,2.4,mm,head,0,Head shell wall
+antenna_h,25,mm,head,0,Antenna length above head
+#
+# --- Arms (single-DOF shoulder pitch; grip-ready for V2 tendon claw) ---
+arm_mass_budget,50,g,arm,1,Per-arm mass ceiling
+arm_lever_max,90,mm,arm,1,Per-arm effective lever ceiling (shoulder torque limit)
+upper_arm_len,48,mm,arm,0,Upper arm length
+forearm_len,42,mm,arm,0,Forearm length
+elbow_angle,35,deg,arm,0,Fixed forward elbow bend
+arm_section,16,mm,arm,0,Limb cross-section (square)
+arm_wall,2.0,mm,arm,0,Limb wall thickness (hollow)
+claw_len,22,mm,arm,0,Static 3-finger claw length
+claw_finger,4,mm,arm,0,Finger thickness
+tendon_channel_dia,4,mm,arm,0,Reserved V2 tendon path
+horn_hub_dia,18,mm,arm,0,SCS0009 horn mating hub dia
+#
+# --- Head face detail ---
+eye_dia,44,mm,head,0,Eye lens barrel outer dia
+eye_spacing,92,mm,head,0,Eye centre-to-centre (outboard on wide head)
+cam_aperture,18,mm,head,0,Central camera aperture dia
+mouth_w,62,mm,head,0,Mouth LED bar width
+mouth_h,14,mm,head,0,Mouth LED bar height
+nod_axis_z,40,mm,head,0,Nod pivot height above head base
+antenna_dia,3,mm,head,0,Antenna rod dia
+#
+# --- Brow articulation (6th SCS0009 + gear bridge) ---
+brow_blade_len,58,mm,brow,0,Blade length (outboard pivot to inner tip; clears centre)
+brow_blade_w,15,mm,brow,0,Blade width
+brow_blade_t,3,mm,brow,0,Blade thickness (lightweight)
+brow_pivot_offset,64,mm,brow,0,Pivot X-offset from head centre (over outer eye)
+brow_pivot_z,72,mm,brow,0,Pivot height above head base
+brow_roll_inq,20,deg,brow,0,Inquisitive inner-up roll
+brow_roll_frus,12,deg,brow,0,Frustrated inner-down roll
+brow_gear_pitch_dia,16,mm,brow,0,Blade/pinion gear pitch dia
+brow_idler_pitch_dia,12,mm,brow,0,Mirroring idler pitch dia
+#
+# --- Rear trailing caster (passive fore-aft stabilizer) ---
+caster_wheel_dia,34,mm,caster,0,Trailing caster wheel diameter
+caster_trail,90,mm,caster,0,Trail behind the rear track edge
+caster_arm_len,80,mm,caster,0,Trailing arm length
+caster_pivot_z,40,mm,caster,0,Arm pivot height on chassis rear
+#
+# --- Waist interface reserve (lean-ready for V2 powered waist) ---
+waist_pivot_dia,8,mm,waist,0,Reserved waist pivot axle dia (V2)
+waist_pivot_z,70,mm,waist,0,Reserved waist pivot height (deck top, V2)

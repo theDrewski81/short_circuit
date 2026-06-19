@@ -159,3 +159,44 @@ BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining ga
 - `CLAUDE.md`, this phase file, `BOM.md` (locked dimensions + pin maps).
 - The two reference images Andrew shared (boombox-body photo; Lego-head photo) for head/torso proportions.
 - **To produce before ordering:** a formal power wiring/harness diagram (the architecture is documented in `BOM.md`; a schematic should accompany it).
+
+---
+
+## Session 02 — Status & Handoff (2026-06-18)
+
+### Gate status: NEAR-COMPLETE
+
+Body baselined in FreeCAD as **parametric Python source** (Task 7). Geometry validated (20/20 checks); STL/FCStd generation is the one remaining mechanical action and runs on Andrew's FreeCAD 1.1.1 (`freecadcmd build_*.py`) — the sandbox has no FreeCAD. Once STLs are generated and eyeballed in the GUI, the Phase 00 gate is fully met.
+
+### What was built
+
+Parametric build scripts in `mechanical/freecad/`, all driven by `params.csv` (single source of truth), with a FreeCAD-free `validate.py`, `mass_budget.py`, and matplotlib massing previews in `mechanical/preview/`:
+
+- **Chassis/tread base** — tub 118×150×50, footprint 160×178, base height 68, drive at rear, 2 road wheels/side, prints in one piece. Belly 18 mm; axle at 23.5 mm (track band lifts the N20s clear). Rear trailing-caster pivot bosses + lean-ready waist reserve on the deck.
+- **Torso** — tapered two-part keyed shell 110→96 ×90 ×165; Pi-V on the back wall; shoulders pitch on X; utility box on left; neck riser carries the head-yaw servo.
+- **Arms** — single-DOF shoulder-pitch, fixed elbow, static 3-finger claw, ~24 g each; grip-ready (tendon channel/anchor/shoulder-axis path) for the V2 tendon gripper.
+- **Head** — wide film-accurate 150×90×88 two-part shell; brass-ring eye domes + central camera in the bridge; mouth LED bar with speaker behind; **articulated twin brow blades** (offset outboard pivots, one bus servo → pinion to left gear direct, to right gear via an idler = mirrored roll, 3 poses); nod gimbal; antenna.
+
+### Decision log (Session 02)
+
+- **Stance:** parallel tracks confirmed (the splay in references reads as camera perspective).
+- **Servos 4 → 6 SCS0009:** added head **nod** (#5) and articulated **brow roll** (#6), each mass-budget approved. Same bus (new IDs, no GPIO); 6 V rail ~3 A within the 5 A buck. +$22.
+- **Stability:** rear **trailing swiveling sprung caster** (passive) added — rearward/incline tip margin 33°→54°, +33 g, +$5. Covers the case that matters at 0.13 m/s.
+- **Powered waist — rejected for V1:** needs STS3215/lead-screw (SCS0009 can't hold the 531 g upper body: 5.4 vs 2.3 kg·cm), +116 g (worst-case 1662 g **over** the 1.6 kg ceiling), 6 V rail to ~4.5 A near the buck limit, +$26, for only ~7° decline gain not needed indoors. Value is expression, not stability. Interface left **lean-ready** (reserved pivot bosses + actuator pad) so it's a bolt-on V2.
+- **Budgets:** mass ~**1321 g** (83% of ceiling, worst-case 1556 g under); height ~**395 mm** (in band); new-spend ~**$325–365**.
+
+### Deferred levers (logged in BOM)
+
+V2 tendon gripper (single-actuator underactuated claw); Dynamixel XL330 servo-standard alt; V2 powered waist; elbow servos; STS3215 arm-torque upgrade; motor-rail boost; Path B motors.
+
+### Open threads for next session
+
+- Run `freecadcmd build_*.py` to produce STL/FCStd; inspect in FreeCAD for interferences (the in-sandbox checks are dimensional/mass, not solid booleans).
+- Generate brow **gear teeth** (FreeCAD Gear workbench, module in `params.csv`) — currently modelled as gear blanks.
+- Detail the press-fit eye-dome/camera inserts; drivetrain parts (sprocket/idler/road-wheel/TPU track) and the caster wheel/arm.
+- Power wiring/harness schematic (carried over from Session 01).
+- **Commit:** the `mechanical/` tree, `BOM.md`, `.gitignore`, and this phase update are written and ready — the commit failed only because the `.git` index/locks on the Nextcloud mount are permission-locked from the sandbox.
+
+### Next session — initiating prompt (Phase 00 close / Phase 01 start)
+
+> Johnny 5 — Phase 00 close. Read CLAUDE.md, `phases/PHASE_00_HARDWARE.md` (Session 02 handoff), and `BOM.md`. The body is baselined as parametric FreeCAD source in `mechanical/`. First confirm the git commit landed, then run `freecadcmd build_*.py` to export STLs and review them in FreeCAD for interferences. Remaining mechanical detail: brow gear teeth, eye/camera inserts, drivetrain + caster parts, and the power harness schematic. Then close the Phase 00 gate and open Phase 01 (infrastructure). Session config: Opus, Extended, High.

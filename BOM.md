@@ -17,12 +17,13 @@ Costs are estimates in USD, parts only, excluding shipping and items Andrew alre
 | Treads | Printed TPU tank treads, Shore 90A | — | (filament) | Track width 28 mm. 90A chosen for flex-fatigue life + grip (direct-drive Sprite Pro removes the printability constraint). Revisit toward 95A if Task 7 adopts segmented rigid-link treads. |
 | Sprockets / idlers | Printed PLA/PETG | — | (filament) | Drive sprocket pitch dia 40 mm. |
 | Bearings | 623ZZ (3×10×4) for idlers/road wheels | 8 | $5 | Generic. |
+| Rear trailing caster | Swiveling sprung caster, ~34 mm wheel, ~90 mm trail | 1 | $5 | Passive fore-aft stabilizer; raises rearward/incline tip margin 33°→54°. Printed arm + wheel, preload spring, pivot pins. Swivels to avoid scrub on tank turns. Added Session 02. |
 
 ## 2. Arms & Head Servos
 
 | Part | Spec | Qty | Est. cost | Supplier / notes |
 |---|---|---|---|---|
-| Serial bus servo | Feetech SCS0009 (6V, 2.3 kg·cm stall, 0.75 kg·cm rated, 1 Mbps) | 4 | $44 | L shoulder, R shoulder, head rotation, shoulder utility-box tilt. Chain on one bus. |
+| Serial bus servo | Feetech SCS0009 (6V, 2.3 kg·cm stall, 0.75 kg·cm rated, 1 Mbps) | 6 | $66 | L shoulder, R shoulder, head yaw, head nod, shoulder utility-box tilt, brow-blade roll. Chain on one bus. (5th = head nod, 6th = articulated brow; both added Session 02, mass-budget approved.) |
 | Bus adapter | Waveshare Bus Servo Adapter (A) — SC/ST half-duplex UART | 1 | $8 | WS-25514. Pi-M UART ↔ bus; reads angle/load/voltage. Fed from 6V servo rail. |
 
 Arm design budget: ≤50 g and ≤90 mm effective lever per arm (keeps shoulder load within rated torque). Utility box mounts to torso shoulder structure (own servo, does not load arm servos). Bus reserves IDs for future elbow servos. STS3215 (19.5 kg·cm, native 7.4 V) documented as upgrade lever if arms lack authority — costs ~+140 g against the weight ceiling.
@@ -85,7 +86,7 @@ Servos **must** be regulated (6 V) — 8.4 V full-charge exceeds the SCS0009 7.4
 | Filament — TPU | Treads, Shore 90A | — | ~$25 | Polymaker PolyFlex TPU90, NinjaTek Cheetah (95A) or Armadillo as firmer fallback. Dry before printing; enable pressure advance. |
 | Fasteners | M2/M3 screws, heat-set inserts | — | $15 | |
 
-**Estimated new-spend total: ~$300–340** (excl. owned items, incl. balance charger).
+**Estimated new-spend total: ~$325–365** (excl. owned items, incl. balance charger; includes 5th + 6th servos and rear trailing caster).
 
 ---
 
@@ -133,9 +134,9 @@ Inter-Pi messaging runs over the WiFi LAN (message queue, protocol finalized Pha
 | Navigation light (1 W) | 5 V | — | 0.3 A |
 | MAX98357A amp | 5 V | 0.1 A | 1.0 A |
 | Sensors (ToF/IMU/ADC) | 3.3 V / 5 V | 0.03 A | 0.05 A |
-| 4× SCS0009 servo | 6 V | 0.4 A | ~2.0 A |
+| 6× SCS0009 servo | 6 V | 0.6 A | ~3.0 A |
 
-Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck ≥3 A (peak ~2 A); motor rail peak ~2 A. Battery-side average ~1.2 A.
+Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck (peak ~3.0 A with 6 servos, within the 5 A buck already specified); motor rail peak ~2 A. Battery-side average ~1.2 A.
 
 ---
 
@@ -144,7 +145,7 @@ Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck ≥3 A (peak ~2 
 **Locked this session**
 
 - Path A drive: N20-class 12V/150:1 encoder motors + TB6612FNG, battery-direct on 2S. Accepts ~0.13 m/s and ~1× continuous torque margin in exchange for compact, light, cheap, clean-logic drive.
-- 4× SCS0009 on one bus (added utility-box servo). Arms held light to stay in rated torque.
+- 6× SCS0009 on one bus (utility-box tilt + head nod + brow-blade roll). Head is yaw+nod with articulated twin brow blades (offset outboard pivots, one servo driving a pinion → left gear direct, → right gear via an idler so the blades mirror; roll-only, 3 poses). All extra servos share the half-duplex bus (new IDs, no extra GPIO); the 6 V rail at ~3 A stays within the 5 A buck. Arms held light to stay in rated torque.
 - All audio consolidated on Pi-V (frees Pi-M I²S pins).
 - Custom LED layout: mouth (Pi-V), eyes + battery gauge + status (Pi-M).
 - Three-rail power; fuse + STBY interlock + ADS1115 voltage monitoring added for safety.
@@ -154,6 +155,9 @@ Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck ≥3 A (peak ~2 
 - Motor-rail boost to ~9–10 V if bench testing shows the drive underpowered.
 - STS3215 servo upgrade if arms lack authority.
 - 25D-class motors + higher-current driver if Path A proves inadequate (Path B).
+- **V2 grasping (tendon gripper):** single-actuator underactuated 3-finger claw with synchronous tendon routing (one winch servo + return spring, à la Yale OpenHand "Model M"). V1 arms built grip-ready — tendon channel up the forearm, claw anchor boss, cable path crossing the shoulder pitch axis, plus a reserved bus ID and a torso winch-servo mount pad — so V2 is a bolt-on, not a redesign. Investigated multiplexing the joints onto one multi-tendon actuator (SIMO clutch banks / SISO time-division); rejected for V1 because independent simultaneous joint motion is needed for Phase 04 and the only one-motor-many-tendon hardware is research-grade. Decided Session 02.
+- **Smart-servo standard alt:** Dynamixel XL330-M288 (~18 g, ~5.3 kg·cm, current-based compliant control) if the servo bus is ever re-worked. Different protocol/bus from the Feetech adapter, so not mixable — a clean-sheet swap, not an incremental add.
+- **V2 powered waist (body lean):** the signature J5 fore-aft lean at the base-to-torso pivot. Rejected for V1 — needs an STS3215-class servo or a self-locking lead-screw (SCS0009 can't hold the 531 g upper body: ~5.4 kg·cm demanded vs 2.3 kg·cm stall), adds ~116 g pushing worst-case weight to ~1662 g (over the 1.6 kg ceiling), puts the 6 V rail at ~4.5 A near the buck limit, and costs ~+$26, all for only ~7° of decline margin not needed indoors. Its value is expression, not stability. V1 base-to-torso interface built **lean-ready** (reserved pivot-axle bosses + actuator mount pad) so it's a bolt-on, not a redesign. Decided Session 02; rear trailing caster covers the incline/rearward case passively instead.
 
 **Open items**
 
