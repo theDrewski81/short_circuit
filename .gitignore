@@ -1,2 +1,25 @@
 __pycache__/
 *.pyc
+*.pyo
+
+# Environments
+.env
+.venv/
+venv/
+johnny5-env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large/binary model artifacts (document separately, do not commit)
+*.onnx
+policies/*.onnx
+simulation/**/*.mjb
+
+# Logs
+*.log
+
+# Test artifacts
+.pytest_cache/
+*.egg-info/
