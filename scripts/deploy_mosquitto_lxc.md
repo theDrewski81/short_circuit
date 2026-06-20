@@ -38,9 +38,12 @@ pct exec <vmid> -- bash -c "mosquitto_passwd -c /etc/mosquitto/passwd johnny5"
 listener 1883
 allow_anonymous false
 password_file /etc/mosquitto/passwd
-persistence true
-persistence_location /var/lib/mosquitto/
 ```
+
+Do not repeat `persistence` / `persistence_location` here -- the default
+`/etc/mosquitto/mosquitto.conf` already sets both before it includes
+`conf.d/`, and Mosquitto rejects duplicate values for either key at
+startup.
 
 ```bash
 pct exec <vmid> -- systemctl restart mosquitto
