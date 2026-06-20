@@ -164,9 +164,9 @@ BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining ga
 
 ## Session 02 — Status & Handoff (2026-06-18)
 
-### Gate status: NEAR-COMPLETE
+### Gate status: MET
 
-Body baselined in FreeCAD as **parametric Python source** (Task 7). Geometry validated (20/20 checks); STL/FCStd generation is the one remaining mechanical action and runs on Andrew's FreeCAD 1.1.1 (`freecadcmd build_*.py`) — the sandbox has no FreeCAD. Once STLs are generated and eyeballed in the GUI, the Phase 00 gate is fully met.
+Both gate criteria satisfied. BOM approved (updated this session to 6× SCS0009 + rear trailing caster). Body baselined in FreeCAD 1.1.1 — all four build scripts run in the GUI Python console, all 13 STLs and the FCStd files generated, and the STLs confirmed to open and slice cleanly. The remaining mechanical detail (brow gear teeth, drivetrain/caster parts, eye/camera press-fit inserts, power-harness schematic) is refinement that carries forward into the relevant downstream phases and Phase 06 by design — it is not part of the baseline gate.
 
 ### What was built
 
@@ -197,6 +197,6 @@ V2 tendon gripper (single-actuator underactuated claw); Dynamixel XL330 servo-st
 - Power wiring/harness schematic (carried over from Session 01).
 - **Commit:** the `mechanical/` tree, `BOM.md`, `.gitignore`, and this phase update are written and ready — the commit failed only because the `.git` index/locks on the Nextcloud mount are permission-locked from the sandbox.
 
-### Next session — initiating prompt (Phase 00 close / Phase 01 start)
+### Next session — initiating prompt (Phase 01)
 
-> Johnny 5 — Phase 00 close. Read CLAUDE.md, `phases/PHASE_00_HARDWARE.md` (Session 02 handoff), and `BOM.md`. The body is baselined as parametric FreeCAD source in `mechanical/`. First confirm the git commit landed, then run `freecadcmd build_*.py` to export STLs and review them in FreeCAD for interferences. Remaining mechanical detail: brow gear teeth, eye/camera inserts, drivetrain + caster parts, and the power harness schematic. Then close the Phase 00 gate and open Phase 01 (infrastructure). Session config: Opus, Extended, High.
+> Johnny 5 — Phase 01, Session 01. Read CLAUDE.md, then `phases/PHASE_01_INFRASTRUCTURE.md`, and note the Phase 00 close state in `phases/PHASE_00_HARDWARE.md` (Session 02 handoff). **Phase 00 is closed:** body baselined in FreeCAD (13 STLs slice cleanly), BOM approved at 6× SCS0009 + trailing caster, `mechanical/` committed on `phase/00-hardware` (merge → `main`, tag `v0.0`). Begin Phase 01 — stand up infrastructure: image both Pi Zero 2 W (Pi OS Lite 64-bit), finalize the inter-Pi message-queue protocol and the Pi-V→Pi-M intent contract, establish connectivity to the home-lab LiteLLM proxy, and implement the offline fallback (Pi-M conservative mode) — the **offline fallback is the Phase 01 gate**. Carry forward the power wiring/harness schematic owed from Phase 00 before any ordering or build. Session config: Sonnet, Standard, Medium.

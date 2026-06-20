@@ -169,4 +169,4 @@ Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck (peak ~3.0 A wit
 
 ## Gate Condition Status
 
-**Partial — BOM met, body outstanding.** BOM approved by Andrew 2026-06-17. FreeCAD body baseline (Task 7) is the remaining gate item. Full gate is met when the body is baselined in FreeCAD 1.1.1. Ordering and printing hold until then.
+**Met (2026-06-18).** BOM approved (updated Session 02 to 6× SCS0009 + rear trailing caster). Body baselined in FreeCAD 1.1.1 — all subassembly build scripts run and the full STL set generated and slice-verified. Both Phase 00 gate criteria satisfied.
