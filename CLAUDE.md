@@ -103,7 +103,7 @@ Hardware not yet selected (Phase 00 scope): DC motors, H-bridge driver, tread sy
 
 **Merging:** Squash merge to `main` via PR. No merge commits on `main`. Linear history enforced.
 
-**Tagging:** Tag `main` at each phase gate: `v0.0` through `v5.0`. Iteration tags within a phase use minor version: `v2.1`, `v2.2`, etc.
+**Tagging:** Tag `main` at each phase gate: `v0.0` through `v6.0`. Iteration tags within a phase use minor version: `v2.1`, `v2.2`, etc.
 
 ---
 
@@ -117,8 +117,9 @@ Hardware not yet selected (Phase 00 scope): DC motors, H-bridge driver, tread sy
 | 03 | Manipulation | Arms and head respond to commanded positions with servo position/load feedback |
 | 04 | Cognition | Robot responds to voice input with coordinated motion and speech |
 | 05 | Integration & Hardening | Full stack stable; offline resilience tested; performance profiled |
+| 06 | Form & Finish | Whole-robot form review signed off; screen-accurate shells finalized, re-exported, and reprinted |
 
-Each phase has a dedicated coordinator document in `/phases/`.
+Each phase has a dedicated coordinator document in `/phases/`. Functional geometry refinement is decentralized across Phases 01–05 (each subassembly firms up as its hardware lands); Phase 06 is the consolidating cosmetic pass and holistic whole-robot review, on the principle that detail follows fit.
 
 ---
 
@@ -150,6 +151,7 @@ Per-phase model and effort level recommendations. These are defaults -- escalate
 | 03 | Sonnet | Standard | Medium | Serial bus servo integration is well-documented via GrowBot reference. Tasks are specific and constrained. Same logic as Phase 01. |
 | 04 | Opus | Extended | Extra | Most architecturally complex phase. Agent loop concurrency, failure mode design, and system prompt engineering all benefit from thorough treatment. |
 | 05 | Sonnet | Extended | High | Integration debugging involves ambiguous failure modes; Extended Thinking adds genuine value there. Behavioral tuning and documentation do not warrant Extra. |
+| 06 | Sonnet | Standard | Medium | Cosmetic detailing is iterative CAD and visual judgment within frozen envelopes -- execution over deep reasoning. Escalate to High for the whole-robot cohesion review, where cross-subassembly judgment carries more weight. |
 
 Max effort is not recommended for any phase in this project. These are engineering problems with established techniques, not novel research. Extra is the ceiling.
 
