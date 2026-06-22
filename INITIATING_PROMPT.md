@@ -4,21 +4,39 @@ Read `CLAUDE.md`. Then read the active phase coordinator in `/phases/`. Follow a
 
 ## Current Phase
 
-Phase 01 — Infrastructure & Repository (`phases/PHASE_01_INFRASTRUCTURE.md`)
+Phase 02 — Locomotion (`phases/PHASE_02_LOCOMOTION.md`). Phase 01 closed 2026-06-22; see below.
 
-## Status
+Per CLAUDE.md's session config table, Phase 02 recommends **Opus, Extended Thinking, Extra effort** -- highest-stakes phase in the project, simulation/reward-shaping mistakes compound through training and surface late. Start the next session with that configuration rather than carrying over Sonnet/Medium from Phase 01.
 
-Repo scaffolding, PROTOCOL.md, offline fallback state machine, motion loop skeleton, and deployment scripts in progress. See the most recent decision log (below or in session handoff) for specifics completed and open items.
+## Phase 01 Closure Summary (gate met 2026-06-22)
 
-## Open Questions Blocking Full Gate
+All three gate clauses satisfied:
 
-- LiteLLM API key and target model string -- unconfirmed. Endpoint URL is now known. `llm_client.py` still stubbed pending key mint and vision-model selection.
-- SSH key auth for the Pis -- deferred (see decision log below). Both Pis currently use password auth.
-- `.env` secrets management (local per-Pi vs. Agentic OS secrets manager) -- unresolved (no preference given).
+1. **Both Pis communicate bidirectionally** -- verified via real MQTT pub/sub round-trip through the Mosquitto broker, `johnny5-motion` -> `sn-mosquitto` -> `johnny5-vision`, using each Pi's actual `.env` credentials (not just broker-to-host as in earlier testing).
+2. **Pi-V successfully calls LiteLLM and receives a response** -- `scripts/test_llm_client.py` on `johnny5-vision`, 8.94s round trip, real response from `vision-batch` (llava:7b).
+3. **Offline fallback engages/clears correctly** -- verified as unit-tested pure logic (8/8 passing in `tests/test_offline_fallback.py`, covering all three state transitions plus the never-raises guarantee). **Caveat:** this has not been exercised live against the real LiteLLM endpoint going down, since `src/motion/main.py`'s MQTT/intent wiring is still a Phase 01 stub by design ("no motion control or cognition code is written in this phase"). The phase doc's own design intent was for the state machine to be independently testable without hardware/network -- it was built that way and passes -- so this is treated as satisfying the gate. A live engage/clear test against the real endpoint is deferred to Phase 02, once `main.py` is no longer stubbed and there's an actual loop to observe reacting.
+
+Tag `v1.0` on `main` per CLAUDE.md's phase-gate tagging convention -- not yet done, do this before/when starting Phase 02 work.
+
+Carried-forward non-blockers (not gate conditions, just open items):
+
+## Open Questions (non-blocking, carried forward)
+
+- SSH key auth for the Pis -- deferred. Both Pis currently use password auth via Devolutions RDM. Revisit: clear RDM's cached host key for the IP/entry first (caused a false "public key doesn't match" error last attempt) before retrying key-based auth.
+- `.env` secrets management (local per-Pi vs. Agentic OS secrets manager) -- unresolved, no preference given yet.
 
 ## Decision Log
 
 (Most recent session first. Append new entries above old ones.)
+
+### 2026-06-22 -- Phase 01 gate closed
+
+- LiteLLM virtual key minted on the AOS proxy (`sk-ft-osuRqKu2Eldav3HgAVw`, alias `johnny5-vision`, unrestricted). Required standing up DB-backed key management on the proxy (new Postgres DB on sn-pg-aos) -- previously config-file-only with no key store. Full writeup in `litellm_key_mgmt_vision_summary.md` (AOS-side session).
+- Vision model: `vision-batch` alias -> `llava:7b` on ms3 (192.168.1.225), a CPU-only Ollama node chosen so vision inference doesn't contend with desktop GPU work. Expect 15-40s/image, longer on cold load -- `.env.example` `LITELLM_TIMEOUT` raised from the 8.0s placeholder to 60.0s accordingly (the old default would have aborted every call before the model responded).
+- `.env.example` fully filled in: LiteLLM endpoint/key/model, MQTT broker host/user (password left as placeholder, correctly -- it's the one genuinely secret value).
+- `scripts/test_llm_client.py` run on `johnny5-vision`: passed, 8.94s round trip, real response from `vision-batch`.
+- MQTT round-trip verified Pi-to-Pi (not just ms1<->sn-mosquitto as before): `mosquitto_pub` from `johnny5-motion` received by `mosquitto_sub` on `johnny5-vision`, both using `.env` credentials. `mosquitto-clients` installed on both Pis for this.
+- **Phase 01 gate condition met in full.** Ready to move to Phase 02 (Locomotion) when Andrew is ready -- per CLAUDE.md session config table, Phase 02 recommends Opus, Extended Thinking, Extra effort (highest stakes phase, simulation/reward-shaping mistakes compound and surface late).
 
 ### 2026-06-20 (cont'd -- Pi OS setup, networking)
 
