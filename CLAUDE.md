@@ -105,6 +105,8 @@ Hardware not yet selected (Phase 00 scope): DC motors, H-bridge driver, tread sy
 
 **Tagging:** Tag `main` at each phase gate: `v0.0` through `v6.0`. Iteration tags within a phase use minor version: `v2.1`, `v2.2`, etc.
 
+**Agent boundaries — history is Andrew's.** Claude may create and switch branches as part of delivering work (creating a branch is on par with creating files). Claude does not commit, push, merge, tag, or stash. Claude delivers files to the working tree on an appropriately named work branch and provides the exact commit/push commands; Andrew reviews, commits, and pushes. (The repo is Nextcloud-synced and git can be unreliable from the agent sandbox; if a branch operation fails there, Claude reports it and hands off rather than forcing it.)
+
 ---
 
 ## Phase Structure

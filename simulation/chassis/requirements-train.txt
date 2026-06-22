@@ -1,0 +1,18 @@
+# Training dependencies for the Johnny 5 locomotion policy.
+# Native Windows, CPU-only: on Windows, `pip install torch` from PyPI is the
+# CPU build (no CUDA) by default, which is what we want here.
+#
+#   pip install -r requirements-train.txt
+#
+# If pip ever resolves an incompatible SB3/Gymnasium pair, pin the fallback set
+# noted in TRAINING_WINDOWS.md (stable-baselines3==2.4.0, gymnasium==1.0.0).
+
+mujoco>=3.1
+gymnasium>=1.0
+stable-baselines3>=2.4
+torch
+onnx>=1.16
+onnxruntime>=1.18
+pyyaml
+tensorboard
+numpy<3

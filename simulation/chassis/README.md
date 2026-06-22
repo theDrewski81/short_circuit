@@ -89,8 +89,8 @@ for fast onnxruntime inference on Pi-M. Hyperparameters and reward weights live 
 `config.yaml`.
 
 ```bash
-# full run on the home-lab GPU (RTX 3080)
-python3 simulation/chassis/train.py --config config.yaml
+# full run on the RTX 3080 workstation node (see "Where to run" below)
+python3 simulation/chassis/train.py --config config.yaml --n-envs <physical_cores> --device cpu
 # -> runs/locomotion_v1/{model.zip, best/, vecnormalize.pkl, tb/}
 
 # export the trained policy for the Pi (raw obs -> action, obs-norm baked in)
@@ -104,11 +104,26 @@ observation/return normalisation, and saves the normalisation stats so they can 
 folded into the ONNX graph at export. Watch progress with
 `tensorboard --logdir runs/`.
 
+### Where to run on the home lab
+
+Run the single training job on the **RTX 3080 workstation node** (128 GB RAM),
+not the Proxmox cluster. Rationale: throughput here is bound by MuJoCo env
+stepping on the CPU, and the policy is a tiny 2x64 MLP whose gradient update is
+trivial — a GPU adds little and the CPU<->GPU round-trip can even slow a net this
+small. So use `--device cpu` with `--n-envs` set to the box's physical core count
+(`SubprocVecEnv` parallelises the rollout across cores); the RTX 3080 is incidental
+here, chosen for its cores and RAM, not its CUDA. 3M steps lands in roughly tens of
+minutes at ~5k env-steps/s/core.
+
+Bare metal or a single VM/LXC with the cores pinned both work — no GPU passthrough
+needed. Reserve the Proxmox cluster for *parallel* hyperparameter sweeps (one run
+per VM/LXC via `--run-name`), which is the async-batch case, not a single faster run.
+
 ### Sandbox note — why training runs on the home lab, not here
 
 PyTorch/SB3 cannot be installed in the Cowork sandbox: the network proxy blocks
 the PyTorch CPU wheel index and stalls the large CUDA wheels. So the SB3 PPO run
-is a home-lab step. To still de-risk the pipeline before spending GPU time,
+is a home-lab step. To still de-risk the pipeline before spending home-lab time,
 `cem_smoke.py` is a torch-free check (numpy CEM + onnx/onnxruntime only):
 
 ```bash
