@@ -36,7 +36,8 @@ scripts/      Setup, deployment, and maintenance scripts
 
 ## Status
 
-Currently in **Phase 01 — Infrastructure & Repository**. See
-[`phases/PHASE_01_INFRASTRUCTURE.md`](./phases/PHASE_01_INFRASTRUCTURE.md) for
+Phase 01 — Infrastructure & Repository gate met 2026-06-22. Currently in
+**Phase 02 — Locomotion**. See
+[`phases/PHASE_02_LOCOMOTION.md`](./phases/PHASE_02_LOCOMOTION.md) for
 gate conditions and [`INITIATING_PROMPT.md`](./INITIATING_PROMPT.md) for the
 current session handoff state.
