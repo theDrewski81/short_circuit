@@ -81,3 +81,43 @@ python3 simulation/chassis/test_env.py
 Confirms physics stability (no NaN/inf, no spurious tip-overs under random
 actions) and that a scripted differential controller out-scores random control —
 i.e. the reward is trackable — before committing GPU time to training.
+
+## Training (Task 4)
+
+PPO via Stable-Baselines3, command-conditioned, small MLP (`net_arch: [64, 64]`)
+for fast onnxruntime inference on Pi-M. Hyperparameters and reward weights live in
+`config.yaml`.
+
+```bash
+# full run on the home-lab GPU (RTX 3080)
+python3 simulation/chassis/train.py --config config.yaml
+# -> runs/locomotion_v1/{model.zip, best/, vecnormalize.pkl, tb/}
+
+# export the trained policy for the Pi (raw obs -> action, obs-norm baked in)
+python3 simulation/chassis/export_onnx.py --run locomotion_v1
+# -> policies/locomotion_v1.onnx
+```
+
+`train.py` trains all four Phase 02 behaviours (forward / backward / turn-in-place /
+arc) plus stop from a single command-conditioned policy, uses `VecNormalize` for
+observation/return normalisation, and saves the normalisation stats so they can be
+folded into the ONNX graph at export. Watch progress with
+`tensorboard --logdir runs/`.
+
+### Sandbox note — why training runs on the home lab, not here
+
+PyTorch/SB3 cannot be installed in the Cowork sandbox: the network proxy blocks
+the PyTorch CPU wheel index and stalls the large CUDA wheels. So the SB3 PPO run
+is a home-lab step. To still de-risk the pipeline before spending GPU time,
+`cem_smoke.py` is a torch-free check (numpy CEM + onnx/onnxruntime only):
+
+```bash
+python3 simulation/chassis/cem_smoke.py
+```
+
+It trains a small MLP on the env with the cross-entropy method and confirms (a)
+the reward is learnable — trained policy beats random init by a wide margin — and
+(b) the ONNX deployment path (raw obs → [-1,1] action, normalisation baked in)
+reproduces the numpy forward on onnxruntime with sub-millisecond latency. Outputs
+land in `smoke_run/` (a representative 1×16 net, distinct from the production 2×64).
+These are throwaway validation artifacts, not the deployed policy.

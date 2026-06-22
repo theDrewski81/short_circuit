@@ -1,0 +1,4 @@
+# training outputs (regenerated on the home lab)
+runs/
+__pycache__/
+*.pyc
