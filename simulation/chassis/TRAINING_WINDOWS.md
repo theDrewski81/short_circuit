@@ -45,14 +45,18 @@ If you already have Python 3.11 or 3.12, skip to Step 2 (check with `py -0p`).
 
 ---
 
-## Step 2 — Create the virtual environment (outside the synced folder)
+## Step 2 — Create the virtual environment (OUTSIDE the Nextcloud folder)
 
-Put the venv **outside** the Nextcloud-synced project so its ~1–2 GB of
-packages never sync to the cloud.
+Put the venv **outside the Nextcloud-synced filesystem** so its ~1–2 GB of
+packages never sync to the cloud. The target path `C:\Johnny5\` is a plain local
+folder — it is **not** under `...\Nextcloud\...`, and that is intentional.
 
 ```powershell
 py -3.12 -m venv C:\Johnny5\train-venv
 ```
+
+> Do **not** create the venv inside the project folder (the one under
+> `...\Nextcloud\...`), or Nextcloud will try to sync the whole toolchain.
 
 Activate it:
 
@@ -104,13 +108,19 @@ python -c "import torch, stable_baselines3, gymnasium, mujoco, onnxruntime; prin
 
 ---
 
-## Step 5 — Move into the training folder
+## Step 5 — Move into the training folder (INSIDE the Nextcloud folder)
 
-Every command from here runs from the `simulation\chassis` directory:
+The training code lives **inside the Nextcloud-synced project** — this is the
+opposite of the venv in Step 2. The `simulation\chassis` directory is under
+`...\Nextcloud\...`, which is correct: the code stays synced and version-
+controlled there. Every command from here runs from that directory:
 
 ```powershell
 cd "C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5\simulation\chassis"
 ```
+
+> Quick orientation: **venv → `C:\Johnny5\` (outside Nextcloud)**; **code +
+> training runs → `...\Nextcloud\...\simulation\chassis` (inside Nextcloud)**.
 
 ---
 
