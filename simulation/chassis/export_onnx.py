@@ -14,13 +14,13 @@ from __future__ import annotations
 
 import argparse
 import os
+import pickle
 
 import numpy as np
 import torch
 import torch.nn as nn
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import VecNormalize
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.normpath(os.path.join(_HERE, "..", ".."))
@@ -48,34 +48,59 @@ class DeployPolicy(nn.Module):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", default="locomotion_v1", help="run/model name under runs/")
+    ap.add_argument("--best", action="store_true",
+                    help="export best/best_model.zip (best by eval reward) instead of the final model.zip")
     ap.add_argument("--out", default=None, help="output .onnx path")
     args = ap.parse_args()
 
     run_dir = os.path.join(_HERE, "runs", args.run)
-    model_path = os.path.join(run_dir, "model.zip")
+    model_path = os.path.join(run_dir, "best", "best_model.zip") if args.best \
+        else os.path.join(run_dir, "model.zip")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(
+            f"model not found: {model_path}\n"
+            f"(check the run name, and use --best only if EvalCallback saved a best model)"
+        )
     vecnorm_path = os.path.join(run_dir, "vecnormalize.pkl")
     out_path = args.out or os.path.join(_REPO, "policies", f"{args.run}.onnx")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     model = PPO.load(model_path, device="cpu")
-    vec = VecNormalize.load(vecnorm_path, venv=None) if os.path.exists(vecnorm_path) else None
     obs_dim = model.observation_space.shape[0]
-    if vec is not None and vec.norm_obs:
-        mean, var = vec.obs_rms.mean, vec.obs_rms.var
+
+    # Read the saved VecNormalize stats directly. VecNormalize.load() needs a
+    # live venv (it calls venv.num_envs), which we don't have at export time.
+    # VecNormalize strips the venv in __getstate__, so a plain pickle load gives
+    # us obs_rms plus the clip/epsilon settings without constructing an env.
+    mean, var = np.zeros(obs_dim), np.ones(obs_dim)
+    clip_obs, eps = 10.0, 1e-8
+    if os.path.exists(vecnorm_path):
+        with open(vecnorm_path, "rb") as f:
+            vec = pickle.load(f)
+        if getattr(vec, "norm_obs", False):
+            mean, var = vec.obs_rms.mean, vec.obs_rms.var
+            clip_obs, eps = float(vec.clip_obs), float(vec.epsilon)
     else:
-        mean, var = np.zeros(obs_dim), np.ones(obs_dim)
+        print(f"warning: {vecnorm_path} not found; exporting with identity normalisation")
 
     policy = model.policy.eval()
-    wrapper = DeployPolicy(policy, mean, var).eval()
+    wrapper = DeployPolicy(policy, mean, var, clip_obs=clip_obs, eps=eps).eval()
 
     dummy = torch.zeros(1, obs_dim, dtype=torch.float32)
-    torch.onnx.export(
-        wrapper, dummy, out_path,
+    export_kwargs = dict(
         input_names=["observation"], output_names=["action"],
         dynamic_axes={"observation": {0: "batch"}, "action": {0: "batch"}},
         opset_version=17,
     )
-    print(f"exported -> {out_path}")
+    # Force the stable TorchScript exporter. Newer PyTorch defaults to the dynamo
+    # exporter, which requires the extra `onnxscript` package; dynamo=False avoids
+    # that dependency entirely. The TypeError branch covers older torch that has
+    # no `dynamo` kwarg.
+    try:
+        torch.onnx.export(wrapper, dummy, out_path, dynamo=False, **export_kwargs)
+    except TypeError:
+        torch.onnx.export(wrapper, dummy, out_path, **export_kwargs)
+    print(f"exported -> {out_path}  (source: {os.path.basename(model_path)})")
 
     # verify: onnxruntime output matches the torch wrapper on random raw obs
     import onnxruntime as ort
