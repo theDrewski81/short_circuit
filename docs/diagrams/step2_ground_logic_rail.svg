@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1000" height="660" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="500" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#1f2328">Johnny 5 Drive Bringup &#8212; Step 2: Ground + 3.3 V Logic Rail</text>
+  <text x="500" y="62" text-anchor="middle" font-size="13.5" fill="#57606a">Wire with the Pi powered OFF and the bench-supply output OFF. VM stays disconnected (Step 5).</text>
+
+  <!-- ============ Raspberry Pi ============ -->
+  <rect x="40" y="150" width="180" height="250" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="130" y="180" text-anchor="middle" font-size="15" font-weight="700" fill="#1a7f37">Raspberry Pi (Pi-M)</text>
+  <text x="130" y="200" text-anchor="middle" font-size="11" fill="#57606a">power OFF while wiring</text>
+
+  <!-- Pi pins on right edge -->
+  <circle cx="220" cy="240" r="6" fill="#d1242f" stroke="#1f2328" stroke-width="1"/>
+  <text x="208" y="232" text-anchor="end" font-size="12" fill="#1f2328">3.3 V (pin 1)</text>
+  <circle cx="220" cy="300" r="6" fill="#1f2328"/>
+  <text x="208" y="292" text-anchor="end" font-size="12" fill="#1f2328">GND (pin 6)</text>
+  <text x="130" y="350" text-anchor="middle" font-size="11" fill="#57606a">control + encoder GPIO</text>
+  <text x="130" y="366" text-anchor="middle" font-size="11" fill="#57606a">wired in Steps 3&#8211;4</text>
+
+  <!-- ============ Breadboard ============ -->
+  <rect x="320" y="120" width="450" height="410" rx="10" fill="#f6f8fa" stroke="#afb8c1" stroke-width="2"/>
+  <text x="545" y="146" text-anchor="middle" font-size="14" font-weight="700" fill="#424a53">Breadboard</text>
+
+  <!-- + rail (3.3V) -->
+  <rect x="335" y="225" width="420" height="16" rx="4" fill="#ffd8d6" stroke="#d1242f" stroke-width="1.5"/>
+  <text x="345" y="217" font-size="12.5" font-weight="700" fill="#d1242f">+ rail = 3.3 V  (driver VCC + every encoder Vcc/blue)</text>
+
+  <!-- - rail (GND) -->
+  <rect x="335" y="470" width="420" height="16" rx="4" fill="#eaeef2" stroke="#1f2328" stroke-width="1.5"/>
+  <text x="345" y="505" font-size="12.5" font-weight="700" fill="#1f2328">&#8211; rail = GND  (common / star ground)</text>
+
+  <!-- TB6612 carrier -->
+  <rect x="470" y="300" width="170" height="95" rx="6" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="555" y="326" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0a3069">TB6612FNG</text>
+  <text x="555" y="343" text-anchor="middle" font-size="10.5" fill="#57606a">(seated across center channel)</text>
+  <circle cx="500" cy="300" r="5" fill="#d1242f"/>
+  <text x="500" y="382" text-anchor="middle" font-size="11.5" fill="#0a3069">VCC</text>
+  <circle cx="610" cy="395" r="5" fill="#1f2328"/>
+  <text x="610" y="382" text-anchor="middle" font-size="11.5" fill="#0a3069">GND</text>
+  <text x="555" y="430" text-anchor="middle" font-size="10.5" fill="#8c959f">VM / VMOT &#8212; leave open</text>
+
+  <!-- ============ Bench supply ============ -->
+  <rect x="820" y="300" width="150" height="150" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="895" y="328" text-anchor="middle" font-size="14" font-weight="700" fill="#7d4e00">Bench Supply</text>
+  <text x="895" y="348" text-anchor="middle" font-size="12" font-weight="700" fill="#cf222e">OUTPUT OFF</text>
+  <circle cx="820" cy="390" r="6" fill="#1f2328"/>
+  <text x="834" y="394" font-size="12" fill="#1f2328">&#8211;</text>
+  <circle cx="820" cy="420" r="6" fill="#8c959f"/>
+  <text x="834" y="424" font-size="12" fill="#8c959f">+ (VM)</text>
+  <text x="895" y="372" text-anchor="middle" font-size="10" fill="#7d4e00">set 7.4 V / ~1 A in Step 5</text>
+
+  <!-- ============ Wires ============ -->
+  <!-- 3.3V: Pi pin1 -> + rail -->
+  <polyline points="220,240 280,240 280,233 335,233" fill="none" stroke="#d1242f" stroke-width="3"/>
+  <circle cx="335" cy="233" r="4" fill="#d1242f"/>
+  <!-- GND: Pi pin6 -> - rail -->
+  <polyline points="220,300 270,300 270,478 335,478" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="335" cy="478" r="4" fill="#1f2328"/>
+  <!-- TB6612 VCC -> + rail -->
+  <polyline points="500,300 500,241" fill="none" stroke="#d1242f" stroke-width="3"/>
+  <circle cx="500" cy="241" r="4" fill="#d1242f"/>
+  <!-- TB6612 GND -> - rail -->
+  <polyline points="610,395 610,470" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="610" cy="470" r="4" fill="#1f2328"/>
+  <!-- Supply - -> - rail -->
+  <polyline points="820,390 790,390 790,478 755,478" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="755" cy="478" r="4" fill="#1f2328"/>
+  <!-- Supply + (VM) dangling, dashed grey -->
+  <polyline points="820,420 795,420 795,445" fill="none" stroke="#8c959f" stroke-width="2.5" stroke-dasharray="6 5"/>
+  <text x="795" y="462" text-anchor="middle" font-size="9.5" fill="#8c959f">not yet</text>
+
+  <!-- ============ Notes ============ -->
+  <rect x="40" y="560" width="930" height="80" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.5"/>
+  <text x="55" y="584" font-size="12.5" fill="#1f2328"><tspan font-weight="700" fill="#cf222e">3.3 V only on the + rail.</tspan> It feeds the driver logic and the encoder Vcc lines, whose outputs follow this rail &#8212; 5 V here would put 5 V on the Pi's GPIO.</text>
+  <text x="55" y="606" font-size="12.5" fill="#1f2328"><tspan font-weight="700" fill="#0a3069">Star ground.</tspan> Pi GND, TB6612 GND, and the bench-supply &#8211; lead all share the one &#8211; rail. Tie the supply &#8211; now even with its output off.</text>
+  <text x="55" y="628" font-size="12.5" fill="#1f2328"><tspan font-weight="700" fill="#7d4e00">VM disconnected.</tspan> The motor rail (VM/VMOT) and motor + encoder cables are wired in later steps; nothing is energized in Step 2.</text>
+</svg>

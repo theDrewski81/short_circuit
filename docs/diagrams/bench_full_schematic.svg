@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1180" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1200" height="1180" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="600" y="36" text-anchor="middle" font-size="23" font-weight="700" fill="#1f2328">Johnny 5 Drive Bench &#8212; Complete Wiring Schematic</text>
+  <text x="600" y="60" text-anchor="middle" font-size="13.5" fill="#57606a">TB6612FNG (#713) + 2&#215; Pololu 150:1 HPCB N20 encoder motors + Pi-M + bench supply. Keep supply output OFF until staged power-up.</text>
+
+  <!-- ============ RAILS ============ -->
+  <line x1="110" y1="150" x2="1090" y2="150" stroke="#d1242f" stroke-width="5"/>
+  <text x="110" y="142" font-size="12.5" font-weight="700" fill="#d1242f">+ RAIL = 3.3 V</text>
+  <line x1="110" y1="430" x2="1090" y2="430" stroke="#1f2328" stroke-width="5"/>
+  <text x="110" y="452" font-size="12.5" font-weight="700" fill="#1f2328">&#8211; RAIL = GND (common / star)</text>
+
+  <!-- ============ Raspberry Pi ============ -->
+  <rect x="50" y="185" width="250" height="210" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="175" y="208" text-anchor="middle" font-size="14" font-weight="700" fill="#1a7f37">Raspberry Pi (Pi-M)</text>
+  <text x="64" y="230" font-size="10.5" font-weight="700" fill="#57606a">Control &#8594; TB6612 (BCM / phys pin)</text>
+  <text x="64" y="246" font-size="10" fill="#1f2328">PWMA 12/32  AIN1 5/29  AIN2 6/31</text>
+  <text x="64" y="260" font-size="10" fill="#1f2328">PWMB 13/33  BIN1 16/36  BIN2 26/37</text>
+  <text x="64" y="274" font-size="10" fill="#1f2328">STBY 20/38</text>
+  <text x="64" y="296" font-size="10.5" font-weight="700" fill="#57606a">Encoders &#8592; motors</text>
+  <text x="64" y="312" font-size="10" fill="#1f2328">L-A 17/11  L-B 27/13   R-A 22/15  R-B 23/16</text>
+  <!-- 3.3V + GND pins -->
+  <circle cx="300" cy="345" r="5" fill="#d1242f"/>
+  <text x="290" y="338" text-anchor="end" font-size="10.5" fill="#1f2328">3.3 V pin1</text>
+  <circle cx="300" cy="375" r="5" fill="#1f2328"/>
+  <text x="290" y="389" text-anchor="end" font-size="10.5" fill="#1f2328">GND pin6</text>
+  <!-- wires to rails -->
+  <polyline points="300,345 330,345 330,150 332,150" fill="none" stroke="#d1242f" stroke-width="3"/>
+  <circle cx="332" cy="150" r="4" fill="#d1242f"/>
+  <polyline points="300,375 320,375 320,430" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="320" cy="430" r="4" fill="#1f2328"/>
+
+  <!-- ============ TB6612 ============ -->
+  <rect x="470" y="200" width="240" height="190" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="590" y="223" text-anchor="middle" font-size="14" font-weight="700" fill="#0a3069">TB6612FNG (#713)</text>
+  <!-- control pins (left) -->
+  <text x="484" y="246" font-size="10" fill="#0a3069">PWMA &#8592; 12   AIN1 &#8592; 5   AIN2 &#8592; 6</text>
+  <text x="484" y="262" font-size="10" fill="#0a3069">PWMB &#8592; 13  BIN1 &#8592; 16  BIN2 &#8592; 26</text>
+  <text x="484" y="278" font-size="10" fill="#0a3069">STBY &#8592; 20</text>
+  <!-- power pins (right side dots) -->
+  <circle cx="710" cy="240" r="5" fill="#d1242f"/><text x="700" y="237" text-anchor="end" font-size="10" fill="#0a3069">VCC</text>
+  <circle cx="710" cy="300" r="5" fill="#bc4c00"/><text x="700" y="297" text-anchor="end" font-size="10" fill="#0a3069">VMOT</text>
+  <circle cx="710" cy="330" r="5" fill="#1f2328"/><text x="700" y="327" text-anchor="end" font-size="10" fill="#0a3069">GND</text>
+  <!-- outputs (bottom) -->
+  <circle cx="520" cy="390" r="5" fill="#d1242f"/><text x="520" y="408" text-anchor="middle" font-size="9.5" fill="#0a3069">AO1</text>
+  <circle cx="555" cy="390" r="5" fill="#1f2328"/><text x="555" y="408" text-anchor="middle" font-size="9.5" fill="#0a3069">AO2</text>
+  <circle cx="625" cy="390" r="5" fill="#d1242f"/><text x="625" y="408" text-anchor="middle" font-size="9.5" fill="#0a3069">BO1</text>
+  <circle cx="660" cy="390" r="5" fill="#1f2328"/><text x="660" y="408" text-anchor="middle" font-size="9.5" fill="#0a3069">BO2</text>
+  <!-- VCC -> 3.3 rail -->
+  <polyline points="710,240 740,240 740,150 742,150" fill="none" stroke="#d1242f" stroke-width="3"/>
+  <circle cx="742" cy="150" r="4" fill="#d1242f"/>
+  <!-- GND -> gnd rail -->
+  <polyline points="710,330 760,330 760,430" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="760" cy="430" r="4" fill="#1f2328"/>
+
+  <!-- ============ Bench supply ============ -->
+  <rect x="930" y="210" width="210" height="130" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="1035" y="234" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7d4e00">Bench Supply</text>
+  <text x="1035" y="252" text-anchor="middle" font-size="11.5" font-weight="700" fill="#cf222e">OUTPUT OFF</text>
+  <text x="1035" y="270" text-anchor="middle" font-size="10.5" fill="#7d4e00">set 7.4 V, limit ~1 A</text>
+  <circle cx="930" cy="300" r="5" fill="#bc4c00"/><text x="944" y="304" font-size="11" fill="#bc4c00">+ (VM)</text>
+  <circle cx="930" cy="325" r="5" fill="#1f2328"/><text x="944" y="329" font-size="11" fill="#1f2328">&#8211;</text>
+  <!-- + -> VMOT -->
+  <polyline points="930,300 800,300 800,300 712,300" fill="none" stroke="#bc4c00" stroke-width="3"/>
+  <!-- - -> gnd rail -->
+  <polyline points="930,325 905,325 905,430" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <circle cx="905" cy="430" r="4" fill="#1f2328"/>
+
+  <!-- ============ Cap ============ -->
+  <text x="828" y="345" text-anchor="middle" font-size="10" fill="#bc4c00">1000 &#181;F</text>
+  <text x="828" y="357" text-anchor="middle" font-size="9" fill="#57606a">(+ to VMOT)</text>
+  <polyline points="828,305 828,330" fill="none" stroke="#bc4c00" stroke-width="2.5"/>
+  <line x1="816" y1="330" x2="840" y2="330" stroke="#1f2328" stroke-width="3"/>
+  <polyline points="828,330 828,392 815,392" fill="none" stroke="#1f2328" stroke-width="2.5"/>
+  <text x="828" y="305" font-size="9" fill="#bc4c00" text-anchor="middle">+</text>
+
+  <!-- ============ Motors ============ -->
+  <!-- LEFT -->
+  <rect x="420" y="480" width="250" height="120" rx="8" fill="#f0f0f8" stroke="#6e7781" stroke-width="2"/>
+  <text x="545" y="502" text-anchor="middle" font-size="13" font-weight="700" fill="#24292f">LEFT motor #5218 (ch A)</text>
+  <text x="434" y="524" font-size="10.5" fill="#1f2328"><tspan fill="#cf222e" font-weight="700">RED</tspan> M1+ &#8594; AO1   <tspan fill="#1f2328" font-weight="700">BLK</tspan> M2 &#8594; AO2</text>
+  <text x="434" y="544" font-size="10.5" fill="#1f2328"><tspan fill="#0969da" font-weight="700">BLU</tspan> Vcc &#8594; + rail   <tspan fill="#1a7f37" font-weight="700">GRN</tspan> GND &#8594; &#8211; rail</text>
+  <text x="434" y="564" font-size="10.5" fill="#1f2328"><tspan fill="#9a6700" font-weight="700">YEL</tspan> A &#8594; GPIO17 (pin11)</text>
+  <text x="434" y="582" font-size="10.5" fill="#1f2328"><tspan fill="#6e7781" font-weight="700">WHT</tspan> B &#8594; GPIO27 (pin13)</text>
+  <!-- RIGHT -->
+  <rect x="720" y="480" width="250" height="120" rx="8" fill="#f0f0f8" stroke="#6e7781" stroke-width="2"/>
+  <text x="845" y="502" text-anchor="middle" font-size="13" font-weight="700" fill="#24292f">RIGHT motor #5219 (ch B)</text>
+  <text x="734" y="524" font-size="10.5" fill="#1f2328"><tspan fill="#cf222e" font-weight="700">RED</tspan> M1+ &#8594; BO1   <tspan fill="#1f2328" font-weight="700">BLK</tspan> M2 &#8594; BO2</text>
+  <text x="734" y="544" font-size="10.5" fill="#1f2328"><tspan fill="#0969da" font-weight="700">BLU</tspan> Vcc &#8594; + rail   <tspan fill="#1a7f37" font-weight="700">GRN</tspan> GND &#8594; &#8211; rail</text>
+  <text x="734" y="564" font-size="10.5" fill="#1f2328"><tspan fill="#9a6700" font-weight="700">YEL</tspan> A &#8594; GPIO22 (pin15)</text>
+  <text x="734" y="582" font-size="10.5" fill="#1f2328"><tspan fill="#6e7781" font-weight="700">WHT</tspan> B &#8594; GPIO23 (pin16)</text>
+
+  <!-- motor power wires up to TB6612 outputs -->
+  <polyline points="470,480 470,440 520,440 520,395" fill="none" stroke="#cf222e" stroke-width="2.5"/>
+  <polyline points="500,480 500,448 555,448 555,395" fill="none" stroke="#1f2328" stroke-width="2.5"/>
+  <polyline points="770,480 770,440 625,440 625,395" fill="none" stroke="#cf222e" stroke-width="2.5"/>
+  <polyline points="800,480 800,448 660,448 660,395" fill="none" stroke="#1f2328" stroke-width="2.5"/>
+  <!-- motor GRN to gnd rail -->
+  <polyline points="600,480 600,430" fill="none" stroke="#1a7f37" stroke-width="2.5"/>
+  <circle cx="600" cy="430" r="4" fill="#1a7f37"/>
+  <polyline points="900,480 900,430" fill="none" stroke="#1a7f37" stroke-width="2.5"/>
+  <circle cx="900" cy="430" r="4" fill="#1a7f37"/>
+
+  <!-- ============ STBY pull-down resistor (optional, fitted) ============ -->
+  <polyline points="470,288 450,288 450,330" fill="none" stroke="#8250df" stroke-width="2.5"/>
+  <polyline points="450,330 444,337 456,344 444,351 456,358 444,365 450,372 450,430" fill="none" stroke="#8250df" stroke-width="2.5"/>
+  <circle cx="450" cy="430" r="4" fill="#8250df"/>
+  <text x="438" y="350" text-anchor="end" font-size="11" font-weight="700" fill="#8250df">100 k&#937;</text>
+  <text x="438" y="366" text-anchor="end" font-size="9" fill="#8250df">STBY &#8594; GND</text>
+  <text x="438" y="378" text-anchor="end" font-size="9" fill="#8250df">pull-down (optional)</text>
+
+  <!-- ============ NETLIST TABLE ============ -->
+  <text x="60" y="660" font-size="15" font-weight="700" fill="#1f2328">Complete connection list</text>
+  <g font-size="11.5" fill="#1f2328">
+    <!-- header -->
+    <rect x="60" y="672" width="1080" height="24" fill="#1f2328"/>
+    <text x="72" y="689" fill="#ffffff" font-weight="700">From</text>
+    <text x="360" y="689" fill="#ffffff" font-weight="700">Wire / Pin</text>
+    <text x="560" y="689" fill="#ffffff" font-weight="700">To</text>
+    <text x="860" y="689" fill="#ffffff" font-weight="700">Note</text>
+
+    <!-- rows -->
+    <rect x="60" y="696" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="710">Bench supply +</text><text x="360" y="710">VM</text><text x="560" y="710">TB6612 VMOT</text><text x="860" y="710">7.4 V, output OFF until power-up</text>
+    <text x="72" y="730">Bench supply &#8211;</text><text x="360" y="730">&#8212;</text><text x="560" y="730">&#8211; rail (GND)</text><text x="860" y="730">star ground</text>
+    <rect x="60" y="736" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="750">Pi 3.3 V</text><text x="360" y="750">pin 1</text><text x="560" y="750">+ rail (3.3 V)</text><text x="860" y="750">logic + encoder Vcc</text>
+    <text x="72" y="770">Pi GND</text><text x="360" y="770">pin 6</text><text x="560" y="770">&#8211; rail (GND)</text><text x="860" y="770"></text>
+    <rect x="60" y="776" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="790">TB6612 VCC</text><text x="360" y="790">&#8212;</text><text x="560" y="790">+ rail (3.3 V)</text><text x="860" y="790">logic supply</text>
+    <text x="72" y="810">TB6612 GND</text><text x="360" y="810">&#8212;</text><text x="560" y="810">&#8211; rail (GND)</text><text x="860" y="810">any one of the 3 GND pins (all common)</text>
+    <rect x="60" y="816" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="830">1000 &#181;F cap +</text><text x="360" y="830">+ leg</text><text x="560" y="830">VMOT (&#8211; leg to GND)</text><text x="860" y="830">polarity critical</text>
+
+    <text x="72" y="850" font-weight="700" fill="#0a3069">Control bus  (Pi &#8594; TB6612)</text>
+    <rect x="60" y="856" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="870">PWMA</text><text x="360" y="870">GPIO 12 / pin 32</text><text x="560" y="870">TB6612 PWMA</text><text x="860" y="870">HW PWM0 (left speed)</text>
+    <text x="72" y="890">AIN1</text><text x="360" y="890">GPIO 5 / pin 29</text><text x="560" y="890">TB6612 AIN1</text><text x="860" y="890">left dir</text>
+    <rect x="60" y="896" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="910">AIN2</text><text x="360" y="910">GPIO 6 / pin 31</text><text x="560" y="910">TB6612 AIN2</text><text x="860" y="910">left dir</text>
+    <text x="72" y="930">PWMB</text><text x="360" y="930">GPIO 13 / pin 33</text><text x="560" y="930">TB6612 PWMB</text><text x="860" y="930">HW PWM1 (right speed)</text>
+    <rect x="60" y="936" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="950">BIN1</text><text x="360" y="950">GPIO 16 / pin 36</text><text x="560" y="950">TB6612 BIN1</text><text x="860" y="950">right dir</text>
+    <text x="72" y="970">BIN2</text><text x="360" y="970">GPIO 26 / pin 37</text><text x="560" y="970">TB6612 BIN2</text><text x="860" y="970">right dir</text>
+    <rect x="60" y="976" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="990">STBY</text><text x="360" y="990">GPIO 20 / pin 38</text><text x="560" y="990">TB6612 STBY</text><text x="860" y="990">enable (low = standby)</text>
+    <text x="72" y="1004" font-size="10.5" fill="#8250df">+ 100 k&#937; STBY &#8594; GND</text><text x="360" y="1004" font-size="10.5" fill="#8250df">pull-down</text><text x="560" y="1004" font-size="10.5" fill="#8250df">&#8211; rail</text><text x="860" y="1004" font-size="10.5" fill="#8250df">optional fail-safe; holds OFF when GPIO floats</text>
+
+    <text x="72" y="1010" font-weight="700" fill="#24292f">LEFT motor #5218 (ch A)        RIGHT motor #5219 (ch B)</text>
+    <rect x="60" y="1016" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="1030">#5218 RED / BLK</text><text x="360" y="1030">M1+ / M2</text><text x="560" y="1030">AO1 / AO2</text><text x="860" y="1030">#5219 RED/BLK &#8594; BO1/BO2</text>
+    <text x="72" y="1050">#5218 BLU / GRN</text><text x="360" y="1050">Vcc / GND</text><text x="560" y="1050">+ rail / &#8211; rail</text><text x="860" y="1050">#5219 BLU/GRN &#8594; + rail / &#8211; rail</text>
+    <rect x="60" y="1056" width="1080" height="20" fill="#f6f8fa"/>
+    <text x="72" y="1070">#5218 YEL / WHT</text><text x="360" y="1070">A / B</text><text x="560" y="1070">GPIO17 / GPIO27</text><text x="860" y="1070">#5219 YEL/WHT &#8594; GPIO22 / GPIO23</text>
+  </g>
+
+  <!-- ============ Notes ============ -->
+  <rect x="60" y="1092" width="1080" height="72" rx="8" fill="#fff8f0" stroke="#d4a72c" stroke-width="1.5"/>
+  <text x="74" y="1112" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#cf222e">+ rail is 3.3 V only.</tspan> Driver VCC and both encoder Vcc lines live here; 5 V would damage the GPIO. <tspan font-weight="700" fill="#bc4c00">VMOT is separate</tspan> &#8212; never bridge it to the + rail.</text>
+  <text x="74" y="1132" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#0a3069">One star ground</tspan> ties Pi GND, TB6612 GND, supply &#8211;, cap &#8211;, and both encoder GRN. <tspan font-weight="700">Keep PWM on GPIO 12/13</tspan> (the pwm-2chan hardware-PWM pins).</text>
+  <text x="74" y="1152" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#7d4e00">Supply output stays OFF</tspan> through all wiring; first power-up is staged (logic-only, then VM live at ~1 A limit). Motor lead and encoder A/B sign verified on the bench.</text>
+</svg>
