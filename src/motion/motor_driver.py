@@ -53,7 +53,12 @@ STBY_PIN = 20
 
 ENC_LEFT_A, ENC_LEFT_B = 17, 27
 ENC_RIGHT_A, ENC_RIGHT_B = 22, 23
-COUNTS_PER_OUTPUT_REV = 1807.0   # 12 CPR x 150.58 gearbox, quadrature
+# gpiozero.RotaryEncoder decodes full-step (one count per full quadrature cycle,
+# i.e. 1x), so effective resolution is 3 cycles/motor-rev x 150.58 gearbox
+# ~= 452 counts/output-rev -- NOT the raw 4x figure (12 CPR x 150.58 ~= 1807).
+# Bench data (Task 1) showed counts running ~4x below the 1807 assumption.
+# Provisional; confirm/refine with `scripts/test_motors.py --calibrate`.
+COUNTS_PER_OUTPUT_REV = 451.74
 
 
 # --------------------------------------------------------------------------- #

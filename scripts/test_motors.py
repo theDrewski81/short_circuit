@@ -9,6 +9,7 @@ the correct sign, coast vs brake behaving differently, and the STBY interlock.
     python3 scripts/test_motors.py                 # default 0.6 duty, encoders on
     python3 scripts/test_motors.py --speed 0.8
     python3 scripts/test_motors.py --no-encoders   # if encoders not wired yet
+    python3 scripts/test_motors.py --calibrate     # encoder counts/rev (motors OFF)
 
 Bring VM up only after logic (per the doc): step 1 confirms STBY reads low and
 the interlock holds before any motor can move.
@@ -45,13 +46,52 @@ def _phase(driver, enc, label: str, left: float, right: float, secs: float) -> N
     print(f"   encoders: {_fmt_enc(enc)}")
 
 
+def run_calibration(revs: float) -> int:
+    """Hand-rotation encoder calibration -- motors stay OFF (no MotorDriver).
+
+    Rotate each wheel exactly `revs` output revolutions by hand; prints the
+    measured counts/output-rev so COUNTS_PER_OUTPUT_REV in motion/motor_driver.py
+    can be set to the true value for this encoder and gpiozero's decoding mode.
+    """
+    from motion.motor_driver import COUNTS_PER_OUTPUT_REV
+    print("=== Encoder counts/rev calibration (motors OFF, supply can stay off) ===")
+    print(f"Rotate each wheel {revs:g} full output revolutions by hand when prompted.")
+    enc = EncoderReader()
+    results = {}
+    try:
+        for side, read_ticks in (("LEFT", lambda: enc.ticks_left),
+                                 ("RIGHT", lambda: enc.ticks_right)):
+            input(f"\n[{side}] Press Enter, then rotate the {side} wheel "
+                  f"{revs:g} revs FORWARD...")
+            enc.reset()
+            input(f"[{side}] ...finished rotating? Press Enter to read.")
+            counts = abs(read_ticks())
+            cpr = counts / revs if revs else 0.0
+            results[side] = cpr
+            print(f"[{side}] {counts} counts / {revs:g} rev = {cpr:.1f} counts/output-rev")
+    finally:
+        enc.close()
+    if len(results) == 2:
+        avg = sum(results.values()) / 2.0
+        print(f"\nMeasured avg = {avg:.1f} counts/output-rev "
+              f"(current constant {COUNTS_PER_OUTPUT_REV:.1f}).")
+        print("Set COUNTS_PER_OUTPUT_REV in src/motion/motor_driver.py to the measured value.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="TB6612 tread drive bench test")
     ap.add_argument("--speed", type=float, default=0.6,
                     help="duty magnitude 0..1 for the sequence (default 0.6)")
     ap.add_argument("--no-encoders", action="store_true",
                     help="skip EncoderReader (use if encoders are not wired)")
+    ap.add_argument("--calibrate", action="store_true",
+                    help="encoder counts/output-rev calibration (motors stay OFF)")
+    ap.add_argument("--revs", type=float, default=10.0,
+                    help="output revolutions to hand-rotate during --calibrate")
     args = ap.parse_args()
+    if args.calibrate:
+        return run_calibration(args.revs)
     spd = max(0.0, min(1.0, args.speed))
 
     print("=== Johnny 5 tread drive bench test ===")

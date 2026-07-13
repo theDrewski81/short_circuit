@@ -54,3 +54,30 @@ yaw is gyro-integrated and drifts. That is fine for Phase 02 because the policy
 uses yaw *rate* only, never absolute heading. If a later phase needs
 heading-hold or map-relative navigation, upgrade to a 9-axis IMU (ICM-20948 /
 MPU-9250).
+
+## Bench bringup results — Task 1 drive integration (2026-07-12)
+
+First power-on of the TB6612 + N20 encoder motors on the bench (wheels free).
+Driver, hardware PWM, STBY interlock, coast/brake, and both encoders verified
+with `scripts/test_motors.py`. Two per-side corrections, both fixed **in
+hardware**, so `MotorDriver`/`EncoderReader` stay at `invert_*=False`:
+
+- **Left motor ran backwards** → swapped its output leads to RED→**AO2**,
+  BLK→**AO1** (was RED→AO1/BLK→AO2). This is the "Motor asymmetry" gap above,
+  resolved by a lead swap rather than a per-side gain.
+- **Right encoder counted backwards on forward** → swapped that motor's encoder
+  channels to **YEL→GPIO23, WHT→GPIO22** (A/B were reversed). Left encoder was
+  already correct.
+
+Side assignment **locked: #5218 = LEFT (channel A), #5219 = RIGHT (channel B).**
+Post-fix run: forward → both encoders positive (L +984 / R +980, within ~0.4%),
+backward → both negative, CCW → L−/R+, CW → L+/R−. Motors track closely.
+
+- **Encoder counts/output-rev recalibrated (affects the wheel-speed obs
+  channels, Task 6).** Measured counts run ~4x below the `1807` (raw 4x-quadrature)
+  figure because `gpiozero.RotaryEncoder` decodes full-step (1x): effective
+  ~**452 counts/output-rev** (3 cycles/motor-rev × 150.58). `COUNTS_PER_OUTPUT_REV`
+  updated 1807 → 451.74 provisionally; confirm empirically with
+  `scripts/test_motors.py --calibrate` and set the exact value. If counts are also
+  *missed* at speed (callback latency on the single-core Pi Zero 2 W), the
+  low-speed calibration won't reveal it — watch obs-vs-commanded speed in Task 6.
