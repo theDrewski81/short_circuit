@@ -130,7 +130,27 @@ Validation test: `scripts/test_locomotion_policy.py` -- load the policy, run 100
 
 ### 6. Physical Integration Test
 
-With the trained policy deployed and the chassis assembled:
+Split into two parts. 6a needs nothing beyond the current bench state (motors
+loose, breadboard-wired, wheels free) and can run any time. 6b needs motors
+mechanically fixed to the chassis and drive wiring off breadboard first --
+breadboard jumpers are not reliable once the robot is moving under tread
+power (vibration works them loose), and loose motors have no rigid tread
+contact geometry, so "does it drive straight" isn't a meaningful test yet.
+
+#### 6a. Encoder Calibration (bench, unblocked)
+
+1. `scripts/test_motors.py --calibrate` -- motors OFF, hand-rotate each wheel
+   a fixed number of output revs, read true counts/output-rev.
+2. Update `COUNTS_PER_OUTPUT_REV` in `src/motion/motor_driver.py` from the
+   provisional 451.74 to the measured value.
+3. Log the measured value and method in `simulation/chassis/TUNING.md`, next
+   to the existing Task 1 bench entries.
+
+#### 6b. Floor Integration Test (blocked -- motors must be chassis-mounted, wiring off breadboard)
+
+With the trained policy deployed, motors mechanically fixed to the chassis,
+drive wiring hardened (soldered or a secured connector, not open breadboard),
+and treads/sprockets on:
 
 1. Place robot on a flat surface with clear space in all directions.
 2. Connect to Pi-M via SSH.
@@ -138,7 +158,11 @@ With the trained policy deployed and the chassis assembled:
 4. Verify: forward motion is straight, backward motion is straight, turns execute in the correct direction, stop command results in immediate halt.
 5. Verify offline fallback: disconnect the home lab WiFi, confirm robot stops and LED ring changes state, reconnect, confirm recovery.
 
-Document any physical tuning required (friction coefficients in simulation don't match reality, motor asymmetry, etc.) in `simulation/chassis/TUNING.md`.
+Document any physical tuning required (friction coefficients in simulation
+don't match reality, motor asymmetry, etc.) in `simulation/chassis/TUNING.md`,
+including a bench-vs-floor delta on `WHEEL_RADIUS_M` (0.0235 m, CAD-derived,
+unconfirmed against real rolling contact) and the MPU-6050 axis-mounting
+assumption documented in `src/motion/mpu6050.py`.
 
 ---
 

@@ -12,7 +12,7 @@ Progress so far — the sim/policy track (Tasks 3–5) is complete:
 - **Task 4** — PPO trained on the desktop (CPU); best of 3 seeds exported to `policies/locomotion_v3.onnx`. Scaffold: `train.py`, `config.yaml`, `export_onnx.py`, `cem_smoke.py`, `simulation/chassis/TRAINING_WINDOWS.md`.
 - **Task 5** — `src/motion/locomotion_policy.py` (ONNX runner; validated 0.02 ms/step on x86, correct command directions), `scripts/test_locomotion_policy.py`, `scripts/setup_motion_pi.sh`, and a documented `execute_intent()` seam in `src/motion/main.py` (inactive until `MotorDriver` exists).
 
-Remaining for the gate: **Task 1** (`MotorDriver`, this session), **Task 2** (activate the `execute_intent` seam once the driver exists + finalize the intent `params` schema in `src/shared/PROTOCOL.md`), **Task 6** (physical integration: drive on the floor, live offline-fallback test, log sim-vs-real deltas in `simulation/chassis/TUNING.md`).
+Remaining for the gate: **Task 6a** (encoder calibration -- bench, unblocked, `scripts/test_motors.py --calibrate`), **Task 6b** (floor integration: drive on the floor, live offline-fallback test, log sim-vs-real deltas in `simulation/chassis/TUNING.md` -- **blocked** until motors are chassis-mounted and drive wiring is off breadboard). Tasks 1 and 2 are complete (see decision log).
 
 **Recommended config for Task 1: Sonnet, Standard thinking, Medium effort.** Per CLAUDE.md's in-phase note, `MotorDriver` is routine, well-constrained hardware-interface work — the GPIO map is in `BOM.md`, the full TB6612FNG control contract + bench procedure is in `docs/HARDWARE_drive_bringup.md`, and the GrowBot reference applies. This is not the reward-shaping work that earns Phase 02's Opus/Extra default. Escalate to Opus only if encoder quadrature/timing edge-cases get hairy.
 
@@ -36,6 +36,44 @@ Carried-forward non-blockers (not gate conditions, just open items):
 ## Decision Log
 
 (Most recent session first. Append new entries above old ones.)
+
+### 2026-07-16 -- Task 1/2 landed; Task 6 split on mechanical blocker
+
+- **Task 1 (`MotorDriver`) confirmed complete** and **Task 2 activated**: real
+  `_read_motion_state()` on Pi-M via a new `src/motion/mpu6050.py` (accel+gyro
+  complementary filter for roll/pitch, gyro-z passthrough for yaw_rate;
+  I2C-backend-abstracted so it's unit-testable without a Pi) fused with
+  `EncoderReader` odometry (`WHEEL_RADIUS_M = 0.0235` m, derived from
+  `mechanical/freecad/params.csv` sprocket_pitch_dia/2 + track_thickness --
+  CAD-derived, not bench-confirmed). `execute_intent()` in `src/motion/main.py`
+  activated exactly per the seam staged in Task 5: hardware bundled into an
+  injectable `MotionHardware` dataclass (motor_driver/policy/imu/encoders) so
+  tests swap in fakes instead of touching GPIO/I2C/onnxruntime; MotorDriver
+  enable/disable now runs every tick, coordinated with the offline fallback
+  state (`_apply_fallback_output()`), independent of whether `execute_intent()`
+  is even called. `idle` is intentionally excluded from the locomotion dispatch
+  set (`move`/`turn`/`arc` only) -- it's a valid `command_from_intent()` input
+  but a no-op for `execute_intent()` this tick; forced stop-on-disconnect comes
+  from the fallback state machine, not intent-level idle. `src/shared/PROTOCOL.md`
+  finalized the `move`/`turn`/`arc`/`idle` params schema to match
+  `command_from_intent()` exactly and added `arc` to the action enum. 48/48
+  sandbox tests pass (17 new).
+- **Nextcloud mount truncation hit again** (see `sandbox-no-torch`/cloud-mount
+  memory) -- the Edit tool silently truncated `tests/test_main_locomotion.py`
+  mid-file; caught by a `SyntaxError` on the next test run, fixed by rewriting
+  in `/tmp` and `cp`-ing over instead of editing the mounted copy directly.
+  Reinforces: author in `/tmp`, `cp` to the repo, md5-verify -- for edits too,
+  not just new files.
+- **Task 6 split into 6a/6b** after Andrew flagged the motors are still loose
+  and wired via breadboard. 6a (encoder calibration, `--calibrate`) is a
+  stationary hand-rotation bench test -- motors stay OFF, only needs the
+  encoder signal wiring to hold contact while stationary, so it's unaffected
+  by the current build state and can run now. 6b (floor driving + live
+  offline-fallback test) is blocked: loose motors have no rigid tread contact
+  geometry (so "drives straight" isn't measurable), and breadboard jumpers are
+  expected to work loose under tread vibration -- doing 6b now risks chasing a
+  connection fault instead of a real bug. `phases/PHASE_02_LOCOMOTION.md`
+  updated with the split and its rationale.
 
 ### 2026-06-26 -- Phase 02 sim + policy track (Tasks 3–5 complete)
 
