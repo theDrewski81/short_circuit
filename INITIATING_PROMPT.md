@@ -66,6 +66,25 @@ Carried-forward non-blockers (not gate conditions, just open items):
 - **`--dwell` added to `scripts/test_motors.py`**: uniform multiplier on every
   sleep in the bench sequence, replacing the ad-hoc long durations that had been
   edited directly into the Pi's working copy and were blocking `git pull`.
+- **Motor retention cap designed -- the reason the motors were still loose.**
+  `build_chassis.py` modelled each cradle as an open-top drop-in slot "retained
+  by a cap" (line 75) that was never built: no cap solid, no export, no
+  `motor_cap_v1.stl`, and no fastener provision in the cradle. The 16 mm cradle
+  left 2 mm of material either side of the 12 mm slot, too thin to tap M2, so
+  the cap could not simply be added on top -- the cradle had to change with it.
+  `cradle_w` now derives from `motor_cap_screw_cc + boss_od` (27 mm) and carries
+  four tapped M2 columns per side; `motor_cap()` exports `motor_cap_v1.stl`, one
+  symmetric part printed twice. The plate is held `motor_cap_clamp_gap` above the
+  cradle top so the screws preload the motor into the bore rather than bottoming
+  the plate out first, and the saddle is cut at nominal motor radius so it grips.
+  Also fixed alongside: the drop-in slot was exactly `motor_dia` wide, zero
+  clearance against a 12 mm motor, and now carries the same `motor_fit_clear` as
+  the bore. Four new checks in `preview/validate.py` guard the derived geometry
+  (columns clear the slot, screws land on the cradle top, cradle stays inside the
+  rear wall, saddle grips); 24/24 pass. **The tub geometry changed, so
+  `chassis_tub_v1.stl` needs regenerating and reprinting.** Geometry was verified
+  arithmetically only -- FreeCAD is not available in the agent sandbox, so the
+  `freecadcmd` run and a look at the solid are Andrew's.
 
 ### 2026-07-16 -- Task 1/2 landed; Task 6 split on mechanical blocker
 

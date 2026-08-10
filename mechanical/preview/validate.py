@@ -34,6 +34,25 @@ motor_bottom = P["axle_z"] - P["motor_dia"] / 2
 chk("Main belly clearance in 15-20 band", 15 <= P["ground_clearance"] <= 20, f'{P["ground_clearance"]:.0f} mm')
 chk("Motor lower edge clears ground >= 15", motor_bottom >= 15, f'motor bottom {motor_bottom:.1f} mm')
 
+# --- motor cradle + retention cap ----------------------------------------
+# The cap screws set the cradle width, so these guard the geometry that
+# build_chassis.motor_cradles()/motor_cap() derive rather than choose.
+cradle_l = P["motor_body_len"] + 4
+cradle_w = P["motor_cap_screw_cc"] + P["boss_od"]
+slot_half = (P["motor_dia"] + P["motor_fit_clear"]) / 2
+col_inner = P["motor_cap_screw_cc"] / 2 - P["boss_od"] / 2
+chk("Cap screw columns clear the motor slot", col_inner >= slot_half,
+    f'column inner edge {col_inner:.1f} >= slot half-width {slot_half:.1f}')
+chk("Cap screws land on the cradle top face (X)",
+    P["motor_cap_screw_x"] / 2 + P["boss_od"] / 2 <= cradle_l / 2,
+    f'{P["motor_cap_screw_x"]/2 + P["boss_od"]/2:.1f} <= {cradle_l/2:.1f}')
+chk("Motor cradle inside the tub rear wall",
+    P["wheelbase"] / 2 + cradle_w / 2 <= P["tub_len"] / 2,
+    f'cradle rear edge {P["wheelbase"]/2 + cradle_w/2:.1f} <= {P["tub_len"]/2:.1f}')
+chk("Cap saddle grips (tongue narrower than motor)",
+    P["motor_dia"] + P["motor_fit_clear"] - 2 * P["motor_cap_fit"] < P["motor_dia"],
+    f'tongue {P["motor_dia"] + P["motor_fit_clear"] - 2*P["motor_cap_fit"]:.1f} < motor {P["motor_dia"]:.1f}')
+
 # --- internal packaging --------------------------------------------------
 inner_w = P["tub_width"] - 2 * P["tub_wall"]
 inner_l = P["tub_len"] - 2 * P["tub_wall"]

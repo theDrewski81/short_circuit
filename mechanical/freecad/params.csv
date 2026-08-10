@@ -32,6 +32,13 @@ motor_shaft_dia,3,mm,motor,1,D-shaft diameter
 motor_shaft_len,9,mm,motor,1,Output shaft length
 motor_face_hole_cc,10.6,mm,motor,0,Pololu bracket face hole spacing (M2)
 motor_clamp_wall,2.6,mm,motor,0,Motor cradle/clamp wall thickness
+motor_fit_clear,0.4,mm,motor,0,Diametral clearance on the motor bore and drop-in slot
+motor_cap_t,4,mm,motor,0,Retention cap plate thickness above the cradle top
+motor_cap_screw_cc,20,mm,motor,0,Cap screw spacing across the motor axis (Y); sets cradle width
+motor_cap_screw_x,20,mm,motor,0,Cap screw spacing along the motor axis (X)
+motor_cap_screw_depth,8,mm,motor,0,Tapped depth into the cradle for the cap screws
+motor_cap_clamp_gap,0.4,mm,motor,0,Preload gap so the cap seats on the motor before the cradle top
+motor_cap_fit,0.3,mm,motor,0,Slip fit between the cap tongue and the cradle slot
 #
 # --- Chassis tub ---
 tub_wall,2.4,mm,chassis,0,Tub wall (6 perimeters @0.4); load zones thicker via bosses

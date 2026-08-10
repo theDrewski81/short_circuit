@@ -6,6 +6,9 @@ or paste into the FreeCAD 1.1.1 Python console.
 Outputs (relative to repo root):
     mechanical/stl/chassis_tub_v1.stl
     mechanical/stl/chassis_deck_v1.stl
+    mechanical/stl/caster_arm_v1.stl
+    mechanical/stl/caster_wheel_v1.stl
+    mechanical/stl/motor_cap_v1.stl      (print x2 -- one per motor cradle)
     mechanical/freecad/chassis_assembly_v1.FCStd
 
 Coordinate frame: origin at the centre of the track footprint on the ground
@@ -58,28 +61,84 @@ def tub():
 
 
 # --- motor cradles (rear, one per side, axis along X) --------------------
+def _cradle_dims():
+    """Shared cradle geometry, so motor_cap() cannot drift out of step with it."""
+    cradle_l = P["motor_body_len"] + 4.0
+    # Width is set by the cap screws, not chosen: the columns must sit clear of
+    # the drop-in slot on both sides. The original 16 mm block left 2 mm either
+    # side of the slot, too thin to tap M2, which is why the motors had nothing
+    # retaining them.
+    cradle_w = P["motor_cap_screw_cc"] + P["boss_od"]
+    cradle_top = AXLE + P["motor_dia"] / 2.0 + 3.0
+    return cradle_l, cradle_w, cradle_top
+
+
 def motor_cradles():
     solids, cuts = [], []
-    bore_r = (P["motor_dia"] + 0.4) / 2.0
-    cradle_l = P["motor_body_len"] + 4.0
-    cradle_w = 16.0
-    cradle_top = AXLE + P["motor_dia"] / 2.0 + 3.0
+    fit = P["motor_fit_clear"]
+    bore_r = (P["motor_dia"] + fit) / 2.0
+    cradle_l, cradle_w, cradle_top = _cradle_dims()
+    depth = P["motor_cap_screw_depth"]
     for sgn in (-1, 1):
         # outboard end flush with inner wall face, body reaching inward
         x_out = sgn * X_WALL_IN
         x_in = x_out - sgn * cradle_l
         cx = (x_out + x_in) / 2.0
+        # At the current wheelbase the widened block runs 0.9 mm past the rear
+        # wall's inner face and merges into it on the fuse. That is intended --
+        # it stiffens the wall behind the drive loads -- and it stays inside the
+        # tub's outer face, which validate.py checks.
         block = L.box(cradle_l, cradle_w, cradle_top - Z0, cx, Y_REAR, Z0)
         # horizontal motor bore
         bore = L.cyl(bore_r, cradle_l + 2, min(x_out, x_in) - 1, Y_REAR, AXLE, axis="x")
-        # drop-in slot (open top) so the motor seats from above, retained by a cap
-        slot = L.box(cradle_l - 4, P["motor_dia"], cradle_top - AXLE + 2, cx, Y_REAR, AXLE)
+        # drop-in slot (open top) so the motor seats from above, retained by the
+        # cap. Slot carries the same clearance as the bore -- at exactly
+        # motor_dia the motor could not be pressed in at printed tolerances.
+        slot = L.box(cradle_l - 4, P["motor_dia"] + fit, cradle_top - AXLE + 2, cx, Y_REAR, AXLE)
         solids.append(block)
         cuts.append(bore)
         cuts.append(slot)
         # shaft clearance hole through the side wall
         cuts.append(_xhole(sgn * (X_WALL + 2), Y_REAR, AXLE, (P["motor_shaft_dia"] + 1.5) / 2.0, 6))
+        # four tapped columns per side, flanking the slot, for the retention cap
+        for dx in (-P["motor_cap_screw_x"] / 2.0, P["motor_cap_screw_x"] / 2.0):
+            for dy in (-P["motor_cap_screw_cc"] / 2.0, P["motor_cap_screw_cc"] / 2.0):
+                cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, depth + 1,
+                                  cx + dx, Y_REAR + dy, cradle_top - depth))
     return solids, cuts
+
+
+# --- motor retention cap (separate print, x2) ----------------------------
+def motor_cap():
+    """Closes the cradle slot and holds a motor in. One part, printed twice.
+
+    Built about the origin with the motor axis along X rather than in place, so
+    it exports as a printable part (same convention as the caster pieces). The
+    tongue drops into the cradle slot and is carved out by the motor body,
+    leaving a saddle that bears on the top of the can. The plate is held
+    motor_cap_clamp_gap above the cradle top so the four M2 screws preload the
+    motor down into the bore instead of bottoming the plate out first.
+    """
+    fit = P["motor_cap_fit"]
+    cradle_l, cradle_w, cradle_top = _cradle_dims()
+    # cradle top and plate underside, expressed relative to the motor axis
+    top_rel = cradle_top - AXLE
+    plate_z = top_rel + P["motor_cap_clamp_gap"]
+
+    plate = L.box(cradle_l, cradle_w, P["motor_cap_t"], 0, 0, plate_z)
+    tongue = L.box(cradle_l - 4 - 2 * fit,
+                   P["motor_dia"] + P["motor_fit_clear"] - 2 * fit,
+                   plate_z, 0, 0, 0.0)
+    solid = plate.fuse(tongue)
+    # carve the saddle: nominal motor radius, no clearance, so the cap grips
+    solid = solid.cut(L.cyl(P["motor_dia"] / 2.0, cradle_l + 4,
+                            -(cradle_l + 2) / 2.0, 0, 0, axis="x"))
+    # M2 clearance holes over the cradle's tapped columns
+    for dx in (-P["motor_cap_screw_x"] / 2.0, P["motor_cap_screw_x"] / 2.0):
+        for dy in (-P["motor_cap_screw_cc"] / 2.0, P["motor_cap_screw_cc"] / 2.0):
+            solid = solid.cut(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, P["motor_cap_t"] + 2,
+                                    dx, dy, plate_z - 1))
+    return solid
 
 
 # --- side-wall axle features (idler bearing + road wheels) ---------------
@@ -271,13 +330,16 @@ def main():
 
     arm_shape = caster_arm()
     wheel_shape = caster_wheel()
+    cap_shape = motor_cap()
     L.export(tub_shape, os.path.join(STL, "chassis_tub_v1.stl"))
     L.export(deck_shape, os.path.join(STL, "chassis_deck_v1.stl"))
     L.export(arm_shape, os.path.join(STL, "caster_arm_v1.stl"))
     L.export(wheel_shape, os.path.join(STL, "caster_wheel_v1.stl"))
+    L.export(cap_shape, os.path.join(STL, "motor_cap_v1.stl"))
 
     for shp, nm in ((tub_shape, "chassis_tub"), (deck_shape, "chassis_deck"),
-                    (arm_shape, "caster_arm"), (wheel_shape, "caster_wheel")):
+                    (arm_shape, "caster_arm"), (wheel_shape, "caster_wheel"),
+                    (cap_shape, "motor_cap")):
         o = doc.addObject("Part::Feature", nm)
         o.Shape = shp
     doc.recompute()

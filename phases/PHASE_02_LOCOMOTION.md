@@ -166,6 +166,22 @@ short-brake state as the cause.
 
 #### 6b. Floor Integration Test (blocked -- motors must be chassis-mounted, wiring off breadboard)
 
+**Unblocking work, in order.** The motor cradles in `build_chassis.py` were
+modelled as open-top drop-in slots "retained by a cap" that was never designed,
+so nothing held the motors in and the cradle was too narrow (2 mm either side of
+the slot) to tap for one. Fixed 2026-08-10: the cradle now derives its width
+from `motor_cap_screw_cc`, carries four tapped M2 columns per side, and
+`motor_cap()` exports `motor_cap_v1.stl` (one part, printed twice). Remaining
+before 6b can run:
+
+1. `freecadcmd build_chassis.py` to regenerate the STLs, then check the massing
+   preview. The tub changed, so `chassis_tub_v1.stl` must be reprinted.
+2. Print the tub and two caps; seat each motor in its cradle and screw the caps
+   down. M2 screws thread-form directly into the columns (no heat-sets).
+3. Move the drive wiring off breadboard -- soldered or a secured connector.
+   Breadboard jumpers work loose under tread vibration, which is the failure
+   this ordering exists to avoid.
+
 With the trained policy deployed, motors mechanically fixed to the chassis,
 drive wiring hardened (soldered or a secured connector, not open breadboard),
 and treads/sprockets on:
