@@ -9,6 +9,7 @@ the correct sign, coast vs brake behaving differently, and the STBY interlock.
     python3 scripts/test_motors.py                 # default 0.6 duty, encoders on
     python3 scripts/test_motors.py --speed 0.8
     python3 scripts/test_motors.py --no-encoders   # if encoders not wired yet
+    python3 scripts/test_motors.py --dwell 10      # 10x longer phases, easier to watch
     python3 scripts/test_motors.py --calibrate     # encoder counts/rev (motors OFF)
 
 Bring VM up only after logic (per the doc): step 1 confirms STBY reads low and
@@ -39,7 +40,9 @@ def _fmt_enc(enc) -> str:
     )
 
 
-def _phase(driver, enc, label: str, left: float, right: float, secs: float) -> None:
+def _phase(driver, enc, label: str, left: float, right: float, secs: float,
+           dwell: float = 1.0) -> None:
+    secs *= dwell
     print(f"\n>> {label}: set_speed(left={left:+.2f}, right={right:+.2f}) for {secs:.1f}s")
     driver.set_speed(left, right)
     time.sleep(secs)
@@ -85,6 +88,9 @@ def main() -> int:
                     help="duty magnitude 0..1 for the sequence (default 0.6)")
     ap.add_argument("--no-encoders", action="store_true",
                     help="skip EncoderReader (use if encoders are not wired)")
+    ap.add_argument("--dwell", type=float, default=1.0,
+                    help="multiplier on every phase/settle duration (default 1.0); "
+                         "raise it to watch each phase longer on the bench")
     ap.add_argument("--calibrate", action="store_true",
                     help="encoder counts/output-rev calibration (motors stay OFF)")
     ap.add_argument("--revs", type=float, default=10.0,
@@ -92,7 +98,16 @@ def main() -> int:
     args = ap.parse_args()
     if args.calibrate:
         return run_calibration(args.revs)
+    if args.dwell <= 0.0:
+        # A zero/negative dwell would collapse the sequence into back-to-back
+        # direction reversals with no settle time, which stresses the gearbox
+        # and makes the encoder readings meaningless.
+        ap.error("--dwell must be greater than 0")
+    dwell = args.dwell
     spd = max(0.0, min(1.0, args.speed))
+
+    def nap(secs: float) -> None:
+        time.sleep(secs * dwell)
 
     print("=== Johnny 5 tread drive bench test ===")
     print("SAFETY: wheels free, robot off the treads, fingers clear of sprockets.")
@@ -104,7 +119,7 @@ def main() -> int:
         print("\n[1] STBY interlock (driver disabled): commanding full speed -- "
               "motors must NOT move.")
         driver.set_speed(1.0, 1.0)
-        time.sleep(1.0)
+        nap(1.0)
         print(f"    encoders (expect ~no change): {_fmt_enc(enc)}")
 
         # Step 2 -- enable, then the timed sequence.
@@ -113,20 +128,20 @@ def main() -> int:
         if enc is not None:
             enc.reset()
 
-        _phase(driver, enc, "forward", spd, spd, 2.0)
-        print("\n>> stop (coast)"); driver.stop(); time.sleep(0.5)
-        _phase(driver, enc, "backward", -spd, -spd, 2.0)
-        print("\n>> stop (coast)"); driver.stop(); time.sleep(0.5)
-        _phase(driver, enc, "turn left (in place, CCW)", -spd, spd, 1.0)
-        _phase(driver, enc, "turn right (in place, CW)", spd, -spd, 1.0)
+        _phase(driver, enc, "forward", spd, spd, 2.0, dwell)
+        print("\n>> stop (coast)"); driver.stop(); nap(0.5)
+        _phase(driver, enc, "backward", -spd, -spd, 2.0, dwell)
+        print("\n>> stop (coast)"); driver.stop(); nap(0.5)
+        _phase(driver, enc, "turn left (in place, CCW)", -spd, spd, 1.0, dwell)
+        _phase(driver, enc, "turn right (in place, CW)", spd, -spd, 1.0, dwell)
 
         # Step 3 -- coast vs brake, back to back from the same speed.
         print("\n[3] coast vs brake from forward:")
-        driver.set_speed(spd, spd); time.sleep(1.0)
-        driver.stop();  print("    coast issued"); time.sleep(1.0)
-        driver.set_speed(spd, spd); time.sleep(1.0)
+        driver.set_speed(spd, spd); nap(1.0)
+        driver.stop();  print("    coast issued"); nap(1.0)
+        driver.set_speed(spd, spd); nap(1.0)
         driver.brake(); print("    brake issued (should stop noticeably faster)")
-        time.sleep(1.0)
+        nap(1.0)
 
         print("\n[OK] sequence complete. Verify against docs/HARDWARE_drive_bringup.md:")
         print("  - each motor turned the right way each phase")
