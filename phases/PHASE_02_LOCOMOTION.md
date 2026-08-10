@@ -139,11 +139,29 @@ contact geometry, so "does it drive straight" isn't a meaningful test yet.
 
 #### 6a. Encoder Calibration (bench, unblocked)
 
-1. `scripts/test_motors.py --calibrate` -- motors OFF, hand-rotate each wheel
-   a fixed number of output revs, read true counts/output-rev.
-2. Update `COUNTS_PER_OUTPUT_REV` in `src/motion/motor_driver.py` from the
-   provisional 451.74 to the measured value.
-3. Log the measured value and method in `simulation/chassis/TUNING.md`, next
+Measured under power, not by hand. The 150.58:1 N20 gearbox is not backdrivable
+at the output shaft: forcing the wheel round strips gears or splits the
+gearcase, and the shaft does not move meaningfully before that point. This was
+established on the bench (2026-08-09) after the original hand-rotation method
+failed, with the motor fully detached from the driver to rule out the TB6612
+short-brake state as the cause.
+
+1. Mark one point on each wheel and pick a fixed reference to judge it against.
+   Robot off the treads, both wheels free to spin.
+2. `scripts/test_motors.py --calibrate` -- runs one wheel at a time at low duty
+   (`--calib-duty`, default 0.25) while you tap Enter at each mark pass
+   (`--revs`, default 20). The script fits encoder count against revolution
+   index; the slope is counts/output-rev. Fitting the slope rather than dividing
+   total counts by revolutions makes the result immune to constant reaction lag,
+   which shifts the intercept only.
+3. Sanity-check the reported left/right spread. Above 5% means a miscounted
+   pass; re-run before trusting the number.
+4. Update `COUNTS_PER_OUTPUT_REV` in `src/motion/motor_driver.py` from the
+   provisional 451.74 to the measured value. The figure this primarily settles
+   is whether `gpiozero.RotaryEncoder` is decoding 1x (~452) or 4x (~1807) for
+   this encoder, which is a factor-of-four error in every downstream speed and
+   odometry calculation.
+5. Log the measured value and method in `simulation/chassis/TUNING.md`, next
    to the existing Task 1 bench entries.
 
 #### 6b. Floor Integration Test (blocked -- motors must be chassis-mounted, wiring off breadboard)

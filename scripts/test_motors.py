@@ -10,7 +10,7 @@ the correct sign, coast vs brake behaving differently, and the STBY interlock.
     python3 scripts/test_motors.py --speed 0.8
     python3 scripts/test_motors.py --no-encoders   # if encoders not wired yet
     python3 scripts/test_motors.py --dwell 10      # 10x longer phases, easier to watch
-    python3 scripts/test_motors.py --calibrate     # encoder counts/rev (motors OFF)
+    python3 scripts/test_motors.py --calibrate     # encoder counts/rev (POWERED)
 
 Bring VM up only after logic (per the doc): step 1 confirms STBY reads low and
 the interlock holds before any motor can move.
@@ -49,36 +49,95 @@ def _phase(driver, enc, label: str, left: float, right: float, secs: float,
     print(f"   encoders: {_fmt_enc(enc)}")
 
 
-def run_calibration(revs: float) -> int:
-    """Hand-rotation encoder calibration -- motors stay OFF (no MotorDriver).
+def _fit_counts_per_rev(counts: list[int]) -> float:
+    """Least-squares slope of encoder count against revolution index.
 
-    Rotate each wheel exactly `revs` output revolutions by hand; prints the
-    measured counts/output-rev so COUNTS_PER_OUTPUT_REV in motion/motor_driver.py
-    can be set to the true value for this encoder and gpiozero's decoding mode.
+    Fitting the slope rather than dividing total counts by revolutions makes the
+    result immune to a constant human reaction lag: a fixed offset applied to
+    every sample moves the intercept, not the slope.
+    """
+    n = len(counts)
+    xbar = (n - 1) / 2.0
+    ybar = sum(counts) / float(n)
+    sxx = sum((i - xbar) ** 2 for i in range(n))
+    sxy = sum((i - xbar) * (c - ybar) for i, c in enumerate(counts))
+    return sxy / sxx
+
+
+def run_calibration(revs: int, duty: float) -> int:
+    """Powered encoder calibration -- one wheel at a time, driver ENABLED.
+
+    The 150.58:1 N20 gearbox is not backdrivable at the output shaft (forcing it
+    strips gears or splits the gearcase), so counts/output-rev is measured under
+    power instead: mark one point on the wheel, run it slowly, and tap Enter each
+    time the mark passes a fixed reference. The fitted slope is counts per output
+    revolution, which is what COUNTS_PER_OUTPUT_REV in motion/motor_driver.py
+    needs -- notably it settles whether gpiozero is decoding 1x (~452) or 4x
+    (~1807) for this encoder.
     """
     from motion.motor_driver import COUNTS_PER_OUTPUT_REV
-    print("=== Encoder counts/rev calibration (motors OFF, supply can stay off) ===")
-    print(f"Rotate each wheel {revs:g} full output revolutions by hand when prompted.")
+    print("=== Encoder counts/rev calibration (POWERED) ===")
+    print("SAFETY: robot off the treads, both wheels free to spin, fingers clear.")
+    print("Do NOT hand-rotate the output shaft -- the gearbox is not backdrivable.")
+    print(f"\nMark one point on each wheel and pick a fixed reference to judge it")
+    print(f"against. Each wheel runs at duty {duty:.2f} for {revs} revolutions.")
+
     enc = EncoderReader()
-    results = {}
+    driver = MotorDriver()
+    results: dict[str, float] = {}
     try:
-        for side, read_ticks in (("LEFT", lambda: enc.ticks_left),
-                                 ("RIGHT", lambda: enc.ticks_right)):
-            input(f"\n[{side}] Press Enter, then rotate the {side} wheel "
-                  f"{revs:g} revs FORWARD...")
+        driver.enable()
+        for side, speeds, read_ticks in (
+            ("LEFT", (duty, 0.0), lambda: enc.ticks_left),
+            ("RIGHT", (0.0, duty), lambda: enc.ticks_right),
+        ):
+            input(f"\n[{side}] Press Enter to start this wheel...")
             enc.reset()
-            input(f"[{side}] ...finished rotating? Press Enter to read.")
-            counts = abs(read_ticks())
-            cpr = counts / revs if revs else 0.0
-            results[side] = cpr
-            print(f"[{side}] {counts} counts / {revs:g} rev = {cpr:.1f} counts/output-rev")
+            driver.set_speed(*speeds)
+            # Spin-up is non-linear; let it settle before the first sample so the
+            # transient sits outside the fitted range.
+            time.sleep(1.0)
+            print(f"[{side}] running -- tap Enter at each mark pass "
+                  f"({revs + 1} taps, starting with the next one).")
+            counts: list[int] = []
+            for i in range(revs + 1):
+                input()
+                counts.append(read_ticks())
+                print(f"    rev {i}/{revs}: {counts[-1]:+d} counts")
+            driver.stop()
+
+            deltas = [counts[j + 1] - counts[j] for j in range(len(counts) - 1)]
+            cpr = _fit_counts_per_rev(counts)
+            if abs(cpr) < 1.0:
+                print(f"[{side}] FAILED: counts barely moved. Either the wheel did "
+                      f"not turn or this encoder channel is not reading.")
+                continue
+            if cpr < 0:
+                print(f"[{side}] note: counts fell while driving forward -- encoder "
+                      f"sign is inverted on this side.")
+            results[side] = abs(cpr)
+            print(f"[{side}] fit = {abs(cpr):.1f} counts/output-rev "
+                  f"(per-rev deltas {min(deltas):+d}..{max(deltas):+d})")
+    except KeyboardInterrupt:
+        print("\n[ABORT] Ctrl-C -- stopping.")
+        return 130
     finally:
+        driver.close()      # disable() + release pins (STBY low)
         enc.close()
+
     if len(results) == 2:
         avg = sum(results.values()) / 2.0
+        spread = abs(results["LEFT"] - results["RIGHT"]) / avg * 100.0
         print(f"\nMeasured avg = {avg:.1f} counts/output-rev "
-              f"(current constant {COUNTS_PER_OUTPUT_REV:.1f}).")
-        print("Set COUNTS_PER_OUTPUT_REV in src/motion/motor_driver.py to the measured value.")
+              f"(current constant {COUNTS_PER_OUTPUT_REV:.1f}, "
+              f"left/right spread {spread:.1f}%).")
+        if spread > 5.0:
+            print("Spread above 5% suggests a miscounted pass -- re-run before "
+                  "trusting this.")
+        print("Set COUNTS_PER_OUTPUT_REV in src/motion/motor_driver.py to the "
+              "measured value, and log it in simulation/chassis/TUNING.md.")
+    else:
+        print("\nBoth sides did not produce a usable fit -- nothing to apply.")
     return 0
 
 
@@ -92,12 +151,23 @@ def main() -> int:
                     help="multiplier on every phase/settle duration (default 1.0); "
                          "raise it to watch each phase longer on the bench")
     ap.add_argument("--calibrate", action="store_true",
-                    help="encoder counts/output-rev calibration (motors stay OFF)")
-    ap.add_argument("--revs", type=float, default=10.0,
-                    help="output revolutions to hand-rotate during --calibrate")
+                    help="powered encoder counts/output-rev calibration "
+                         "(runs the motors; wheels must be free)")
+    ap.add_argument("--revs", type=int, default=20,
+                    help="marked wheel passes to sample per side during "
+                         "--calibrate (default 20)")
+    ap.add_argument("--calib-duty", type=float, default=0.25,
+                    help="duty magnitude used during --calibrate (default 0.25); "
+                         "low enough to track the mark, high enough not to stall")
     args = ap.parse_args()
     if args.calibrate:
-        return run_calibration(args.revs)
+        if args.revs < 2:
+            # The slope needs at least two points, and a two-point fit is just
+            # a difference -- the lag immunity only shows up over many revs.
+            ap.error("--revs must be at least 2 (use 15-25 for a usable fit)")
+        if not 0.0 < args.calib_duty <= 1.0:
+            ap.error("--calib-duty must be in (0, 1]")
+        return run_calibration(args.revs, args.calib_duty)
     if args.dwell <= 0.0:
         # A zero/negative dwell would collapse the sequence into back-to-back
         # direction reversals with no settle time, which stresses the gearbox
