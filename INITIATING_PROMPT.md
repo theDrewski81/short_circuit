@@ -4,7 +4,7 @@ Read `CLAUDE.md`. Then read the active phase coordinator in `/phases/`. Follow a
 
 ## Current Phase
 
-Phase 02 — Locomotion (`phases/PHASE_02_LOCOMOTION.md`). **Next task: Task 1 — H-Bridge Driver Integration (`MotorDriver`).** Drive hardware has arrived and is on the bench.
+Phase 02 — Locomotion (`phases/PHASE_02_LOCOMOTION.md`). **Next task: Task 6b — Floor Integration Test, currently blocked** on mechanical work (motors must be chassis-mounted and drive wiring off breadboard). Tasks 1, 2, 3, 4, 5 and 6a are complete.
 
 Progress so far — the sim/policy track (Tasks 3–5) is complete:
 
@@ -12,9 +12,9 @@ Progress so far — the sim/policy track (Tasks 3–5) is complete:
 - **Task 4** — PPO trained on the desktop (CPU); best of 3 seeds exported to `policies/locomotion_v3.onnx`. Scaffold: `train.py`, `config.yaml`, `export_onnx.py`, `cem_smoke.py`, `simulation/chassis/TRAINING_WINDOWS.md`.
 - **Task 5** — `src/motion/locomotion_policy.py` (ONNX runner; validated 0.02 ms/step on x86, correct command directions), `scripts/test_locomotion_policy.py`, `scripts/setup_motion_pi.sh`, and a documented `execute_intent()` seam in `src/motion/main.py` (inactive until `MotorDriver` exists).
 
-Remaining for the gate: **Task 6a** (encoder calibration -- bench, unblocked, `scripts/test_motors.py --calibrate`), **Task 6b** (floor integration: drive on the floor, live offline-fallback test, log sim-vs-real deltas in `simulation/chassis/TUNING.md` -- **blocked** until motors are chassis-mounted and drive wiring is off breadboard). Tasks 1 and 2 are complete (see decision log).
+Remaining for the gate: **Task 6b** only (floor integration: drive on the floor, live offline-fallback test, log sim-vs-real deltas in `simulation/chassis/TUNING.md` -- **blocked** until motors are chassis-mounted and drive wiring is off breadboard). Tasks 1, 2 and 6a are complete (see decision log).
 
-**Recommended config for Task 1: Sonnet, Standard thinking, Medium effort.** Per CLAUDE.md's in-phase note, `MotorDriver` is routine, well-constrained hardware-interface work — the GPIO map is in `BOM.md`, the full TB6612FNG control contract + bench procedure is in `docs/HARDWARE_drive_bringup.md`, and the GrowBot reference applies. This is not the reward-shaping work that earns Phase 02's Opus/Extra default. Escalate to Opus only if encoder quadrature/timing edge-cases get hairy.
+**Recommended config for Task 6b: Sonnet, Standard thinking, Medium effort.** The remaining work is bench/floor procedure and tuning-log capture against code that already exists, not new architecture. Escalate to Opus if the sim-to-real deltas turn out large enough to require revisiting the policy or the reward shaping.
 
 ## Phase 01 Closure Summary (gate met 2026-06-22)
 
@@ -36,6 +36,36 @@ Carried-forward non-blockers (not gate conditions, just open items):
 ## Decision Log
 
 (Most recent session first. Append new entries above old ones.)
+
+### 2026-08-10 -- Task 6a complete; calibration method corrected
+
+- **The 150.58:1 N20 gearbox is not backdrivable at the output shaft.** This
+  supersedes the 2026-07-16 entry below, which described 6a as a hand-rotation
+  test with motors off. It is not: the wheel will not turn by hand, and the
+  force needed to move it would split the gearcase before the shaft moved a
+  useful amount. Confirmed mechanical rather than electrical by detaching the
+  motor from the TB6612 entirely and finding it still locked, which rules out
+  the short-brake state (IN1=H, IN2=H) that floating pins can leave behind
+  after `MotorDriver.close()` releases them.
+- **`--calibrate` rewritten as a powered measurement.** One wheel at a time at
+  low duty with the driver enabled; Andrew taps Enter at each pass of a mark on
+  the wheel; the script least-squares-fits encoder count against revolution
+  index. Fitting the slope rather than dividing total counts by revolutions is
+  the point -- a constant human reaction lag moves the intercept and leaves the
+  slope untouched, so the result does not depend on Andrew's reflexes being
+  fast, only on them being consistent.
+- **Result: 450.6 counts/output-rev, left/right spread 0.4%.** This confirms
+  rather than replaces the derived constant. `COUNTS_PER_OUTPUT_REV` stays at
+  **451.74** (= 3 quadrature cycles/motor-rev x 150.58 gearbox), because that
+  figure is fixed by integer tooth and pole counts while the measurement
+  carries tap-timing noise; the 0.25% gap is noise, not a physical difference.
+  What the measurement actually settled is the question it was designed for --
+  `gpiozero.RotaryEncoder` is decoding **1x, not 4x**, so the alternative
+  candidate of ~1807 is dead. A 4x decode would have been a factor-of-four
+  error in every downstream speed and odometry figure.
+- **`--dwell` added to `scripts/test_motors.py`**: uniform multiplier on every
+  sleep in the bench sequence, replacing the ad-hoc long durations that had been
+  edited directly into the Pi's working copy and were blocking `git pull`.
 
 ### 2026-07-16 -- Task 1/2 landed; Task 6 split on mechanical blocker
 

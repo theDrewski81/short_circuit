@@ -142,7 +142,7 @@ contact geometry, so "does it drive straight" isn't a meaningful test yet.
 Measured under power, not by hand. The 150.58:1 N20 gearbox is not backdrivable
 at the output shaft: forcing the wheel round strips gears or splits the
 gearcase, and the shaft does not move meaningfully before that point. This was
-established on the bench (2026-08-09) after the original hand-rotation method
+established on the bench (2026-08-10) after the original hand-rotation method
 failed, with the motor fully detached from the driver to rule out the TB6612
 short-brake state as the cause.
 

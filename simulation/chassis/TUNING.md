@@ -81,3 +81,42 @@ backward → both negative, CCW → L−/R+, CW → L+/R−. Motors track closel
   `scripts/test_motors.py --calibrate` and set the exact value. If counts are also
   *missed* at speed (callback latency on the single-core Pi Zero 2 W), the
   low-speed calibration won't reveal it — watch obs-vs-commanded speed in Task 6.
+
+## Encoder calibration — Task 6a (2026-08-10)
+
+**Result: 450.6 counts/output-rev measured, left/right spread 0.4%.
+`COUNTS_PER_OUTPUT_REV` stays at 451.74.**
+
+The measurement confirms the derived constant rather than replacing it. 451.74
+is fixed by integer quantities (3 quadrature cycles/motor-rev × 150.58 gearbox,
+both from tooth and pole counts), whereas the measured figure carries
+tap-timing noise; the 0.25% gap between them is that noise, not a physical
+difference, so adopting 450.6 would trade an exactly-derived value for a
+noisier estimate of the same thing. What the measurement does settle is the
+question it was designed for: `gpiozero.RotaryEncoder` decodes **1x, not 4x**,
+killing the ~1807 candidate. That alternative would have been a factor-of-four
+error in both wheel-speed obs channels and in all odometry.
+
+**Method changed — the hand-rotation procedure originally specified for Task 6a
+is impossible.** The 150.58:1 N20 gearbox is not backdrivable at the output
+shaft: the wheel does not turn by hand, and the force required would split the
+gearcase before the shaft moved usefully. This was confirmed mechanical rather
+than electrical by detaching the motor from the TB6612 completely and finding
+it still locked, ruling out the short-brake state (IN1=H, IN2=H) that floating
+pins can leave behind once `MotorDriver.close()` releases them. Note that
+`--calibrate` therefore now **runs the motors** — wheels must be free and the
+robot off the treads before invoking it.
+
+The replacement is a powered measurement: one wheel at a time at low duty
+(`--calib-duty`, default 0.25), tapping Enter at each pass of a mark on the
+wheel, with the script least-squares-fitting encoder count against revolution
+index over `--revs` passes. The slope is counts/output-rev. Fitting the slope
+rather than dividing total counts by revolutions is what makes this usable by
+hand: a constant human reaction lag displaces the intercept and leaves the
+slope unchanged, so the result depends on the taps being consistent, not fast.
+
+**Carried forward:** this was measured at ~0.25 duty, so the missed-count risk
+noted in the Task 1 entry above is still open. Low-speed calibration cannot
+reveal counts dropped at speed through callback latency on the single-core Pi
+Zero 2 W. Compare observed against commanded wheel speed during Task 6b, where
+the robot runs at real drive speeds for the first time.
