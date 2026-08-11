@@ -37,6 +37,38 @@ Carried-forward non-blockers (not gate conditions, just open items):
 
 (Most recent session first. Append new entries above old ones.)
 
+### 2026-08-11 -- chassis rebuilt in FreeCAD; two pre-existing tub defects found
+
+Ran `build_chassis.py` against FreeCAD 1.1.3 through the FreeCAD MCP rather than
+by hand. Building it for real immediately exposed things no amount of parameter
+arithmetic could have caught.
+
+- **The tub was building as five solids, not one.** The four deck rim bosses sat
+  at `W/2-6` / `Lg/2-6`, which put their outer edges 0.1 mm short of the wall
+  inner faces, so they never fused to the body. They would have sliced as four
+  islands floating in mid-air at the tub rim, and the deck would have had
+  nothing to screw into. Pre-existing since the Phase 00 model; unrelated to the
+  motor-cap work, but it would have wrecked the same print. Bosses now inset to
+  overlap the wall by 1 mm, positions shared with `deck()` through
+  `_rim_boss_xy()` so the bosses and the deck holes cannot drift apart again.
+- **Those bosses had no pilot bores.** `L.screw_boss()` returns `(boss, hole)`
+  and the caller discarded the hole, so it was never cut. Also pre-existing.
+  Now collected into the cut list.
+- **The new motor cap overlapped the rear wall by 0.9 mm.** The cradle may run
+  into that wall because it is fused to the tub; the cap is a separate part and
+  may not. The cap footprint is now derived independently of the cradle
+  (`_cap_dims()` + `motor_cap_wall_clear`), clipped to the 12.6 mm free span
+  behind the motor axis. This is the constraint that leaves only ~1.05 mm of
+  plate around each screw hole -- fine for an M2 pan head, too tight for a
+  washer, and not wideable without moving the wheelbase.
+- **Two build-time guards added** so none of this can regress quietly: every
+  printable part must come out as exactly one solid, and a cap plus motor proxy
+  are placed into the cradle and checked for zero shared volume. Both raise
+  rather than export. `preview/validate.py` is at 26/26.
+
+**Deck must be reprinted too**, not just the tub -- the rim bosses moved, so an
+already-printed deck's holes no longer line up.
+
 ### 2026-08-10 -- Task 6a complete; calibration method corrected
 
 - **The 150.58:1 N20 gearbox is not backdrivable at the output shaft.** This

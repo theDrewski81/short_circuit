@@ -174,11 +174,18 @@ from `motor_cap_screw_cc`, carries four tapped M2 columns per side, and
 `motor_cap()` exports `motor_cap_v1.stl` (one part, printed twice). Remaining
 before 6b can run:
 
-1. `freecadcmd build_chassis.py` to regenerate the STLs, then check the massing
-   preview. The tub changed, so `chassis_tub_v1.stl` must be reprinted.
-2. Print the tub and two caps; seat each motor in its cradle and screw the caps
-   down. M2 screws thread-form directly into the columns (no heat-sets).
-3. Move the drive wiring off breadboard -- soldered or a secured connector.
+1. ~~Regenerate the STLs.~~ Done 2026-08-11 in FreeCAD 1.1.3. All five parts
+   build as a single closed solid, and the build now refuses to export if that
+   stops being true or if the cap, motor and cradle interfere.
+2. Print `chassis_tub_v1.stl` (changed, must be reprinted), `chassis_deck_v1.stl`
+   (changed -- the rim bosses moved, so the old deck's holes no longer line up)
+   and two copies of `motor_cap_v1.stl`.
+3. Seat each motor in its cradle and screw the caps down. M2 thread-forming
+   directly into the columns, no heat-sets. Note the cap leaves only ~1.05 mm
+   of plate around each screw hole, which is enough for an M2 pan head but not
+   for a washer; the rear tub wall sets that limit and it cannot be widened
+   without moving the wheelbase.
+4. Move the drive wiring off breadboard -- soldered or a secured connector.
    Breadboard jumpers work loose under tread vibration, which is the failure
    this ordering exists to avoid.
 

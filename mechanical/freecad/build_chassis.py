@@ -73,6 +73,35 @@ def _cradle_dims():
     return cradle_l, cradle_w, cradle_top
 
 
+def _cap_dims():
+    """Cap footprint, clipped off the cradle footprint.
+
+    The cradle is fused to the tub, so it can run into the side and rear walls
+    and simply merge with them. The cap cannot: it is a separate printed part
+    that has to drop between those walls, so it gives up motor_cap_wall_clear
+    against each one. At the current wheelbase the rear wall is the binding
+    constraint, sitting only 12.6 mm behind the motor axis.
+    """
+    cradle_l, cradle_w, _ = _cradle_dims()
+    clear = P["motor_cap_wall_clear"]
+    rear_span = Lg / 2.0 - WALL - abs(Y_REAR) - clear
+    cap_l = cradle_l - 2 * clear                  # clears the side wall outboard
+    cap_w = min(cradle_w, 2.0 * rear_span)        # clears the rear wall
+    return cap_l, cap_w
+
+
+def _rim_boss_xy():
+    """Deck screw-boss centres. Shared with deck() so the holes cannot drift apart.
+
+    The inset is set so each boss overlaps the tub wall it sits against by 1 mm.
+    At the original W/2-6 the bosses stopped 0.1 mm short of the inner faces and
+    came out of the fuse as four solids floating free of the tub.
+    """
+    inset = P["tub_wall"] + P["boss_od"] / 2.0 - 1.0
+    return [(sx * (W / 2.0 - inset), sy * (Lg / 2.0 - inset))
+            for sx in (-1, 1) for sy in (-1, 1)]
+
+
 def motor_cradles():
     solids, cuts = [], []
     fit = P["motor_fit_clear"]
@@ -121,11 +150,12 @@ def motor_cap():
     """
     fit = P["motor_cap_fit"]
     cradle_l, cradle_w, cradle_top = _cradle_dims()
+    cap_l, cap_w = _cap_dims()
     # cradle top and plate underside, expressed relative to the motor axis
     top_rel = cradle_top - AXLE
     plate_z = top_rel + P["motor_cap_clamp_gap"]
 
-    plate = L.box(cradle_l, cradle_w, P["motor_cap_t"], 0, 0, plate_z)
+    plate = L.box(cap_l, cap_w, P["motor_cap_t"], 0, 0, plate_z)
     tongue = L.box(cradle_l - 4 - 2 * fit,
                    P["motor_dia"] + P["motor_fit_clear"] - 2 * fit,
                    plate_z, 0, 0, 0.0)
@@ -276,10 +306,9 @@ def deck():
     for dx in (-P["torso_iface_dx"] / 2, P["torso_iface_dx"] / 2):
         for dy in (-P["torso_iface_dy"] / 2, P["torso_iface_dy"] / 2):
             cuts.append(L.cyl(P["m3_heatset_dia"] / 2.0, P["deck_wall"] + 1, dx, dy, -0.5))
-    # four perimeter screws down into tub-rim bosses
-    for dx in (-(W / 2 - 6), W / 2 - 6):
-        for dy in (-(Lg / 2 - 6), Lg / 2 - 6):
-            cuts.append(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, P["deck_wall"] + 1, dx, dy, -0.5))
+    # four perimeter screws down into tub-rim bosses (same centres as the bosses)
+    for bx, by in _rim_boss_xy():
+        cuts.append(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, P["deck_wall"] + 1, bx, by, -0.5))
     solid = d
     for c in cuts:
         solid = solid.cut(c)
@@ -305,11 +334,14 @@ def build():
     ipad, icuts = imu_pad()
     body = body.fuse(ipad)
 
-    # tub-rim screw bosses for the deck
-    for dx in (-(W / 2 - 6), W / 2 - 6):
-        for dy in (-(Lg / 2 - 6), Lg / 2 - 6):
-            b, h = L.screw_boss(dx, dy, ZTOP - 8, 8, P["boss_od"], P["m2_tap_dia"])
-            body = body.fuse(b)
+    # tub-rim screw bosses for the deck. The pilot bores come back from
+    # screw_boss() and must be cut -- they were previously discarded, leaving
+    # solid bosses with nothing for the deck screws to thread into.
+    rim_cuts = []
+    for bx, by in _rim_boss_xy():
+        b, h = L.screw_boss(bx, by, ZTOP - 8, 8, P["boss_od"], P["m2_tap_dia"])
+        body = body.fuse(b)
+        rim_cuts.append(h)
 
     # rear trailing-caster pivot bosses
     rp_solids, rp_cuts = rear_pivot()
@@ -318,7 +350,7 @@ def build():
 
     # subtract all cuts
     for c in (mc_cuts + bcuts + icuts + axle_features()
-              + front_wall_features() + lightening() + rp_cuts):
+              + front_wall_features() + lightening() + rp_cuts + rim_cuts):
         body = body.cut(c)
 
     return body, deck()
@@ -328,9 +360,38 @@ def main():
     doc = App.newDocument("chassis_assembly_v1")
     tub_shape, deck_shape = build()
 
+    # A printable part must come out of the fuse as exactly one solid. More than
+    # one means something was placed clear of the body and is floating -- it
+    # slices as an island in mid-air rather than failing loudly, so guard here
+    # instead of finding out on the bed.
+    for shp, nm in ((tub_shape, "tub"), (deck_shape, "deck")):
+        n = len(shp.Solids)
+        if n != 1:
+            raise RuntimeError(f"{nm} built as {n} solids -- geometry is not "
+                               f"fused to the body; refusing to export")
+
     arm_shape = caster_arm()
     wheel_shape = caster_wheel()
     cap_shape = motor_cap()
+
+    # Fit check: drop a cap and a motor proxy into the right-hand cradle and
+    # confirm nothing shares volume. Param checks in preview/validate.py cannot
+    # see this -- the cap first came out overlapping the rear wall by 0.9 mm,
+    # which only shows up once the parts are placed against each other.
+    cradle_l = P["motor_body_len"] + 4.0
+    cx = X_WALL_IN - cradle_l / 2.0
+    fitted = cap_shape.copy()
+    fitted.translate(Vector(cx, Y_REAR, AXLE))
+    motor = Part.makeCylinder(
+        P["motor_dia"] / 2.0, P["motor_body_len"],
+        Vector(cx - P["motor_body_len"] / 2.0, Y_REAR, AXLE), Vector(1, 0, 0))
+    for a, b, what in ((fitted, tub_shape, "cap vs tub"),
+                       (fitted, motor, "cap vs motor"),
+                       (motor, tub_shape, "motor vs cradle")):
+        clash = a.common(b).Volume
+        if clash > 1e-6:
+            raise RuntimeError(f"{what} interference: {clash:.1f} mm3 -- "
+                               "parts do not assemble; refusing to export")
     L.export(tub_shape, os.path.join(STL, "chassis_tub_v1.stl"))
     L.export(deck_shape, os.path.join(STL, "chassis_deck_v1.stl"))
     L.export(arm_shape, os.path.join(STL, "caster_arm_v1.stl"))

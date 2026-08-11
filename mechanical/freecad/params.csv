@@ -39,6 +39,7 @@ motor_cap_screw_x,20,mm,motor,0,Cap screw spacing along the motor axis (X)
 motor_cap_screw_depth,8,mm,motor,0,Tapped depth into the cradle for the cap screws
 motor_cap_clamp_gap,0.4,mm,motor,0,Preload gap so the cap seats on the motor before the cradle top
 motor_cap_fit,0.3,mm,motor,0,Slip fit between the cap tongue and the cradle slot
+motor_cap_wall_clear,0.4,mm,motor,0,Cap-to-tub-wall clearance; the cap is a separate part and cannot merge into the walls the way the cradle does
 #
 # --- Chassis tub ---
 tub_wall,2.4,mm,chassis,0,Tub wall (6 perimeters @0.4); load zones thicker via bosses

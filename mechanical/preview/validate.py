@@ -49,6 +49,14 @@ chk("Cap screws land on the cradle top face (X)",
 chk("Motor cradle inside the tub rear wall",
     P["wheelbase"] / 2 + cradle_w / 2 <= P["tub_len"] / 2,
     f'cradle rear edge {P["wheelbase"]/2 + cradle_w/2:.1f} <= {P["tub_len"]/2:.1f}')
+rear_span = P["tub_len"] / 2 - P["tub_wall"] - P["wheelbase"] / 2 - P["motor_cap_wall_clear"]
+cap_w = min(cradle_w, 2 * rear_span)
+hole_r = P["m2_tap_dia"] / 2 + 0.3
+chk("Cap clears the tub rear wall", cap_w / 2 <= rear_span + 1e-9,
+    f'cap half-width {cap_w/2:.2f} <= free span {rear_span:.2f}')
+chk("Cap plate still covers its screw holes",
+    cap_w / 2 >= P["motor_cap_screw_cc"] / 2 + hole_r + 0.8,
+    f'margin round hole {cap_w/2 - P["motor_cap_screw_cc"]/2 - hole_r:.2f} mm')
 chk("Cap saddle grips (tongue narrower than motor)",
     P["motor_dia"] + P["motor_fit_clear"] - 2 * P["motor_cap_fit"] < P["motor_dia"],
     f'tongue {P["motor_dia"] + P["motor_fit_clear"] - 2*P["motor_cap_fit"]:.1f} < motor {P["motor_dia"]:.1f}')
