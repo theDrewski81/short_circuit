@@ -37,8 +37,8 @@ chk("Motor lower edge clears ground >= 15", motor_bottom >= 15, f'motor bottom {
 # --- motor cradle + retention cap ----------------------------------------
 # The cap screws set the cradle width, so these guard the geometry that
 # build_chassis.motor_cradles()/motor_cap() derive rather than choose.
-cradle_l = P["motor_body_len"] + 4
-cradle_w = P["motor_cap_screw_cc"] + P["boss_od"]
+cradle_l = P["cradle_l"]
+cradle_w = P["cradle_w"]
 slot_half = (P["motor_dia"] + P["motor_fit_clear"]) / 2
 col_inner = P["motor_cap_screw_cc"] / 2 - P["boss_od"] / 2
 chk("Cap screw columns clear the motor slot", col_inner >= slot_half,
@@ -49,6 +49,21 @@ chk("Cap screws land on the cradle top face (X)",
 chk("Motor cradle inside the tub rear wall",
     P["wheelbase"] / 2 + cradle_w / 2 <= P["tub_len"] / 2,
     f'cradle rear edge {P["wheelbase"]/2 + cradle_w/2:.1f} <= {P["tub_len"]/2:.1f}')
+# The motor cannot be lowered straight onto its seat: the shaft would have to
+# pass through solid side wall. It goes in shaft-clear and slides outboard, so
+# the cradle has to be long enough to hold it at that drop position.
+chk("Cradle swallows motor body + shaft",
+    cradle_l >= P["motor_body_len"] + P["motor_shaft_len"],
+    f'{cradle_l:.1f} >= {P["motor_body_len"] + P["motor_shaft_len"]:.0f}')
+chk("Drop-in slot longer than the motor body",
+    cradle_l > P["motor_body_len"],
+    f'slot {cradle_l:.1f} > body {P["motor_body_len"]:.0f} '
+    f'({cradle_l - P["motor_body_len"]:.1f} mm axial clearance)')
+chk("Cradle inboard end clears the battery bay cavity",
+    P["tub_width"] / 2 - P["tub_wall"] - cradle_l
+    >= P["battery_w"] / 2 + P["battery_clear"],
+    f'{P["tub_width"]/2 - P["tub_wall"] - cradle_l:.1f} >= '
+    f'{P["battery_w"]/2 + P["battery_clear"]:.1f}')
 rear_span = P["tub_len"] / 2 - P["tub_wall"] - P["wheelbase"] / 2 - P["motor_cap_wall_clear"]
 cap_w = min(cradle_w, 2 * rear_span)
 hole_r = P["m2_tap_dia"] / 2 + 0.3
@@ -67,6 +82,43 @@ inner_l = P["tub_len"] - 2 * P["tub_wall"]
 chk("Battery bay fits tub interior (Y)", P["battery_l"] + 2 * P["battery_clear"] <= inner_l,
     f'{P["battery_l"] + 2 * P["battery_clear"]:.0f} <= {inner_l:.1f}')
 chk("Pi-M board fits across interior", P["pi_l"] <= inner_w, f'{P["pi_l"]:.0f} <= {inner_w:.1f}')
+
+# --- keep-outs -----------------------------------------------------------
+# Added after the first tub was printed. Every one of these guards a case where
+# two features each independently wanted the same volume and the fuse silently
+# gave it to both: an overlapping fuse is legal and still returns one solid, so
+# the existing single-solid check cannot see it.
+rib_in = P["pi_rib_x_in"]
+chk("Shelf ribs clear the battery envelope",
+    rib_in >= P["battery_w"] / 2 + P["battery_clear"],
+    f'rib inner face {rib_in:.1f} >= pack half-width + clear '
+    f'{P["battery_w"]/2 + P["battery_clear"]:.1f}')
+chk("Shelf plate reaches the ribs that carry it",
+    P["pi_shelf_half_w"] >= rib_in + (P["tub_wall"] + 6) / 2,
+    f'{P["pi_shelf_half_w"]:.1f} >= {rib_in + (P["tub_wall"] + 6)/2:.1f}')
+chk("Pi board fits the shelf plate", P["pi_w"] <= 2 * P["pi_shelf_half_w"],
+    f'{P["pi_w"]:.0f} <= {2*P["pi_shelf_half_w"]:.0f}')
+imu_half = (P["imu_hole_cc"] + 8) / 2
+chk("IMU pad clear of the battery bay",
+    P["imu_pos_x"] - imu_half >= P["battery_w"] / 2 + P["battery_clear"] + 2,
+    f'pad inner edge {P["imu_pos_x"] - imu_half:.1f} >= bay outer '
+    f'{P["battery_w"]/2 + P["battery_clear"] + 2:.1f}')
+chk("IMU screws reachable from above (aft of the shelf)",
+    P["imu_pos_y"] + imu_half <= (P["wheelbase"] / 2 - 28) - (P["pi_l"] + 8) / 2,
+    f'pad front edge {P["imu_pos_y"] + imu_half:.1f} <= shelf aft edge '
+    f'{(P["wheelbase"]/2 - 28) - (P["pi_l"] + 8)/2:.1f}')
+chk("IMU pad inside the tub interior",
+    P["imu_pos_x"] + imu_half <= P["tub_width"] / 2 - P["tub_wall"],
+    f'{P["imu_pos_x"] + imu_half:.1f} <= {P["tub_width"]/2 - P["tub_wall"]:.1f}')
+# Bearings sit in the wheel hubs, so the wall only carries a locating hole --
+# but the pad behind it is what gives the shaft usable bearing length.
+chk("Idler shaft bearing length worth having",
+    P["tub_wall"] + P["idler_pad_t"] >= 1.5 * P["idler_axle_dia"],
+    f'{P["tub_wall"] + P["idler_pad_t"]:.1f} >= '
+    f'{1.5*P["idler_axle_dia"]:.1f} (1.5x shaft dia)')
+chk("Idler pad wider than its hole",
+    P["idler_pad_od"] > P["axle_hole_dia"] + 4,
+    f'{P["idler_pad_od"]:.0f} > {P["axle_hole_dia"] + 4:.1f}')
 
 # --- full stack height ---------------------------------------------------
 chk("Total height in floor-roaming band",

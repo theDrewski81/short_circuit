@@ -49,9 +49,18 @@ X_WALL = W / 2.0                   # side-wall outer face
 X_WALL_IN = X_WALL - WALL          # side-wall inner face
 
 
-def _xhole(x, y, z, r, length):
-    """Through-hole cylinder along +X starting at x."""
-    return L.cyl(r, length, x, y, z, axis="x")
+def _xhole(sgn, y, z, r, margin=1.0):
+    """Through-hole in the side wall on side `sgn`, centred on (y, z).
+
+    L.cyl only ever extrudes +X, so the start point must be the *lower* x of
+    the two wall faces whichever side is being cut. The previous signature took
+    a raw start point and every caller passed sgn * (X_WALL + n): correct on the
+    left, and on the right it started outboard and extruded further outboard,
+    cutting nothing. That is why the printed tub came off the bed with no motor
+    shaft, road-wheel or idler holes on the right-hand wall.
+    """
+    x0 = min(sgn * X_WALL, sgn * X_WALL_IN) - margin
+    return L.cyl(r, WALL + 2 * margin, x0, y, z, axis="x")
 
 
 # --- tub shell -----------------------------------------------------------
@@ -62,15 +71,23 @@ def tub():
 
 # --- motor cradles (rear, one per side, axis along X) --------------------
 def _cradle_dims():
-    """Shared cradle geometry, so motor_cap() cannot drift out of step with it."""
-    cradle_l = P["motor_body_len"] + 4.0
-    # Width is set by the cap screws, not chosen: the columns must sit clear of
-    # the drop-in slot on both sides. The original 16 mm block left 2 mm either
-    # side of the slot, too thin to tap M2, which is why the motors had nothing
-    # retaining them.
-    cradle_w = P["motor_cap_screw_cc"] + P["boss_od"]
-    cradle_top = AXLE + P["motor_dia"] / 2.0 + 3.0
-    return cradle_l, cradle_w, cradle_top
+    """Shared cradle geometry, so motor_cap() cannot drift out of step with it.
+
+    Both lengths now come from j5_params.derive() rather than being recomputed
+    here, because validate.py was deriving its own copy and the two disagreed.
+
+    Length is set by insertion, not by the motor body. The shaft protrudes
+    motor_shaft_len past the front face, so a motor lowered straight down at
+    its seated position would have to pass that shaft through solid side wall.
+    The cradle therefore swallows body + shaft + margin: the motor drops in
+    with the shaft clear of the wall, then slides outboard onto it. At the old
+    body+4 length there was no drop position at all -- anywhere far enough
+    inboard put the motor's underside through the tub floor.
+
+    Width is set by the cap screws: the columns must sit clear of the drop-in
+    slot on both sides.
+    """
+    return P["cradle_l"], P["cradle_w"], AXLE + P["motor_dia"] / 2.0 + 3.0
 
 
 def _cap_dims():
@@ -120,15 +137,17 @@ def motor_cradles():
         block = L.box(cradle_l, cradle_w, cradle_top - Z0, cx, Y_REAR, Z0)
         # horizontal motor bore
         bore = L.cyl(bore_r, cradle_l + 2, min(x_out, x_in) - 1, Y_REAR, AXLE, axis="x")
-        # drop-in slot (open top) so the motor seats from above, retained by the
-        # cap. Slot carries the same clearance as the bore -- at exactly
-        # motor_dia the motor could not be pressed in at printed tolerances.
-        slot = L.box(cradle_l - 4, P["motor_dia"] + fit, cradle_top - AXLE + 2, cx, Y_REAR, AXLE)
+        # Drop-in slot, open top, running the full cradle length. It used to be
+        # cradle_l - 4, which at the old cradle length came out exactly equal to
+        # motor_body_len -- zero axial clearance, with a 2 mm roof tab at each
+        # end for the motor to catch on. Full length also gives the motor room
+        # to slide outboard onto its shaft after being lowered in.
+        slot = L.box(cradle_l, P["motor_dia"] + fit, cradle_top - AXLE + 2, cx, Y_REAR, AXLE)
         solids.append(block)
         cuts.append(bore)
         cuts.append(slot)
         # shaft clearance hole through the side wall
-        cuts.append(_xhole(sgn * (X_WALL + 2), Y_REAR, AXLE, (P["motor_shaft_dia"] + 1.5) / 2.0, 6))
+        cuts.append(_xhole(sgn, Y_REAR, AXLE, (P["motor_shaft_dia"] + 1.5) / 2.0))
         # four tapped columns per side, flanking the slot, for the retention cap
         for dx in (-P["motor_cap_screw_x"] / 2.0, P["motor_cap_screw_x"] / 2.0):
             for dy in (-P["motor_cap_screw_cc"] / 2.0, P["motor_cap_screw_cc"] / 2.0):
@@ -156,7 +175,9 @@ def motor_cap():
     plate_z = top_rel + P["motor_cap_clamp_gap"]
 
     plate = L.box(cap_l, cap_w, P["motor_cap_t"], 0, 0, plate_z)
-    tongue = L.box(cradle_l - 4 - 2 * fit,
+    # Tongue is sized off the cap plate, not the cradle, so it can never end up
+    # longer than the plate carrying it.
+    tongue = L.box(cap_l - 2 * fit,
                    P["motor_dia"] + P["motor_fit_clear"] - 2 * fit,
                    plate_z, 0, 0, 0.0)
     solid = plate.fuse(tongue)
@@ -173,14 +194,31 @@ def motor_cap():
 
 # --- side-wall axle features (idler bearing + road wheels) ---------------
 def axle_features():
-    cuts = []
-    bearing_r = 10.0 / 2.0          # 623ZZ OD 10
-    bearing_depth = 4.0
-    # idler bearing pockets (front)
+    """Side-wall shaft features for the idler and road wheels.
+
+    Bearings live in the wheel hubs, not in the wall. The BOM's 8x 623ZZ works
+    out to two per idler wheel plus one per road wheel, and the road wheels
+    were already treated this way. The old version counterbored a 10 x 4 mm
+    bearing pocket into a 2.4 mm wall, which cannot work at any sign -- and its
+    sign handling was inverted relative to _xhole, so it cut clean through on
+    the right and landed in mid-air inboard of the left wall. The two together
+    are why the printed idler holes measured ~9.8 mm one side and ~3.25 mm the
+    other.
+
+    The idler runs one full-width 3 mm rod so it cannot cock; each wall gets a
+    pad on the inner face to take shaft bearing length from tub_wall to
+    tub_wall + idler_pad_t.
+    """
+    solids, cuts = [], []
+    r = P["axle_hole_dia"] / 2.0
+    pad_t = P["idler_pad_t"]
     for sgn in (-1, 1):
-        x_start = sgn * X_WALL
-        cuts.append(L.cyl(bearing_r, bearing_depth + 0.5, x_start - sgn * (bearing_depth), Y_FRONT, AXLE, axis="x"))
-        cuts.append(_xhole(sgn * (X_WALL + 1), Y_FRONT, AXLE, 3.2 / 2.0, WALL + 2))  # idler axle 3mm
+        solids.append(L.cyl(P["idler_pad_od"] / 2.0, pad_t,
+                            min(sgn * X_WALL_IN, sgn * (X_WALL_IN - pad_t)),
+                            Y_FRONT, AXLE, axis="x"))
+        cuts.append(L.cyl(r, WALL + pad_t + 2,
+                          min(sgn * X_WALL, sgn * (X_WALL_IN - pad_t)) - 1,
+                          Y_FRONT, AXLE, axis="x"))
     # road-wheel stub-axle holes
     n = int(P["roadwheels_per_side"])
     span = P["wheelbase"] * 0.6
@@ -188,8 +226,8 @@ def axle_features():
         frac = (i + 1) / (n + 1)
         y = -span / 2.0 + frac * span
         for sgn in (-1, 1):
-            cuts.append(_xhole(sgn * (X_WALL + 1), y, AXLE, 3.2 / 2.0, WALL + 2))
-    return cuts
+            cuts.append(_xhole(sgn, y, AXLE, r))
+    return solids, cuts
 
 
 # --- battery bay ---------------------------------------------------------
@@ -210,37 +248,59 @@ def battery_bay():
 
 # --- Pi-M shelf + standoffs ----------------------------------------------
 def pi_shelf():
+    """Pi-M shelf, its support ribs, and the cuts they need. Returns (solid, cuts).
+
+    The ribs used to sit at the plate edge, 15.8 mm off centre, which put them
+    1.7 mm inside the battery envelope on each side over 53.5 mm of the pack's
+    length -- the battery could not seat at all. They now start outboard of the
+    battery bay ring and the plate widens to reach them.
+
+    The full-width idler shaft passes straight through the rib band at
+    (Y_FRONT, AXLE), so each rib takes a clearance notch. Clearance, not a fit:
+    the shaft is located by the wall pads, and making the ribs a third and
+    fourth bearing would just add two more holes to align on assembly.
+    """
     z = Z0 + WALL + P["pi_shelf_z"]
-    shelf_l = P["pi_w"] + 8     # X
+    cy = Y_FRONT - 28
     shelf_w = P["pi_l"] + 8     # Y
-    plate = L.box(shelf_l, shelf_w, 2.0, 0, Y_FRONT - 28, z)
-    # support ribs to side walls
-    ribs = [L.box(WALL + 6, shelf_w, z - (Z0 + WALL), -shelf_l / 2 - 1, Y_FRONT - 28, Z0 + WALL),
-            L.box(WALL + 6, shelf_w, z - (Z0 + WALL), shelf_l / 2 + 1, Y_FRONT - 28, Z0 + WALL)]
-    solid = plate
-    for r in ribs:
-        solid = solid.fuse(r)
+    rib_t = WALL + 6
+    rib_cx = P["pi_rib_x_in"] + rib_t / 2.0
+
+    solid = L.box(2 * P["pi_shelf_half_w"], shelf_w, 2.0, 0, cy, z)
+    for sgn in (-1, 1):
+        solid = solid.fuse(L.box(rib_t, shelf_w, z - (Z0 + WALL),
+                                 sgn * rib_cx, cy, Z0 + WALL))
     # four standoffs at Pi hole pattern
-    stand = []
     for dx in (-P["pi_hole_dy"] / 2, P["pi_hole_dy"] / 2):      # short axis along X
         for dy in (-P["pi_hole_dx"] / 2, P["pi_hole_dx"] / 2):  # long axis along Y
-            stand.append(L.standoff(dx, Y_FRONT - 28 + dy, z + 2, P["pi_standoff_h"],
-                                    P["boss_od"], P["m25_tap_dia"]))
-    for s in stand:
-        solid = solid.fuse(s)
-    return solid
+            solid = solid.fuse(L.standoff(dx, cy + dy, z + 2, P["pi_standoff_h"],
+                                          P["boss_od"], P["m25_tap_dia"]))
+    notch = L.cyl(P["axle_hole_dia"] / 2.0 + 1.0, W + 4,
+                  -(W / 2.0 + 2), Y_FRONT, AXLE, axis="x")
+    return solid, [notch]
 
 
 # --- IMU pad (centroid, floor) -------------------------------------------
 def imu_pad():
+    """IMU pad on the tub floor, outboard of the battery bay.
+
+    It used to sit at (0, -6) -- concentric with the battery bay, so the pack
+    landed on top of it -- and its two forward screws fell under the Pi shelf,
+    with no vertical driver access. Both features wanted the centroid and
+    neither knew about the other.
+
+    The lateral offset costs nothing for the gyro: angular rate is identical
+    anywhere on a rigid body. It adds a small centripetal term to the
+    accelerometer during tank turns, which is a fixed lever-arm correction.
+    """
     z = Z0 + WALL
-    pad = L.box(P["imu_hole_cc"] + 8, P["imu_hole_cc"] + 8, 2.5, 0, -6, z)
-    solid = pad
+    px, py = P["imu_pos_x"], P["imu_pos_y"]
+    solid = L.box(P["imu_hole_cc"] + 8, P["imu_hole_cc"] + 8, 2.5, px, py, z)
     cuts = []
     h = P["imu_hole_cc"] / 2.0
     for dx in (-h, h):
         for dy in (-h, h):
-            cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, 6, dx, -6 + dy, z - 0.1))
+            cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, 6, px + dx, py + dy, z - 0.1))
     return solid, cuts
 
 
@@ -329,7 +389,13 @@ def build():
 
     bring, bcuts = battery_bay()
     body = body.fuse(bring)
-    body = body.fuse(pi_shelf())
+
+    shelf, shelf_cuts = pi_shelf()
+    body = body.fuse(shelf)
+
+    ax_solids, ax_cuts = axle_features()
+    for s in ax_solids:
+        body = body.fuse(s)
 
     ipad, icuts = imu_pad()
     body = body.fuse(ipad)
@@ -349,7 +415,7 @@ def build():
         body = body.fuse(s)
 
     # subtract all cuts
-    for c in (mc_cuts + bcuts + icuts + axle_features()
+    for c in (mc_cuts + bcuts + icuts + ax_cuts + shelf_cuts
               + front_wall_features() + lightening() + rp_cuts + rim_cuts):
         body = body.cut(c)
 
@@ -374,11 +440,13 @@ def main():
     wheel_shape = caster_wheel()
     cap_shape = motor_cap()
 
-    # Fit check: drop a cap and a motor proxy into the right-hand cradle and
-    # confirm nothing shares volume. Param checks in preview/validate.py cannot
-    # see this -- the cap first came out overlapping the rear wall by 0.9 mm,
-    # which only shows up once the parts are placed against each other.
-    cradle_l = P["motor_body_len"] + 4.0
+    # --- assembly guards -------------------------------------------------
+    # Param checks in preview/validate.py cannot see any of this. They compare
+    # numbers to numbers; every defect guarded below was a solid that either
+    # missed what it was meant to cut or landed inside something else, and all
+    # of them survived a full-PASS validate run and reached the print bed.
+
+    cradle_l, _, _ = _cradle_dims()
     cx = X_WALL_IN - cradle_l / 2.0
     fitted = cap_shape.copy()
     fitted.translate(Vector(cx, Y_REAR, AXLE))
@@ -392,6 +460,58 @@ def main():
         if clash > 1e-6:
             raise RuntimeError(f"{what} interference: {clash:.1f} mm3 -- "
                                "parts do not assemble; refusing to export")
+
+    # The motor is lowered in with its shaft clear of the side wall, then slid
+    # outboard onto it. Check that drop position on both sides -- at the old
+    # cradle length no such position existed and nothing in the build said so.
+    drop_front = X_WALL_IN - P["motor_shaft_len"]
+    for sgn in (-1, 1):
+        x0 = min(sgn * drop_front, sgn * (drop_front - P["motor_body_len"]))
+        dropped = Part.makeCylinder(
+            P["motor_dia"] / 2.0, P["motor_body_len"],
+            Vector(x0, Y_REAR, AXLE), Vector(1, 0, 0))
+        clash = dropped.common(tub_shape).Volume
+        if clash > 1e-6:
+            side = "left" if sgn < 0 else "right"
+            raise RuntimeError(f"motor cannot be lowered into the {side} cradle: "
+                               f"{clash:.1f} mm3 interference at the drop position")
+
+    # Every side-wall shaft hole must actually be open, on both sides.
+    n = int(P["roadwheels_per_side"])
+    span = P["wheelbase"] * 0.6
+    wall_holes = [("motor shaft", Y_REAR, (P["motor_shaft_dia"] + 1.5) / 2.0),
+                  ("idler axle", Y_FRONT, P["axle_hole_dia"] / 2.0)]
+    for i in range(n):
+        y = -span / 2.0 + (i + 1) / (n + 1) * span
+        wall_holes.append((f"road wheel y={y:+.0f}", y, P["axle_hole_dia"] / 2.0))
+    for name, y, r in wall_holes:
+        for sgn in (-1, 1):
+            probe = L.cyl(r * 0.8, WALL + 1,
+                          min(sgn * X_WALL, sgn * X_WALL_IN) - 0.5, y, AXLE, axis="x")
+            blocked = probe.common(tub_shape).Volume
+            if blocked > 1e-6:
+                side = "left" if sgn < 0 else "right"
+                raise RuntimeError(f"{name} hole is not open in the {side} wall: "
+                                   f"{blocked:.1f} mm3 still in the bore")
+
+    # Keep-outs: volumes that have to stay empty for the robot to go together.
+    pack = L.box(P["battery_w"], P["battery_l"], P["battery_h"], 0, -6, Z0 + WALL)
+    clash = pack.common(tub_shape).Volume
+    if clash > 1e-6:
+        raise RuntimeError(f"battery envelope obstructed by {clash:.1f} mm3 -- "
+                           "the pack cannot seat")
+
+    h = P["imu_hole_cc"] / 2.0
+    for dx in (-h, h):
+        for dy in (-h, h):
+            col = L.cyl(2.0, ZTOP - (Z0 + WALL + 2.5),
+                        P["imu_pos_x"] + dx, P["imu_pos_y"] + dy, Z0 + WALL + 2.5)
+            clash = col.common(tub_shape).Volume
+            if clash > 1e-6:
+                raise RuntimeError(
+                    f"no driver access to the imu screw at "
+                    f"({P['imu_pos_x'] + dx:+.1f}, {P['imu_pos_y'] + dy:+.1f}): "
+                    f"{clash:.1f} mm3 overhead")
     L.export(tub_shape, os.path.join(STL, "chassis_tub_v1.stl"))
     L.export(deck_shape, os.path.join(STL, "chassis_deck_v1.stl"))
     L.export(arm_shape, os.path.join(STL, "caster_arm_v1.stl"))

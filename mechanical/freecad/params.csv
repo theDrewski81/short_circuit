@@ -24,6 +24,10 @@ idler_dia,40,mm,track,0,Front idler outer dia (matches sprocket for level top ru
 roadwheel_dia,24,mm,track,0,Road-wheel outer dia (supports TPU track between sprocket and idler)
 roadwheels_per_side,2,count,track,0,Road wheels per side
 wheelbase,120,mm,track,0,Sprocket centre to idler centre
+axle_hole_dia,3.2,mm,track,0,Side-wall through-hole for the 3 mm idler and road-wheel shafts
+idler_axle_dia,3,mm,track,0,Idler shaft dia; one full-width rod through both walls so it cannot cock
+idler_pad_od,10,mm,track,0,Reinforcing pad OD on the inner wall face at the idler axle
+idler_pad_t,3,mm,track,0,Pad thickness; raises idler shaft bearing length from tub_wall to tub_wall+idler_pad_t
 #
 # --- Drive motor (Pololu N20-class, 12 mm) ---
 motor_dia,12,mm,motor,1,N20 gearmotor body diameter
@@ -32,13 +36,14 @@ motor_shaft_dia,3,mm,motor,1,D-shaft diameter
 motor_shaft_len,9,mm,motor,1,Output shaft length
 motor_face_hole_cc,10.6,mm,motor,0,Pololu bracket face hole spacing (M2)
 motor_clamp_wall,2.6,mm,motor,0,Motor cradle/clamp wall thickness
-motor_fit_clear,0.4,mm,motor,0,Diametral clearance on the motor bore and drop-in slot
+motor_fit_clear,0.7,mm,motor,0,Diametral clearance on the motor bore and drop-in slot (0.4 was a press fit at printed tolerance; the cap preloads the motor down so a looser bore is free)
+motor_insert_margin,0.6,mm,motor,0,Extra cradle length beyond body+shaft so the motor can be lowered in clear of the side wall then slid outboard onto its shaft
 motor_cap_t,4,mm,motor,0,Retention cap plate thickness above the cradle top
 motor_cap_screw_cc,20,mm,motor,0,Cap screw spacing across the motor axis (Y); sets cradle width
 motor_cap_screw_x,20,mm,motor,0,Cap screw spacing along the motor axis (X)
 motor_cap_screw_depth,8,mm,motor,0,Tapped depth into the cradle for the cap screws
 motor_cap_clamp_gap,0.4,mm,motor,0,Preload gap so the cap seats on the motor before the cradle top
-motor_cap_fit,0.3,mm,motor,0,Slip fit between the cap tongue and the cradle slot
+motor_cap_fit,0.45,mm,motor,0,Slip fit between the cap tongue and the cradle slot; must exceed motor_fit_clear/2 or the tongue ends up wider than the motor and the saddle stops gripping
 motor_cap_wall_clear,0.4,mm,motor,0,Cap-to-tub-wall clearance; the cap is a separate part and cannot merge into the walls the way the cradle does
 #
 # --- Chassis tub ---
@@ -61,6 +66,8 @@ pi_hole_dx,58,mm,pi,1,Mount hole spacing long axis
 pi_hole_dy,23,mm,pi,1,Mount hole spacing short axis
 pi_standoff_h,5,mm,pi,0,Standoff height under Pi
 pi_shelf_z,26,mm,pi,0,Pi shelf height above tub floor (above battery)
+pi_rib_x_in,22,mm,pi,0,Shelf rib inner face; must sit outboard of the battery bay ring or the pack cannot seat
+pi_shelf_half_w,27,mm,pi,0,Shelf plate half-width; must reach the ribs that carry it
 #
 # --- Fasteners ---
 m2_tap_dia,1.7,mm,fastener,0,M2 thread-form pilot
@@ -73,6 +80,8 @@ tof_window_w,12,mm,sensor,0,VL53L1X front window width
 tof_window_h,8,mm,sensor,0,VL53L1X front window height
 tof_hole_cc,18,mm,sensor,0,Pololu 3415 mount hole spacing
 imu_hole_cc,15,mm,sensor,0,GY-521 mount hole spacing (square)
+imu_pos_x,35,mm,sensor,0,IMU pad centre X; offset to starboard to clear the battery bay ring
+imu_pos_y,-25,mm,sensor,0,IMU pad centre Y; aft of the Pi shelf so all four screws are reachable from above
 #
 # --- Torso interface (top deck) ---
 torso_iface_dx,70,mm,iface,0,Torso bolt rectangle X (M3 heat-set)

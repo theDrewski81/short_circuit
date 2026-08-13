@@ -35,6 +35,14 @@ def derive(p):
     p["axle_z"] = p["sprocket_pitch_dia"] / 2.0 + p["track_thickness"]
     p["wheel_outer_r"] = p["sprocket_pitch_dia"] / 2.0 + p["track_thickness"]
     p["base_height_total"] = p["ground_clearance"] + p["tub_height"]     # underside floor to deck top
+    # Motor cradle. Derived here, not in the build script, because validate.py
+    # was re-deriving it independently and the two drifted apart.
+    # Length is set by insertion, not by the motor body: the motor is lowered
+    # into the bore with its shaft clear of the side wall, then slid outboard
+    # onto it, so the cradle has to swallow body + shaft + margin.
+    p["cradle_l"] = (p["motor_body_len"] + p["motor_shaft_len"]
+                     + p["motor_insert_margin"])
+    p["cradle_w"] = p["motor_cap_screw_cc"] + p["boss_od"]
     p["tub_outer_w"] = p["tub_width"]
     p["tub_outer_l"] = p["tub_len"]
     p["tub_outer_h"] = p["tub_height"] + p["deck_wall"]
