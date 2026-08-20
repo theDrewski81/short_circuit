@@ -37,7 +37,14 @@ motor_shaft_len,9,mm,motor,1,Output shaft length
 motor_face_hole_cc,10.6,mm,motor,0,Pololu bracket face hole spacing (M2)
 motor_clamp_wall,2.6,mm,motor,0,Motor cradle/clamp wall thickness
 motor_fit_clear,0.7,mm,motor,0,Diametral clearance on the motor bore and drop-in slot (0.4 was a press fit at printed tolerance; the cap preloads the motor down so a looser bore is free)
-motor_insert_margin,0.6,mm,motor,0,Extra cradle length beyond body+shaft so the motor can be lowered in clear of the side wall then slid outboard onto its shaft
+motor_insert_margin,6.6,mm,motor,0,Axial clearance in the motor pocket. The shaft no longer passes through the wall (the sprocket rides its own bearing) so this is drop-in and wiring room, not slide travel
+motor_conn_relief_d,3,mm,motor,0,Depth of the connector relief into the -Y pocket wall; height of the Pololu 5218 back connector where it stands proud of the can
+motor_conn_relief_l,11,mm,motor,0,Length of the connector relief from the pocket's inboard end; the travel needed to seat the shaft fully through the sprocket
+drive_bearing_id,6,mm,motor,0,Drive hub bearing bore (MR106ZZ)
+drive_bearing_od,10,mm,motor,0,Drive hub bearing OD; sets the rear-wall seat diameter
+drive_bearing_w,3,mm,motor,0,Drive hub bearing width; seat depth from the wall outer face
+drive_hub_od,6,mm,motor,0,Stepped hub outer dia riding the bearing; bored 3 mm for the motor shaft
+drive_boss_t,3,mm,motor,0,Material inboard of the wall reserved for the bearing seat shoulder; the motor front face stops this far short of the wall inner face
 motor_cap_t,4,mm,motor,0,Retention cap plate thickness above the cradle top
 motor_cap_screw_cc,20,mm,motor,0,Cap screw spacing across the motor axis (Y); sets cradle width
 motor_cap_screw_x,20,mm,motor,0,Cap screw spacing along the motor axis (X)
@@ -58,6 +65,7 @@ battery_l,106,mm,battery,0,Pack length (fore-aft)
 battery_w,35,mm,battery,0,Pack width
 battery_h,20,mm,battery,0,Pack height
 battery_clear,2,mm,battery,0,Clearance around pack in bay
+battery_bay_aft_clear,2,mm,battery,0,Gap between the bay ring's aft face and the motor cradle. The ring used to run past the cradle and block both hand access and the motor's rear wire exit
 #
 # --- Pi-M (Zero 2 W) mount ---
 pi_l,65,mm,pi,1,Pi Zero 2 W board length
@@ -67,7 +75,8 @@ pi_hole_dy,23,mm,pi,1,Mount hole spacing short axis
 pi_standoff_h,5,mm,pi,0,Standoff height under Pi
 pi_shelf_z,26,mm,pi,0,Pi shelf height above tub floor (above battery)
 pi_rib_x_in,22,mm,pi,0,Shelf rib inner face; must sit outboard of the battery bay ring or the pack cannot seat
-pi_shelf_half_w,27,mm,pi,0,Shelf plate half-width; must reach the ribs that carry it
+pi_shelf_half_w,29,mm,pi,0,Shelf plate half-width; must reach past the rib centreline far enough to seat an M2 head
+pi_shelf_screw_inset,6,mm,pi,0,Shelf screw inset from the fore and aft plate edges
 #
 # --- Fasteners ---
 m2_tap_dia,1.7,mm,fastener,0,M2 thread-form pilot

@@ -12,11 +12,12 @@ Costs are estimates in USD, parts only, excluding shipping and items Andrew alre
 
 | Part | Spec | Qty | Est. cost | Supplier / notes |
 |---|---|---|---|---|
-| Drive gearmotor | 150:1 Micro Metal Gearmotor HPCB 12V w/ 12 CPR encoder (N20-class, 12 mm) | 2 | $46 | Pololu — confirm side vs back connector variant. ~1800 counts/output-rev. Run battery-direct at ~7.4 V (≈62% of 12 V rating). |
+| Drive gearmotor | **Pololu #5218** — 150:1 Micro Metal Gearmotor HPCB 12V with 12 CPR Encoder, **back connector** (N20-class, 12 mm) | 2 | $46 | Selected Session 03 after test-fitting; both sides identical. Back-connector variant confirmed (was an open question). Exact ratio 150.58:1 → 1807 counts/output-rev. 9 mm × 3 mm D-shaft; gearbox cross section 10×12 mm. Run battery-direct at ~7.4 V (≈62% of 12 V rating). 6-pin JST SH cables sold separately. |
 | Motor driver | TB6612FNG dual H-bridge breakout | 1 | $7 | SparkFun ROB-14451 or equiv. 3.3 V logic; VM from 2S pack. STBY → Pi-M GPIO (defaults off). |
 | Treads | Printed TPU tank treads, Shore 90A | — | (filament) | Track width 28 mm. 90A chosen for flex-fatigue life + grip (direct-drive Sprite Pro removes the printability constraint). Revisit toward 95A if Task 7 adopts segmented rigid-link treads. |
 | Sprockets / idlers | Printed PLA/PETG | — | (filament) | Drive sprocket pitch dia 40 mm. |
-| Bearings | 623ZZ (3×10×4) for idlers/road wheels | 8 | $5 | Generic. |
+| Bearings | 623ZZ (3×10×4) for idlers/road wheels | 8 | $5 | Generic. Two per idler wheel hub + one per road wheel; the wheels carry the bearings, the tub walls only locate the 3 mm shafts. |
+| Drive hub bearings | MR106ZZ (6×10×3) | 2 | $4 | Added Session 03. Pressed into the rear wall from outside; the sprocket rides a stepped ø6 hub set-screwed to the motor shaft. Keeps the wheel load off the N20 gearbox bushings, which a sprocket mounted directly on the output shaft would not — and the 9 mm shaft cannot reach the track centreline at 75 mm anyway. |
 | Rear trailing caster | Swiveling sprung caster, ~34 mm wheel, ~90 mm trail | 1 | $5 | Passive fore-aft stabilizer; raises rearward/incline tip margin 33°→54°. Printed arm + wheel, preload spring, pivot pins. Swivels to avoid scrub on tank turns. Added Session 02. |
 
 ## 2. Arms & Head Servos

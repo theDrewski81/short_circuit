@@ -49,16 +49,46 @@ chk("Cap screws land on the cradle top face (X)",
 chk("Motor cradle inside the tub rear wall",
     P["wheelbase"] / 2 + cradle_w / 2 <= P["tub_len"] / 2,
     f'cradle rear edge {P["wheelbase"]/2 + cradle_w/2:.1f} <= {P["tub_len"]/2:.1f}')
-# The motor cannot be lowered straight onto its seat: the shaft would have to
-# pass through solid side wall. It goes in shaft-clear and slides outboard, so
-# the cradle has to be long enough to hold it at that drop position.
-chk("Cradle swallows motor body + shaft",
-    cradle_l >= P["motor_body_len"] + P["motor_shaft_len"],
-    f'{cradle_l:.1f} >= {P["motor_body_len"] + P["motor_shaft_len"]:.0f}')
-chk("Drop-in slot longer than the motor body",
-    cradle_l > P["motor_body_len"],
-    f'slot {cradle_l:.1f} > body {P["motor_body_len"]:.0f} '
-    f'({cradle_l - P["motor_body_len"]:.1f} mm axial clearance)')
+# --- connector relief (Pololu #5218, back connector) ---------------------
+_relief_edge = (P["motor_dia"] + P["motor_fit_clear"]) / 2 + P["motor_conn_relief_d"]
+_screw_y = P["motor_cap_screw_cc"] / 2
+_graze = _relief_edge - (_screw_y - P["m2_tap_dia"] / 2)
+chk("Connector relief clears the inboard cap screw centre",
+    _relief_edge < _screw_y,
+    f'relief edge {_relief_edge:.2f} < screw {_screw_y:.1f}'
+    + (f' (grazes hole by {_graze:.2f} mm)' if _graze > 0 else ''))
+chk("Connector relief shorter than the motor pocket",
+    P["motor_conn_relief_l"] < P["motor_pocket_l"],
+    f'{P["motor_conn_relief_l"]:.0f} < {P["motor_pocket_l"]:.1f}')
+chk("Relief stays inside the cradle width",
+    _relief_edge <= P["cradle_w"] / 2,
+    f'{_relief_edge:.2f} <= {P["cradle_w"]/2:.1f}')
+chk("Motor pocket longer than the motor body",
+    P["motor_pocket_l"] > P["motor_body_len"],
+    f'pocket {P["motor_pocket_l"]:.1f} > body {P["motor_body_len"]:.0f} '
+    f'({P["motor_pocket_l"] - P["motor_body_len"]:.1f} mm axial clearance)')
+# --- drive sprocket bearing ---------------------------------------------
+# The sprocket rides a hub on its own bearing rather than the output shaft, so
+# the wall carries the wheel load instead of the gearbox bushings.
+chk("Motor shaft reaches through the bearing seat",
+    P["motor_shaft_len"] >= P["drive_boss_t"] + P["tub_wall"],
+    f'shaft {P["motor_shaft_len"]:.0f} >= '
+    f'{P["drive_boss_t"] + P["tub_wall"]:.1f} to the wall outer face')
+chk("Bearing seat fits the wall plus its shoulder slug",
+    P["drive_bearing_w"] <= P["tub_wall"] + P["drive_boss_t"],
+    f'{P["drive_bearing_w"]:.0f} <= {P["tub_wall"] + P["drive_boss_t"]:.1f}')
+chk("Bearing seat leaves a shoulder to press against",
+    P["drive_bearing_od"] > P["drive_hub_od"] + 2,
+    f'seat {P["drive_bearing_od"]:.0f} > hub {P["drive_hub_od"]:.0f} + 2')
+chk("Hub bore matches the motor shaft",
+    abs(P["drive_bearing_id"] - P["drive_hub_od"]) < 1e-9
+    and P["drive_hub_od"] > P["motor_shaft_dia"],
+    f'hub {P["drive_hub_od"]:.0f} on shaft {P["motor_shaft_dia"]:.0f}, '
+    f'bearing id {P["drive_bearing_id"]:.0f}')
+chk("Sprocket sits on the track centreline",
+    P["sprocket_x"] == P["track_cc"] / 2,
+    f'{P["sprocket_x"]:.0f} mm ({P["sprocket_x"] - P["tub_width"]/2:.0f} mm '
+    f'cantilever past the wall)')
 chk("Cradle inboard end clears the battery bay cavity",
     P["tub_width"] / 2 - P["tub_wall"] - cradle_l
     >= P["battery_w"] / 2 + P["battery_clear"],
@@ -81,6 +111,21 @@ inner_w = P["tub_width"] - 2 * P["tub_wall"]
 inner_l = P["tub_len"] - 2 * P["tub_wall"]
 chk("Battery bay fits tub interior (Y)", P["battery_l"] + 2 * P["battery_clear"] <= inner_l,
     f'{P["battery_l"] + 2 * P["battery_clear"]:.0f} <= {inner_l:.1f}')
+chk("Bay ring stops clear of the motor cradle",
+    P["bay_aft_y"] >= -P["wheelbase"] / 2 + P["cradle_w"] / 2,
+    f'ring aft {P["bay_aft_y"]:.1f} >= cradle face '
+    f'{-P["wheelbase"]/2 + P["cradle_w"]/2:.1f}')
+# The trimmed ring is shorter than the pack, so it is open at the aft end by
+# design -- an end wall there would land inside the pack's footprint.
+chk("Bay ring is shorter than the pack (aft end must stay open)",
+    P["bay_fwd_y"] - P["bay_aft_y"] < P["battery_l"],
+    f'ring {P["bay_fwd_y"] - P["bay_aft_y"]:.1f} < pack {P["battery_l"]:.0f} '
+    f'({abs(-6 - P["battery_l"]/2 - P["bay_aft_y"]):.1f} mm unfenced aft)')
+_s_aft, _s_fwd = P["bay_aft_y"] + 5, P["bay_fwd_y"] - 7
+chk("Both strap slots sit in the ring and straddle the pack centre",
+    P["bay_aft_y"] < _s_aft < -6 < _s_fwd < P["bay_fwd_y"],
+    f'slots at {_s_aft:.1f} and {_s_fwd:.1f} inside ring '
+    f'{P["bay_aft_y"]:.1f}..{P["bay_fwd_y"]:.1f}')
 chk("Pi-M board fits across interior", P["pi_l"] <= inner_w, f'{P["pi_l"]:.0f} <= {inner_w:.1f}')
 
 # --- keep-outs -----------------------------------------------------------
@@ -93,9 +138,16 @@ chk("Shelf ribs clear the battery envelope",
     rib_in >= P["battery_w"] / 2 + P["battery_clear"],
     f'rib inner face {rib_in:.1f} >= pack half-width + clear '
     f'{P["battery_w"]/2 + P["battery_clear"]:.1f}')
-chk("Shelf plate reaches the ribs that carry it",
-    P["pi_shelf_half_w"] >= rib_in + (P["tub_wall"] + 6) / 2,
-    f'{P["pi_shelf_half_w"]:.1f} >= {rib_in + (P["tub_wall"] + 6)/2:.1f}')
+chk("Shelf seats an m2 head over the rib centreline",
+    P["pi_shelf_half_w"] >= P["pi_rib_cx"] + 2.0,
+    f'plate edge {P["pi_shelf_half_w"]:.1f} >= screw {P["pi_rib_cx"]:.1f} + 2 '
+    f'({P["pi_shelf_half_w"] - P["pi_rib_cx"]:.1f} mm head margin)')
+chk("Shelf screws land within the rib width",
+    abs(P["pi_rib_cx"] - (rib_in + P["pi_rib_t"] / 2)) < 1e-9,
+    f'screw at {P["pi_rib_cx"]:.1f}, rib {rib_in:.1f}-{rib_in + P["pi_rib_t"]:.1f}')
+chk("Shelf screw inset clears the plate edge",
+    P["pi_shelf_screw_inset"] >= P["boss_od"] / 2,
+    f'{P["pi_shelf_screw_inset"]:.0f} >= {P["boss_od"]/2:.1f}')
 chk("Pi board fits the shelf plate", P["pi_w"] <= 2 * P["pi_shelf_half_w"],
     f'{P["pi_w"]:.0f} <= {2*P["pi_shelf_half_w"]:.0f}')
 imu_half = (P["imu_hole_cc"] + 8) / 2

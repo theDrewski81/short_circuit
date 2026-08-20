@@ -37,12 +37,24 @@ def derive(p):
     p["base_height_total"] = p["ground_clearance"] + p["tub_height"]     # underside floor to deck top
     # Motor cradle. Derived here, not in the build script, because validate.py
     # was re-deriving it independently and the two drifted apart.
-    # Length is set by insertion, not by the motor body: the motor is lowered
-    # into the bore with its shaft clear of the side wall, then slid outboard
-    # onto it, so the cradle has to swallow body + shaft + margin.
-    p["cradle_l"] = (p["motor_body_len"] + p["motor_shaft_len"]
-                     + p["motor_insert_margin"])
+    # The motor drops straight down into its pocket: nothing of it passes
+    # through the side wall, because the sprocket rides a hub on its own
+    # bearing rather than on the output shaft. Length is therefore the body,
+    # plus axial clearance, plus the material reserved inboard of the wall for
+    # the bearing seat shoulder.
+    p["cradle_l"] = (p["motor_body_len"] + p["motor_insert_margin"]
+                     + p["drive_boss_t"])
     p["cradle_w"] = p["motor_cap_screw_cc"] + p["boss_od"]
+    p["motor_pocket_l"] = p["cradle_l"] - p["drive_boss_t"]   # usable slot length
+    p["sprocket_x"] = p["track_cc"] / 2.0                     # sprocket centreline
+    # Pi-M shelf ribs. Derived once so the tub's tapped holes and the separate
+    # shelf plate's clearance holes cannot land in different places.
+    p["pi_rib_t"] = p["tub_wall"] + 6.0
+    p["pi_rib_cx"] = p["pi_rib_x_in"] + p["pi_rib_t"] / 2.0
+    # Battery bay ring stops clear of the motor cradle, so it is shorter than
+    # the pack and open at the aft end.
+    p["bay_aft_y"] = -p["wheelbase"] / 2.0 + p["cradle_w"] / 2.0 + p["battery_bay_aft_clear"]
+    p["bay_fwd_y"] = -6.0 + (p["battery_l"] + 2 * p["battery_clear"]) / 2.0 + 2.0
     p["tub_outer_w"] = p["tub_width"]
     p["tub_outer_l"] = p["tub_len"]
     p["tub_outer_h"] = p["tub_height"] + p["deck_wall"]
