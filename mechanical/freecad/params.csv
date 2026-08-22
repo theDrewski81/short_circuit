@@ -23,11 +23,10 @@ ground_clearance,18,mm,track,1,Belly clearance target band 15-20
 idler_dia,40,mm,track,0,Front idler outer dia (matches sprocket for level top run)
 roadwheel_dia,24,mm,track,0,Road-wheel outer dia (supports TPU track between sprocket and idler)
 roadwheels_per_side,2,count,track,0,Road wheels per side
+roadwheel_pitch,40,mm,track,0,Road-wheel centre-to-centre. At the old wheelbase*0.6 formula two ø24 wheels landed 24 mm apart and touched. 40 mm spaces the four ground-contact points evenly along the 119.4 mm run and leaves 8 mm to the sprocket and 7.4 mm to the idler
 wheelbase,120,mm,track,0,Sprocket centre to idler centre
 axle_hole_dia,3.2,mm,track,0,Side-wall through-hole for the 3 mm idler and road-wheel shafts
 idler_axle_dia,3,mm,track,0,Idler shaft dia; one full-width rod through both walls so it cannot cock
-idler_pad_od,10,mm,track,0,Reinforcing pad OD on the inner wall face at the idler axle
-idler_pad_t,3,mm,track,0,Pad thickness; raises idler shaft bearing length from tub_wall to tub_wall+idler_pad_t
 #
 # --- Drive motor (Pololu N20-class, 12 mm) ---
 motor_dia,12,mm,motor,1,N20 gearmotor body diameter
@@ -73,10 +72,32 @@ pi_w,30,mm,pi,1,Pi Zero 2 W board width
 pi_hole_dx,58,mm,pi,1,Mount hole spacing long axis
 pi_hole_dy,23,mm,pi,1,Mount hole spacing short axis
 pi_standoff_h,5,mm,pi,0,Standoff height under Pi
-pi_shelf_z,26,mm,pi,0,Pi shelf height above tub floor (above battery)
-pi_rib_x_in,22,mm,pi,0,Shelf rib inner face; must sit outboard of the battery bay ring or the pack cannot seat
+pi_shelf_z,26,mm,pi,0,Shelf height above tub floor (above battery)
+pi_rib_x_in,22,mm,pi,0,Support column inner face; must sit outboard of the battery bay ring or the pack cannot seat
 pi_shelf_half_w,29,mm,pi,0,Shelf plate half-width; must reach past the rib centreline far enough to seat an M2 head
-pi_shelf_screw_inset,6,mm,pi,0,Shelf screw inset from the fore and aft plate edges
+pi_shelf_screw_inset,6,mm,pi,0,Retained for the aft column inset from the plate edge
+pi_shelf_aft_ext,38,mm,pi,0,How much further aft the shelf runs than a Pi-only plate. Carries the IMU: one electronics shelf that can be built up outside the tub and dropped in
+pi_shelf_t,2.4,mm,pi,0,Shelf plate thickness. Was 2.0 hardcoded; a 111 mm plate now carrying the IMU wants the extra
+pi_columns_per_side,3,count,pi,0,Support columns replacing the two solid ribs. The ribs were 8.4 x 73 mm walls; extending them to 111 mm would have cost 58 g, and columns take that to 23 g
+pi_column_len,14,mm,pi,0,Column length along Y
+pi_wire_slot_w,5,mm,pi,0,Side wire-passthrough slot width, between the Pi board edge and the columns
+pi_wire_slot_l,30,mm,pi,0,Side wire-passthrough slot length
+pi_wire_slot_x,18.5,mm,pi,0,Side slot centre X
+pi_loom_slot_w,30,mm,pi,0,Aft loom slot width; battery and motor wiring up from the floor
+pi_loom_slot_l,4,mm,pi,0,Aft loom slot length
+#
+# --- Track treads (outer face) ---
+# The band was smooth on the ground side. Treads are cut INTO the 3.5 mm
+# envelope rather than added on top of it, so the outer radius, ride height,
+# ground speed and every derived dimension stay exactly as they are -- and the
+# continuous band drops to 2.0 mm, which halves the outer-fibre bending strain
+# around the 20 mm sprocket radius and so helps flex-fatigue life rather than
+# hurting it.
+tread_depth,1.5,mm,track,0,Tread relief depth; valley radius 22.0 against a 23.5 tip
+tread_rib_w,3.5,mm,track,0,Rib thickness along the path; 8+ extrusions wide at a 0.4 nozzle so it prints solid
+tread_count,24,count,track,0,Chevrons around the loop. 15.7 mm pitch puts 7.6 of them in ground contact per side, so contact never steps
+tread_segments,5,count,track,0,Segments per chevron arm. A straight arm laid tangentially on the 22 mm valley radius floats 1.6 mm of each end clear of the band on every curved section and stands 1.36 mm proud of the tip radius; following the path in short steps drops that to 0.2 mm
+tread_angle,25,deg,track,0,Chevron arm angle from transverse. Gives lateral bite in tank turns; the loop prints with its width vertical so this is also the arm's lean off vertical, well inside self-supporting
 #
 # --- Fasteners ---
 m2_tap_dia,1.7,mm,fastener,0,M2 thread-form pilot
@@ -89,8 +110,8 @@ tof_window_w,12,mm,sensor,0,VL53L1X front window width
 tof_window_h,8,mm,sensor,0,VL53L1X front window height
 tof_hole_cc,18,mm,sensor,0,Pololu 3415 mount hole spacing
 imu_hole_cc,15,mm,sensor,0,GY-521 mount hole spacing (square)
-imu_pos_x,35,mm,sensor,0,IMU pad centre X; offset to starboard to clear the battery bay ring
-imu_pos_y,-25,mm,sensor,0,IMU pad centre Y; aft of the Pi shelf so all four screws are reachable from above
+imu_pos_x,0,mm,sensor,0,IMU centre X **on the Pi-M shelf**. Back on the centreline: the offset to 35 existed only to clear the battery bay ring on the tub floor, and off the floor there is nothing to clear. Kills the accelerometer lever-arm term outright
+imu_pos_y,-22,mm,sensor,0,IMU centre Y on the shelf, aft of the Pi board
 #
 # --- Torso interface (top deck) ---
 torso_iface_dx,70,mm,iface,0,Torso bolt rectangle X (M3 heat-set)
@@ -116,7 +137,7 @@ torso_h,165,mm,torso,0,Torso height (deck top to torso top)
 torso_w_base,110,mm,torso,0,Torso width at base
 torso_w_top,96,mm,torso,0,Torso width at shoulders
 torso_depth,90,mm,torso,0,Torso fore-aft depth
-torso_wall,2.4,mm,torso,0,Shell wall thickness
+torso_wall,2.0,mm,torso,0,Shell wall. 2.4 made a 110x90x165 shell inherently 239 g; 2.0 is 5 perimeters at 0.4 and saves ~40 g on a part that carries both arms, the head and four servos
 torso_lean,6,mm,torso,0,Front face forward lean over full height
 shoulder_z_off,130,mm,torso,0,Shoulder pitch axis above deck top
 piV_standoff_h,5,mm,torso,0,Pi-V standoff height
@@ -129,7 +150,7 @@ neck_dia,34,mm,neck,0,Neck riser diameter
 head_h,90,mm,head,0,Head height (wide film-accurate proportions)
 head_w,150,mm,head,0,Head width (binocular, eyes outboard)
 head_depth,88,mm,head,0,Head fore-aft depth
-head_wall,2.4,mm,head,0,Head shell wall
+head_wall,2.0,mm,head,0,Head shell wall. 2.4 made a 150x90x88 two-part shell inherently 208 g; 2.0 saves ~35 g on a shell carrying only eyes, a camera and the brow gear train
 antenna_h,25,mm,head,0,Antenna length above head
 #
 # --- Arms (single-DOF shoulder pitch; grip-ready for V2 tendon claw) ---
@@ -166,11 +187,83 @@ brow_gear_pitch_dia,16,mm,brow,0,Blade/pinion gear pitch dia
 brow_idler_pitch_dia,12,mm,brow,0,Mirroring idler pitch dia
 #
 # --- Rear trailing caster (passive fore-aft stabilizer) ---
-caster_wheel_dia,34,mm,caster,0,Trailing caster wheel diameter
+caster_wheel_dia,25,mm,caster,0,Anti-tip roller diameter. Was 34 for the sprung caster; a roller that only touches during a rearward tip can be smaller and 7 g lighter
 caster_trail,90,mm,caster,0,Trail behind the rear track edge
-caster_arm_len,80,mm,caster,0,Trailing arm length
-caster_pivot_z,40,mm,caster,0,Arm pivot height on chassis rear
+caster_pivot_z,40,mm,caster,0,Tail mounting height on the tub rear wall; the boom runs aft from here dead level
 #
+caster_float,4,mm,caster,0,Roller bottom above the floor at ride height. The tail is a stop, not a wheel: floating it keeps the scrub and the lost traction of a ground-riding caster out of every tank turn while giving the same tip margin, because it only engages once the rear starts to drop
+caster_wheel_w,10,mm,caster,0,Roller hub width overall, lips included
+tail_tyre_t,2.5,mm,caster,0,TPU tyre wall. The roller was a bare PLA cylinder; a hard plastic stop skitters on a hard floor instead of catching it, and TPU is already on the BOM for the tracks so this costs no new material
+tail_tyre_lip_h,0.8,mm,caster,0,Retention lip standing proud of the hub at each edge; the tyre seats between the two and cannot walk off
+tail_tyre_lip_w,1.2,mm,caster,0,Lip width
+tail_tyre_fit,0.25,mm,caster,0,Diametral interference on the tyre bore; TPU 90A stretches over the lip on assembly
+tail_boom_w,8,mm,caster,0,Boom width (X)
+tail_boom_h,11,mm,caster,0,Boom depth (Z); sized on bending at the flange, ~7 MPa against the whole robot weight at the tip
+tail_flange_w,36,mm,caster,0,Mounting flange width
+tail_flange_h,24,mm,caster,0,Mounting flange height
+tail_flange_t,3.5,mm,caster,0,Mounting flange thickness
+tail_mount_cc,32,mm,caster,0,Flange bolt spacing across the rear wall
+tail_cheek_t,3,mm,caster,0,Fork cheek thickness either side of the roller
+tail_cheek_len,14,mm,caster,0,Fork cheek length fore-aft
+m3_tap_dia,2.5,mm,fastener,0,M3 thread-form pilot
+m3_clear_dia,3.4,mm,fastener,0,M3 clearance hole
 # --- Waist interface reserve (lean-ready for V2 powered waist) ---
 waist_pivot_dia,8,mm,waist,0,Reserved waist pivot axle dia (V2)
 waist_pivot_z,70,mm,waist,0,Reserved waist pivot height (deck top, V2)
+#
+# --- Drivetrain: track engagement (centre-guide lug system) ---
+# The TPU loop carries a single central row of lugs on its inner face. The drive
+# sprocket has matching pockets in its rim; the idler and road wheels have a
+# continuous clearance groove and ride the two smooth lands either side of the
+# lug row. This decouples road-wheel diameter from the tooth pitch, and the lug
+# row doubles as the anti-derailment guide.
+sprocket_teeth,10,count,track,0,Pockets around the drive sprocket rim; sets lug pitch = pi*sprocket_pitch_dia/sprocket_teeth
+track_lug_count,29,count,track,0,Lugs around the loop. 29 x 12.566 = 364.42 mm inner path -> straight run 119.38 mm; the idler slot absorbs the 0.62 mm difference from the nominal 120 mm wheelbase and all pretension
+track_lug_h,3,mm,track,0,Lug height above the band inner face
+track_lug_len,5,mm,track,0,Lug length along the path
+track_lug_tip_w,8,mm,track,0,Lug width at the tip (across the track)
+track_lug_chamfer,3,mm,track,0,45 deg self-supporting flare from tip to root. The loop prints with its width vertical so a straight-sided centre lug would start in mid-air; the flare makes it a 45 deg overhang and adds a root fillet where shear is highest
+lug_clear_r,0.5,mm,track,0,Radial clearance under the lug tip in every wheel groove and sprocket pocket
+lug_pocket_clear,0.8,mm,track,0,Circumferential clearance on the sprocket pocket
+lug_side_clear,1.0,mm,track,0,Lateral clearance between lug and groove flank; also the groove's guidance slop
+#
+# --- Drivetrain: wheels ---
+wheel_width,26,mm,track,0,Common width of sprocket / idler / road wheel; 1 mm inside each track edge
+wheel_rim_wall,3,mm,track,0,Rim wall left under the groove root
+wheel_hub_od,16,mm,track,0,Hub outer dia; 3 mm of material around a 623ZZ seat
+wheel_spokes,5,count,track,0,Full-width spokes tying hub to rim. Through-features only: with the wheel axis vertical every face is a vertical wall, so the wheels print with no support at all
+wheel_spoke_w,3.5,mm,track,0,Spoke width
+bearing_623_od,10,mm,track,1,623ZZ outer dia
+bearing_623_id,3,mm,track,1,623ZZ bore
+bearing_623_w,4,mm,track,1,623ZZ width
+bearing_seat_fit,-0.1,mm,track,0,Diametral interference on printed bearing seats (negative = press)
+#
+# --- Drivetrain: sprocket hub ---
+sprocket_collar_od,9,mm,motor,0,Set-screw collar OD; lives in the 3 mm gap between the tub wall outer face and the sprocket inboard face
+sprocket_collar_len,3.2,mm,motor,0,Collar length
+sprocket_journal_len,4.8,mm,motor,0,ø6 journal inboard of the collar; 2.8 mm of it in the MR106ZZ and 2 mm running as a plain land in the wall slug
+motor_shaft_flat_half,1.25,mm,motor,0,Half-width of the D-shaft flat plus clearance. Torque goes through the flat; the grub screw only stops the sprocket walking off the shaft
+drive_hub_clear,6.2,mm,motor,0,Wall slug bore around the ø6 journal. Was 6.6 (free clearance); at 6.2 the slug adds 2 mm of plain-bearing length ahead of the MR106ZZ and shortens the sprocket overhang
+#
+# --- Drivetrain: idler tensioner ---
+# The idler rod moves in a plain fore-aft slot in each side wall. A carrier
+# inside the tub locates the rod and is pinched against the wall by two screws
+# stacked above it -- above, because the tub floor is only 3.1 mm below the
+# axle line and a symmetric plate would sit inside the floor.
+idler_slot_travel,4,mm,track,0,Fore-aft adjustment of the idler rod in the side-wall slot; 1 mm forward = 2 mm of path = 0.55 pct strain
+axle_collar_od,8,mm,track,0,Printed collar clamping each 3 mm rod inboard of the wall. The lug row already stops the wheels walking sideways; this stops the rod itself
+axle_collar_len,5,mm,track,0,Collar length
+idler_boss_t,4,mm,track,0,Boss standing proud of the wall inner face at each carrier screw. The carrier bears and slides on the boss end faces; 4 mm plus the 2.4 mm wall gives the M2 thread something to bite
+idler_carrier_t,5,mm,track,0,Carrier thickness against the wall inner face
+idler_carrier_screw_cc,12,mm,track,0,Vertical spacing of the two retaining screws; the pair takes the fore-aft moment from track tension
+idler_carrier_screw_z0,12,mm,track,0,Height of the lower retaining screw above the rod centre
+idler_carrier_drop,2.5,mm,track,0,Material below the rod centre; bounded by the tub floor at 20.4 mm absolute
+idler_carrier_h,33,mm,track,0,Overall carrier height
+#
+# --- Road-wheel axle skirt ---
+# The road-wheel axle line sits at roadwheel_dia/2 + track_thickness = 15.5 mm,
+# which is 2.5 mm below the tub underside; there is no wall there to drill. A
+# local skirt hangs below each side wall to carry the two rods.
+skirt_z_bottom,11,mm,chassis,0,Skirt underside; local ground clearance where the skirt hangs
+skirt_len,38,mm,chassis,0,Skirt length along Y, spanning both road-wheel holes
+skirt_pad_t,3,mm,chassis,0,Extra thickness inboard of the wall; takes rod bearing length from 2.4 to 5.4 mm

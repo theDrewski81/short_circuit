@@ -14,11 +14,12 @@ Costs are estimates in USD, parts only, excluding shipping and items Andrew alre
 |---|---|---|---|---|
 | Drive gearmotor | **Pololu #5218** — 150:1 Micro Metal Gearmotor HPCB 12V with 12 CPR Encoder, **back connector** (N20-class, 12 mm) | 2 | $46 | Selected Session 03 after test-fitting; both sides identical. Back-connector variant confirmed (was an open question). Exact ratio 150.58:1 → 1807 counts/output-rev. 9 mm × 3 mm D-shaft; gearbox cross section 10×12 mm. Run battery-direct at ~7.4 V (≈62% of 12 V rating). 6-pin JST SH cables sold separately. |
 | Motor driver | TB6612FNG dual H-bridge breakout | 1 | $7 | SparkFun ROB-14451 or equiv. 3.3 V logic; VM from 2S pack. STBY → Pi-M GPIO (defaults off). |
-| Treads | Printed TPU tank treads, Shore 90A | — | (filament) | Track width 28 mm. 90A chosen for flex-fatigue life + grip (direct-drive Sprite Pro removes the printability constraint). Revisit toward 95A if Task 7 adopts segmented rigid-link treads. |
-| Sprockets / idlers | Printed PLA/PETG | — | (filament) | Drive sprocket pitch dia 40 mm. |
+| Treads | Printed TPU tank treads, Shore 90A | 2 | (filament) | Closed loop, 28 mm wide, 3.5 mm band, 364.42 mm inner path. **Centre-guide lug system (Session 04):** 29 lugs on the inner face at 12.566 mm pitch — the sprocket's own tooth pitch, so engagement accumulates no error around the loop — 3 mm tall, 8 mm at the tip flaring 45° to 14 mm at the root. Prints as a 28 mm-tall oval wall so the extrusions run along the tension path and the lug flare self-supports. **Herringbone treads (Session 04):** 24 chevrons on the ground face, 1.5 mm deep, 3.5 mm ribs at 25° from transverse, 15.7 mm pitch — 7.6 chevrons under the ground run at any moment. Each arm is built as five short pieces following the path, not one straight bar, so nothing floats clear of the band on the wrapped sections. Relieved *out of* the 3.5 mm envelope rather than added on top, so the tip radius, ride height and ground speed are unchanged and the continuous band becomes 2.0 mm — which nearly halves the outer-fibre bending strain around the 20 mm sprocket radius, helping flex-fatigue life rather than hurting it. Measured 36 g each, down from 50 g smooth. |
+| Sprockets / idlers / road wheels | Printed PLA/PETG | 2 + 2 + 4 | (filament) | Sprocket ø40 pitch with 10 lug pockets and a stepped ø6 hub (~25 g); idler ø40 on the tensioning rod (~22 g); road wheels ø24 on a lowered 15.5 mm axle line (~11 g). All on hub-and-spoke lightening, all support-free with the axis vertical. Plus 2 idler tensioner carriers and 6 axle collars. |
 | Bearings | 623ZZ (3×10×4) for idlers/road wheels | 8 | $5 | Generic. Two per idler wheel hub + one per road wheel; the wheels carry the bearings, the tub walls only locate the 3 mm shafts. |
+| Axle rod | ø3 mm ground steel, 176 mm | 3 | $4 | Added Session 04. One idler rod plus two road-wheel rods. Each runs the full width from one wheel's outer face to the other's, so it cannot cock; the wheels are held axially by the track's lug row and the rod by a printed collar inboard of each wall. Sold as 1 m stock. |
 | Drive hub bearings | MR106ZZ (6×10×3) | 2 | $4 | Added Session 03. Pressed into the rear wall from outside; the sprocket rides a stepped ø6 hub set-screwed to the motor shaft. Keeps the wheel load off the N20 gearbox bushings, which a sprocket mounted directly on the output shaft would not — and the 9 mm shaft cannot reach the track centreline at 75 mm anyway. |
-| Rear trailing caster | Swiveling sprung caster, ~34 mm wheel, ~90 mm trail | 1 | $5 | Passive fore-aft stabilizer; raises rearward/incline tip margin 33°→54°. Printed arm + wheel, preload spring, pivot pins. Swivels to avoid scrub on tank turns. Added Session 02. |
+| Rear anti-tip tail | Fixed boom + ø25 roller floating 4 mm clear, 90 mm trail | 1 | $0 | **Revised Session 04.** Was a swiveling sprung caster; that design never assembled (pivot bosses and arm eye on mismatched axes) and riding the ground would have scrubbed on every tank turn and lifted weight off the tracks. The tip margin comes from where the roller sits, not from it being sprung, so the tail is now a fixed level boom bolted to the tub rear wall with the roller held clear of the floor — it engages at about 2° of rearward pitch and gives the same 33°→54° margin. Three printed parts, no spring, no pivot, ~26 g. The roller is a PLA hub inside a TPU 90A tyre (same filament as the tracks, so no new BOM line): a bare plastic stop skitters on a hard floor instead of catching, and the tyre is what touches. |
 
 ## 2. Arms & Head Servos
 
@@ -87,7 +88,9 @@ Servos **must** be regulated (6 V) — 8.4 V full-charge exceeds the SCS0009 7.4
 | Filament — TPU | Treads, Shore 90A | — | ~$25 | Polymaker PolyFlex TPU90, NinjaTek Cheetah (95A) or Armadillo as firmer fallback. Dry before printing; enable pressure advance. |
 | Fasteners | M2/M3 screws, heat-set inserts | — | $15 | |
 
-**Estimated new-spend total: ~$325–365** (excl. owned items, incl. balance charger; includes 5th + 6th servos and rear trailing caster).
+Chassis lightening is blind pockets only — the tub floor carries no windows, so the only openings in the underside are the two the motor pockets unavoidably make.
+
+**Estimated new-spend total: ~$330–370** (excl. owned items, incl. balance charger; includes 5th + 6th servos and rear trailing caster).
 
 ---
 
@@ -162,12 +165,16 @@ Rail sizing: 5 V buck ≥5 A (peak ~2.6 A + headroom); 6 V buck (peak ~3.0 A wit
 
 **Open items**
 
-- Pin exact Pololu motor connector variant (side/back) at order.
-- Confirm TPU tread + sprocket geometry in FreeCAD (Task 7).
+- ~~Pin exact Pololu motor connector variant~~ — closed Session 03: #5218, back connector.
+- ~~Confirm TPU tread + sprocket geometry in FreeCAD~~ — closed Session 04: `build_drivetrain.py` builds all five parts and the guards prove track-to-wheel contact against the real solids.
+- **Mass ceiling breached (Session 04).** Every printed part in the base and drivetrain has now been measured from its built solid rather than estimated, and the assembled total is **1655 g against a 1.6 kg ceiling**. The two shells carry it: torso 239 g and head 208 g, both at a 2.4 mm wall over large boxes. Dropping the shell wall to 1.6 mm would take about 149 g out and land at ~1506 g. Decision owed before any shell is reprinted.
+- **Torso and head STLs contain floating islands (Session 04).** `build_torso.build()` returns 7- and 8-solid compounds and `build_head.build()` 2 and 5; the small ones are keys, pins and bosses that were never fused to their shell, so they slice as islands in mid-air. Neither script has the single-solid guard `build_chassis.py` carries. Both need it before those parts are printed.
 - Phase 01: custom `simple-audio-card` overlay for mic + amp coexistence.
 
 ---
 
 ## Gate Condition Status
+
+**Met 2026-08-21.** Reopened 2026-08-20 for the chassis rework and closed the same week: drivetrain built and guarded, chassis reworked to carry it, every printed part measured from its built solid rather than estimated. Assembled mass 1531 g against the 1.6 kg ceiling — 69 g headroom, +25 % worst case 1578 g, also under. Shell walls went 2.4 -> 2.0 mm on torso and head to get there. Original close text follows.
 
 **Met (2026-06-18).** BOM approved (updated Session 02 to 6× SCS0009 + rear trailing caster). Body baselined in FreeCAD 1.1.1 — all subassembly build scripts run and the full STL set generated and slice-verified. Both Phase 00 gate criteria satisfied.

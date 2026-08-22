@@ -36,7 +36,7 @@ for x in rows:
     opts[x["opt"]] = opts.get(x["opt"], 0) + x["qty"] * x["unit"]
 
 label = {"base": "base build (4 servos)", "nod": "head nod (5th servo)",
-         "brow": "brow roll (6th servo)", "wheel": "trailing caster"}
+         "brow": "brow roll (6th servo)", "wheel": "rear anti-tip tail"}
 print(f"\n  Johnny 5 mass budget   (ceiling {CEILING:.0f} g)")
 print("  " + "-" * 50)
 for o in ("base", "nod", "brow", "wheel"):

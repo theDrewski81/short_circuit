@@ -6,8 +6,9 @@ or paste into the FreeCAD 1.1.1 Python console.
 Outputs (relative to repo root):
     mechanical/stl/chassis_tub_v1.stl
     mechanical/stl/chassis_deck_v1.stl
-    mechanical/stl/caster_arm_v1.stl
-    mechanical/stl/caster_wheel_v1.stl
+    mechanical/stl/tail_boom_v1.stl
+    mechanical/stl/tail_roller_v1.stl
+    mechanical/stl/tail_tyre_v1.stl       (TPU 90A)
     mechanical/stl/motor_cap_v1.stl      (print x2 -- one per motor cradle)
     mechanical/freecad/chassis_assembly_v1.FCStd
 
@@ -42,7 +43,9 @@ H = P["tub_height"]
 WALL = P["tub_wall"]
 Z0 = P["ground_clearance"]         # tub floor underside
 ZTOP = Z0 + H                      # tub rim
-AXLE = P["axle_z"]                 # axle line, absolute z above ground
+AXLE = P["axle_z"]                 # sprocket / idler axle line
+RW_AXLE = P["roadwheel_axle_z"]    # road-wheel axle line, 8 mm lower
+Y_IDLER = P["idler_slot_cy"]       # centre of the idler tensioning slot
 Y_REAR = -P["wheelbase"] / 2.0     # drive sprocket / motors
 Y_FRONT = P["wheelbase"] / 2.0     # idler
 X_WALL = W / 2.0                   # side-wall outer face
@@ -61,6 +64,17 @@ def _xhole(sgn, y, z, r, margin=1.0):
     """
     x0 = min(sgn * X_WALL, sgn * X_WALL_IN) - margin
     return L.cyl(r, WALL + 2 * margin, x0, y, z, axis="x")
+
+
+def _wall_hole(sgn, y, z, r, thick, margin=1.0):
+    """Through-hole in a wall of local thickness `thick` on side `sgn`.
+
+    `thick` is measured inboard from the wall's outer face, so the same helper
+    serves the plain 2.4 mm wall and the thicker skirt pads carrying the
+    road-wheel rods.
+    """
+    x0 = min(sgn * X_WALL, sgn * (X_WALL - thick)) - margin
+    return L.cyl(r, thick + 2 * margin, x0, y, z, axis="x")
 
 
 # --- tub shell -----------------------------------------------------------
@@ -199,7 +213,7 @@ def drive_axle_features():
     cuts = []
     bw = P["drive_bearing_w"]
     boss_t = P["drive_boss_t"]
-    hub_clear = P["drive_hub_od"] + 0.6
+    hub_clear = P["drive_hub_clear"]
     for sgn in (-1, 1):
         cuts.append(L.cyl(P["drive_bearing_od"] / 2.0, bw,
                           min(sgn * X_WALL, sgn * (X_WALL - bw)),
@@ -246,41 +260,70 @@ def motor_cap():
     return solid
 
 
-# --- side-wall axle features (idler bearing + road wheels) ---------------
-def axle_features():
-    """Side-wall shaft features for the idler and road wheels.
+# --- idler tensioning slot -----------------------------------------------
+def idler_features():
+    """Fore-aft slot and carrier bosses for the tensioned idler rod.
 
-    Bearings live in the wheel hubs, not in the wall. The BOM's 8x 623ZZ works
-    out to two per idler wheel plus one per road wheel, and the road wheels
-    were already treated this way. The old version counterbored a 10 x 4 mm
-    bearing pocket into a 2.4 mm wall, which cannot work at any sign -- and its
-    sign handling was inverted relative to _xhole, so it cut clean through on
-    the right and landed in mid-air inboard of the left wall. The two together
-    are why the printed idler holes measured ~9.8 mm one side and ~3.25 mm the
-    other.
+    The rod no longer sits in a fixed hole. The printed track loop closes at a
+    119.38 mm straight run -- 29 lugs at the sprocket's own 12.566 mm tooth
+    pitch -- which is 0.62 mm shorter than the nominal 120 mm wheelbase, so even
+    at zero strain the rod does not belong at Y_FRONT. It runs in a slot, is
+    located by a carrier inside the tub, and pretension is whatever the carrier
+    gets clamped at: 1 mm forward is 2 mm of path, 0.55 % strain in the TPU.
 
-    The idler runs one full-width 3 mm rod so it cannot cock; each wall gets a
-    pad on the inner face to take shaft bearing length from tub_wall to
-    tub_wall + idler_pad_t.
+    The old inner-face pads are gone with the fixed hole. Their job was shaft
+    bearing length, which the carrier now provides; left in place they would
+    only hold the carrier off the wall.
+
+    The carrier bears on two bosses rather than on the wall itself, because the
+    wall is 2.4 mm and an M2 thread needs more than that. The boss end faces are
+    what the carrier slides across, and they stay clear of its slot travel by
+    being centred on the fixed tapped holes.
     """
     solids, cuts = [], []
     r = P["axle_hole_dia"] / 2.0
-    pad_t = P["idler_pad_t"]
+    ln = P["idler_slot_len"]
+    bt = P["idler_boss_t"]
+    depth = bt + WALL - 0.4                       # blind: never breaks the outer face
     for sgn in (-1, 1):
-        solids.append(L.cyl(P["idler_pad_od"] / 2.0, pad_t,
-                            min(sgn * X_WALL_IN, sgn * (X_WALL_IN - pad_t)),
-                            Y_FRONT, AXLE, axis="x"))
-        cuts.append(L.cyl(r, WALL + pad_t + 2,
-                          min(sgn * X_WALL, sgn * (X_WALL_IN - pad_t)) - 1,
-                          Y_FRONT, AXLE, axis="x"))
-    # road-wheel stub-axle holes
-    n = int(P["roadwheels_per_side"])
-    span = P["wheelbase"] * 0.6
-    for i in range(n):
-        frac = (i + 1) / (n + 1)
-        y = -span / 2.0 + frac * span
+        x0 = min(sgn * X_WALL, sgn * X_WALL_IN) - 1.0
+        cuts.append(L.box(WALL + 2, ln - 2 * r, 2 * r,
+                          x0 + (WALL + 2) / 2.0, Y_IDLER, AXLE - r))
+        for e in (-1, 1):
+            cuts.append(L.cyl(r, WALL + 2, x0,
+                              Y_IDLER + e * (ln / 2.0 - r), AXLE, axis="x"))
+        for i in range(2):
+            z = AXLE + P["idler_carrier_screw_z0"] + i * P["idler_carrier_screw_cc"]
+            bx = min(sgn * X_WALL_IN, sgn * (X_WALL_IN - bt))
+            solids.append(L.cyl(P["boss_od"] / 2.0, bt, bx, Y_IDLER, z, axis="x"))
+            cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, depth, bx, Y_IDLER, z, axis="x"))
+    return solids, cuts
+
+
+# --- road-wheel axle skirts ----------------------------------------------
+def roadwheel_axles():
+    """Skirt pads below each side wall, carrying the two road-wheel rods.
+
+    A ø24 road wheel reaches the track's inner surface only from an axle line at
+    15.5 mm, and the tub floor's underside is at 18 -- so the holes the wall used
+    to carry at 23.5 were 8 mm too high for the wheel to touch anything, and the
+    obvious fix of lowering them lands 2.5 mm below the bottom of the wall.
+    Each rod therefore gets a local pad hanging off the wall, thickened inboard
+    so the rod bears on 5.4 mm of material rather than 2.4.
+
+    Separate pads per rod rather than one long skirt: 2 g lighter, and the pad
+    has no structural job between the rods.
+    """
+    solids, cuts = [], []
+    r = P["axle_hole_dia"] / 2.0
+    thick = WALL + P["skirt_pad_t"]
+    z0 = P["skirt_z_bottom"]
+    h = (Z0 + 1.0) - z0                            # 1 mm up into the wall/floor
+    for y in j5_params.roadwheel_ys(P):
         for sgn in (-1, 1):
-            cuts.append(_xhole(sgn, y, AXLE, r))
+            solids.append(L.box(thick, P["skirt_len"], h,
+                                sgn * (X_WALL - thick / 2.0), y, z0))
+            cuts.append(_wall_hole(sgn, y, RW_AXLE, r, thick))
     return solids, cuts
 
 
@@ -317,100 +360,82 @@ def battery_bay():
     return ring, cuts
 
 
-# --- Pi-M shelf + standoffs ----------------------------------------------
+# --- Pi-M electronics shelf: support columns on the tub -------------------
 def _shelf_screw_xy():
-    """Shelf screw centres, shared by the tub's tapped holes and the plate's
+    """Shelf screw centres, shared by the tub's tapped columns and the plate's
     clearance holes so the two cannot land in different places."""
-    cy = Y_FRONT - 28
-    dy = (P["pi_l"] + 8) / 2.0 - P["pi_shelf_screw_inset"]
-    return [(sx * P["pi_rib_cx"], cy + sy * dy)
-            for sx in (-1, 1) for sy in (-1, 1)]
+    return [(sx * P["pi_rib_cx"], y)
+            for sx in (-1, 1) for y in j5_params.pi_column_ys(P)]
 
 
-def pi_shelf_ribs():
-    """The two ribs that carry the Pi-M shelf, on the tub. Returns (solid, cuts).
+def pi_shelf_columns():
+    """Columns carrying the electronics shelf. Returns (solid, cuts).
 
-    The shelf itself is no longer fused on top of these. As one piece the
-    underside of the plate needed support material, and the only way in to pick
-    it out was a 44 x 26 mm tunnel further obstructed by the battery bay ring.
-    Open-topped ribs print clean with no support at all, and the plate becomes
-    a flat part that needs none either.
+    Was two solid 8.4 x 73 mm ribs. The shelf now runs 38 mm further aft so it
+    can carry the IMU as well as the Pi, and ribs at that length would have been
+    58 g of wall; three columns a side do the same job for 23 g, and the gaps
+    between them are where wiring crosses underneath.
 
-    The ribs sit outboard of the battery bay ring. They used to sit at the
-    plate edge, 15.8 mm off centre, which put them 1.7 mm inside the battery
-    envelope on each side over 53.5 mm of the pack's length.
-
-    The full-width idler shaft passes through the rib band at (Y_FRONT, AXLE),
-    so each rib takes a clearance notch. Clearance, not a fit: the shaft is
-    located by the wall pads, and making the ribs a third and fourth bearing
-    would just add two more holes to align on assembly.
+    Columns also delete the idler-rod notch. The rod crosses this band at axle
+    height, and the old rib had a hole cut through it to let the rod pass;
+    pi_column_ys instead places the forward column clear of the rod's travel, so
+    there is nothing to notch and nothing to mis-align on assembly.
     """
     z = Z0 + WALL + P["pi_shelf_z"]
-    cy = Y_FRONT - 28
-    shelf_w = P["pi_l"] + 8     # Y
-    rib_t = P["pi_rib_t"]
     depth = P["motor_cap_screw_depth"]
-
-    solid = None
-    for sgn in (-1, 1):
-        rib = L.box(rib_t, shelf_w, z - (Z0 + WALL), sgn * P["pi_rib_cx"], cy, Z0 + WALL)
-        solid = rib if solid is None else solid.fuse(rib)
-
-    cuts = []
-    # Confined to the rib band. A full-width cut here also passes through both
-    # side walls and their idler pads, opening the ø3.2 locating holes out to
-    # the notch diameter and leaving the shaft nothing to be located by.
-    for sgn in (-1, 1):
-        lo = min(sgn * P["pi_rib_x_in"], sgn * (P["pi_rib_x_in"] + rib_t))
-        cuts.append(L.cyl(P["axle_hole_dia"] / 2.0 + 1.0, rib_t + 2,
-                          lo - 1, Y_FRONT, AXLE, axis="x"))
-    # tapped holes in the rib top faces for the shelf screws
+    solid, cuts = None, []
     for sx, sy in _shelf_screw_xy():
+        col = L.box(P["pi_rib_t"], P["pi_column_len"], z - (Z0 + WALL),
+                    sx, sy, Z0 + WALL)
+        solid = col if solid is None else solid.fuse(col)
         cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, depth + 1, sx, sy, z - depth))
     return solid, cuts
 
 
-# --- Pi-M shelf plate (separate print) -----------------------------------
+# --- Pi-M electronics shelf plate (separate print) ------------------------
 def pi_shelf_plate():
-    """Standalone shelf plate. Built flat about the origin, like the motor cap.
+    """One shelf for all the tub electronics: Pi-M forward, IMU aft.
 
-    Prints face down with no support: the standoffs are the only thing above
-    the plate and the screw holes are straight through.
+    Built flat about the shelf centre. Prints face down with no support -- the
+    standoffs are the only thing above the plate and every hole is straight
+    through.
+
+    The IMU rides here rather than on the tub floor. On the floor it had to
+    dodge the battery bay ring, which pushed it 35 mm off the centreline and
+    left its forward screws under the shelf with no driver access; here it sits
+    on the centreline again, which also removes the lever-arm term its
+    accelerometer picked up during tank turns. The floor windows that were cut
+    for weight then had nothing left to undermine.
+
+    Three passthroughs: two beside the Pi for sensor and servo wiring, one aft
+    for the battery and motor loom coming up from the floor. Nothing forward --
+    the 4 mm gap between the plate's front edge and the tub's front wall is
+    where the ToF wiring already runs.
     """
-    cy = Y_FRONT - 28
-    shelf_w = P["pi_l"] + 8
-    solid = L.box(2 * P["pi_shelf_half_w"], shelf_w, 2.0, 0, 0, 0)
+    t = P["pi_shelf_t"]
+    cy = P["pi_shelf_cy"]
+    solid = L.box(2 * P["pi_shelf_half_w"], P["pi_shelf_len"], t, 0, 0, 0)
     for dx in (-P["pi_hole_dy"] / 2, P["pi_hole_dy"] / 2):      # short axis along X
         for dy in (-P["pi_hole_dx"] / 2, P["pi_hole_dx"] / 2):  # long axis along Y
-            solid = solid.fuse(L.standoff(dx, dy, 2.0, P["pi_standoff_h"],
-                                          P["boss_od"], P["m25_tap_dia"]))
-    for sx, sy in _shelf_screw_xy():
-        solid = solid.cut(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, 4.0, sx, sy - cy, -1))
-    return solid
-
-
-# --- IMU pad (centroid, floor) -------------------------------------------
-def imu_pad():
-    """IMU pad on the tub floor, outboard of the battery bay.
-
-    It used to sit at (0, -6) -- concentric with the battery bay, so the pack
-    landed on top of it -- and its two forward screws fell under the Pi shelf,
-    with no vertical driver access. Both features wanted the centroid and
-    neither knew about the other.
-
-    The lateral offset costs nothing for the gyro: angular rate is identical
-    anywhere on a rigid body. It adds a small centripetal term to the
-    accelerometer during tank turns, which is a fixed lever-arm correction.
-    """
-    z = Z0 + WALL
-    px, py = P["imu_pos_x"], P["imu_pos_y"]
-    solid = L.box(P["imu_hole_cc"] + 8, P["imu_hole_cc"] + 8, 2.5, px, py, z)
-    cuts = []
+            solid = solid.fuse(L.standoff(dx, P["pi_board_cy"] - cy + dy, t,
+                                          P["pi_standoff_h"], P["boss_od"],
+                                          P["m25_tap_dia"]))
     h = P["imu_hole_cc"] / 2.0
     for dx in (-h, h):
         for dy in (-h, h):
-            cuts.append(L.cyl(P["m2_tap_dia"] / 2.0, 6, px + dx, py + dy, z - 0.1))
-    return solid, cuts
+            solid = solid.fuse(L.standoff(P["imu_pos_x"] + dx,
+                                          P["imu_pos_y"] - cy + dy, t,
+                                          P["pi_standoff_h"], P["boss_od"],
+                                          P["m2_tap_dia"]))
+    for sx, sy in _shelf_screw_xy():
+        solid = solid.cut(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, t + 2, sx, sy - cy, -1))
+    for sx in (-1, 1):
+        solid = solid.cut(L.box(P["pi_wire_slot_w"], P["pi_wire_slot_l"], t + 2,
+                                sx * P["pi_wire_slot_x"],
+                                P["pi_board_cy"] - cy, -1))
+    solid = solid.cut(L.box(P["pi_loom_slot_w"], P["pi_loom_slot_l"], t + 2,
+                            0, P["pi_shelf_aft_y"] + 5.5 - cy, -1))
+    return solid
 
 
 # --- front ToF + IMU wall features ---------------------------------------
@@ -425,44 +450,143 @@ def front_wall_features():
     return cuts
 
 
-# --- lightening pockets (side walls + floor) -----------------------------
+# --- lightening pockets (side walls, blind) ------------------------------
 def lightening():
+    """Blind pockets only. Nothing here opens the tub to the ground.
+
+    The four floor windows are gone. 6.7 g is not worth an opening straight
+    into the electronics bay, and the battery bay ring -- the obvious place to
+    take the weight from instead -- is only 6.8 g in total before its strap
+    slots, so it could not fund them even if perforating the wall that retains
+    a LiPo were a good idea.
+
+    The side walls give the same weight back with no opening at all: six blind
+    pockets a side, 1.4 mm into a 2.4 mm wall. The grid has to clear three
+    things, and the last one is the reason for the guard below -- the idler
+    carrier's tapped holes run from the inner boss face to within 0.4 mm of the
+    outer face, so a pocket over one would turn a blind tap into a through-hole
+    and nothing downstream would notice.
+    """
     cuts = []
-    # side-wall pockets (leave margins around axle line and rims)
-    pl, ph, depth = 40, 18, WALL - 1.0
-    for sgn in (-1, 1):
-        for yy in (-Lg / 4, Lg / 4):
-            cuts.append(L.box(depth + 0.2, pl, ph, sgn * (X_WALL - depth / 2 - 0.05), yy, AXLE + 8))
-    # floor pockets fore and aft of the battery ring
-    cuts.append(L.box(W - 24, 18, WALL - 1.0, 0, Lg / 2 - 16, Z0 + 0.05))
+    depth = WALL - 1.0
+    pl, ph = 28.0, 19.0
+    # (y, z, y-margin, z-margin) around features the wall cannot afford to lose
+    keepouts = [(Y_REAR, AXLE, 8.0 + P["drive_bearing_od"] / 2.0, 8.0),
+                (Y_IDLER, AXLE, 3.0 + P["idler_slot_len"] / 2.0, 5.0)]
+    for i in range(2):
+        keepouts.append((Y_IDLER,
+                         AXLE + P["idler_carrier_screw_z0"]
+                         + i * P["idler_carrier_screw_cc"], 6.0, 6.0))
+    for z0 in (21.5, 43.5):
+        for yy in (-32.0, 0.0, 32.0):
+            for ky, kz, ry, rz in keepouts:
+                if (abs(yy - ky) < pl / 2.0 + ry
+                        and abs((z0 + ph / 2.0) - kz) < ph / 2.0 + rz):
+                    raise RuntimeError(
+                        f"wall pocket at (y={yy:+.0f}, z={z0:.0f}) thins the wall "
+                        f"over the feature at (y={ky:+.1f}, z={kz:.1f})")
+            for sgn in (-1, 1):
+                cuts.append(L.box(depth + 0.2, pl, ph,
+                                  sgn * (X_WALL - depth / 2.0 - 0.05), yy, z0))
+    # Floor pocket forward of the battery ring. Blind as well: it takes 1.4 mm
+    # of the 2.4 mm floor and leaves 1.0 mm, so it is a pocket, not a window.
+    cuts.append(L.box(W - 24, 18, WALL - 1.0, 0, Lg / 2 - 16, Z0))
     return cuts
 
 
-# --- rear trailing-caster pivot bosses (fused to the tub) ----------------
-def rear_pivot():
+# --- rear anti-tip tail mount (fused to the tub) -------------------------
+def tail_mount():
+    """Two tapped bosses on the rear wall for the anti-tip tail's flange.
+
+    Replaces the trailing-caster pivot. That pivot never assembled -- its bosses
+    were at x = +/-16 bored along Y while the arm's single eye was at x = 0, also
+    bored along Y, so nothing lined up and the axis it did define swung the arm
+    sideways rather than fore-aft. Rather than fix the linkage, the tail stopped
+    being a linkage: a sprung caster that rides the ground scrubs on every tank
+    turn and lifts weight off the tracks, and the tip margin it was approved for
+    comes from where its wheel sits, not from it being sprung.
+
+    Bosses are inboard so the flange can sit flat on the outer face, and the
+    tapped hole runs from outside through wall plus boss for 6 mm of thread.
+    """
     solids, cuts = [], []
-    y_rear = -Lg / 2.0
+    y_wall = -Lg / 2.0
+    bt = P["idler_boss_t"]
     for sgn in (-1, 1):
-        solids.append(L.cyl(5, 8, sgn * 16, y_rear - 6, P["caster_pivot_z"], axis="y"))
-        cuts.append(L.cyl(1.6, 12, sgn * 16, y_rear - 8, P["caster_pivot_z"], axis="y"))
+        x = sgn * P["tail_mount_cc"] / 2.0
+        solids.append(L.cyl(P["boss_od"] / 2.0, bt, x, y_wall + WALL,
+                            P["caster_pivot_z"], axis="y"))
+        cuts.append(L.cyl(P["m3_tap_dia"] / 2.0, WALL + bt - 0.4, x, y_wall,
+                          P["caster_pivot_z"], axis="y"))
     return solids, cuts
 
 
-# --- trailing caster parts (separate prints) -----------------------------
-def caster_arm():
-    """Swing arm: pivot eye -> trailing arm -> wheel fork."""
-    arm = L.box(10, P["caster_arm_len"], 8, 0, -P["caster_arm_len"] / 2.0, 0)
-    arm = arm.fuse(L.cyl(5, 12, 0, 0, 0, axis="y"))                       # pivot eye
-    arm = arm.fuse(L.box(10, 10, P["caster_wheel_dia"] / 2.0 + 6, 0,
-                         -P["caster_arm_len"], -P["caster_wheel_dia"] / 2.0))
-    arm = arm.cut(L.cyl(1.6, 14, 0, 0, 0, axis="y"))                      # pivot bore
-    arm = arm.cut(L.cyl(1.6, 14, 0, -P["caster_arm_len"], -P["caster_wheel_dia"] / 2.0, axis="y"))
-    return arm
+# --- rear anti-tip tail (separate print) ---------------------------------
+def tail_boom():
+    """Fixed boom carrying the anti-tip roller, built about its flange face.
+
+    Local origin is the flange's aft face on the tub's rear wall centreline;
+    +Y is forward, so the boom runs out along -Y dead level and the fork drops
+    to the axle. Level rather than sloped because the roller has to hang below
+    the boom anyway, and a level bar is one less angle to get wrong.
+    """
+    fw, fh, ft = P["tail_flange_w"], P["tail_flange_h"], P["tail_flange_t"]
+    bw, bh = P["tail_boom_w"], P["tail_boom_h"]
+    ln = P["tail_boom_len"]
+    drop = P["tail_axle_drop"]
+    ct, cl = P["tail_cheek_t"], P["tail_cheek_len"]
+    gap = P["caster_wheel_w"] + 1.5
+
+    s = L.box(fw, ft, fh, 0, ft / 2.0, -fh / 2.0)          # flange, y 0..ft
+    s = s.fuse(L.box(bw, ln + 3.0, bh, 0, (3.0 - ln) / 2.0, -bh / 2.0))
+    # fork: a block straddling the roller, hollowed to two cheeks
+    fork_w = gap + 2 * ct
+    # Cheeks reach 6 mm past the axle, not past the roller: the roller hangs
+    # free below them, and a fork sized to enclose it was 5 g of nothing.
+    top = bh / 2.0
+    bot = -drop - 6.0
+    s = s.fuse(L.box(fork_w, cl, top - bot, 0, -ln, bot))
+    s = s.cut(L.box(gap, cl + 2, (-drop + P["caster_wheel_dia"] / 2.0 + 1.0) - bot,
+                    0, -ln, bot))
+    s = s.cut(L.cyl(P["axle_hole_dia"] / 2.0, fork_w + 2,
+                    -(fork_w + 2) / 2.0, -ln, -drop, axis="x"))
+    for sx in (-1, 1):
+        s = s.cut(L.cyl(P["m3_clear_dia"] / 2.0, ft + 2,
+                        sx * P["tail_mount_cc"] / 2.0, -1, 0, axis="y"))
+    return s
 
 
-def caster_wheel():
-    w = L.cyl(P["caster_wheel_dia"] / 2.0, 12, 0, 0, 0, axis="y")
-    return w.cut(L.cyl(2.5, 14, 0, -1, 0, axis="y"))                      # axle bore
+def tail_roller():
+    """PLA hub for the anti-tip roller. The ground surface is the tyre, not this.
+
+    A bare plastic roller is the wrong thing on the one part whose whole job is
+    to catch the robot: on a hard floor it skitters rather than biting, and it
+    is loud doing it. The hub keeps its bore round under the axle load and gives
+    the tyre something to grip; the tyre does the contact.
+
+    A lip at each edge stands proud of the hub, so the tyre seats in the valley
+    between them and cannot walk off sideways. The lips stay well inside the
+    tyre's outer diameter, so they never reach the floor themselves.
+    """
+    w = P["caster_wheel_w"]
+    lw, lh = P["tail_tyre_lip_w"], P["tail_tyre_lip_h"]
+    s = L.cyl(P["tail_hub_dia"] / 2.0, w, -w / 2.0, 0, 0, axis="x")
+    for sx in (-1, 1):
+        x0 = -w / 2.0 if sx < 0 else w / 2.0 - lw
+        s = s.fuse(L.cyl(P["tail_hub_dia"] / 2.0 + lh, lw, x0, 0, 0, axis="x"))
+    return s.cut(L.cyl(P["axle_hole_dia"] / 2.0, w + 2, -w / 2.0 - 1, 0, 0, axis="x"))
+
+
+def tail_tyre():
+    """TPU 90A tyre for the anti-tip roller. Prints with the same filament as
+    the tracks, so it adds no BOM line -- only a second tiny print.
+
+    Bored under the hub diameter by tail_tyre_fit so it goes on stretched; that
+    interference plus the two hub lips is the whole retention scheme."""
+    w = P["tail_tyre_w"]
+    s = L.cyl(P["caster_wheel_dia"] / 2.0, w, -w / 2.0, 0, 0, axis="x")
+    return s.cut(L.cyl((P["tail_hub_dia"] - P["tail_tyre_fit"]) / 2.0, w + 2,
+                       -w / 2.0 - 1, 0, 0, axis="x"))
 
 
 # --- top deck (separate part) --------------------------------------------
@@ -478,6 +602,19 @@ def deck():
     # four perimeter screws down into tub-rim bosses (same centres as the bosses)
     for bx, by in _rim_boss_xy():
         cuts.append(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, P["deck_wall"] + 1, bx, by, -0.5))
+    # Lightening windows. The deck was 51 g of flat plate, the heaviest single
+    # printed item after the tub, and it is an internal part with no sealing or
+    # cosmetic job -- the torso sits on the bolt rectangle, not on the skin.
+    # Laid out by hand rather than on a grid because everything it has to miss
+    # is fixed: the cable slot, the four torso bolts, the two waist bosses and
+    # the rim screws. The 4 mm ligament between the centre and side windows is
+    # what keeps this one solid; the guard in main() is what proves it.
+    for cx, cy, wx, wy in ((0, 43.5, 52, 37), (0, -43.5, 52, 37),
+                           (40, 19.5, 20, 15), (-40, 19.5, 20, 15),
+                           (40, -19.5, 20, 15), (-40, -19.5, 20, 15),
+                           (40, 53, 20, 18), (-40, 53, 20, 18),
+                           (40, -53, 20, 18), (-40, -53, 20, 18)):
+        cuts.append(L.box(wx, wy, P["deck_wall"] + 1, cx, cy, -0.5))
     solid = d
     for c in cuts:
         solid = solid.cut(c)
@@ -499,15 +636,17 @@ def build():
     bring, bcuts = battery_bay()
     body = body.fuse(bring)
 
-    ribs, shelf_cuts = pi_shelf_ribs()
-    body = body.fuse(ribs)
+    cols, shelf_cuts = pi_shelf_columns()
+    body = body.fuse(cols)
 
-    ax_solids, ax_cuts = axle_features()
+    ax_solids, ax_cuts = idler_features()
     for s in ax_solids:
         body = body.fuse(s)
 
-    ipad, icuts = imu_pad()
-    body = body.fuse(ipad)
+    sk_solids, sk_cuts = roadwheel_axles()
+    for s in sk_solids:
+        body = body.fuse(s)
+    ax_cuts = ax_cuts + sk_cuts
 
     # tub-rim screw bosses for the deck. The pilot bores come back from
     # screw_boss() and must be cut -- they were previously discarded, leaving
@@ -518,13 +657,13 @@ def build():
         body = body.fuse(b)
         rim_cuts.append(h)
 
-    # rear trailing-caster pivot bosses
-    rp_solids, rp_cuts = rear_pivot()
+    # rear anti-tip tail mount
+    rp_solids, rp_cuts = tail_mount()
     for s in rp_solids:
         body = body.fuse(s)
 
     # subtract all cuts
-    for c in (mc_cuts + bcuts + icuts + ax_cuts + shelf_cuts
+    for c in (mc_cuts + bcuts + ax_cuts + shelf_cuts
               + drive_axle_features()
               + front_wall_features() + lightening() + rp_cuts + rim_cuts):
         body = body.cut(c)
@@ -553,8 +692,14 @@ def main():
     if len(shelf_check.Solids) != 1:
         raise RuntimeError(f"pi shelf built as {len(shelf_check.Solids)} solids")
 
-    arm_shape = caster_arm()
-    wheel_shape = caster_wheel()
+    for shp, nm in ((tail_boom(), "tail boom"), (tail_roller(), "tail roller hub"),
+                    (tail_tyre(), "tail tyre")):
+        if len(shp.Solids) != 1:
+            raise RuntimeError(f"{nm} built as {len(shp.Solids)} solids")
+
+    arm_shape = tail_boom()
+    wheel_shape = tail_roller()
+    tyre_shape = tail_tyre()
     cap_shape = motor_cap()
     shelf_shape = pi_shelf_plate()
 
@@ -608,21 +753,26 @@ def main():
             raise RuntimeError(f"{side} drive bearing seat has no shoulder: only "
                                f"{present:.1f} of {ring.Volume:.1f} mm3 present")
 
-    # Every side-wall shaft hole must actually be open, on both sides.
-    n = int(P["roadwheels_per_side"])
-    span = P["wheelbase"] * 0.6
-    wall_holes = [("drive bearing seat", Y_REAR, P["drive_bearing_od"] / 2.0),
-                  ("idler axle", Y_FRONT, P["axle_hole_dia"] / 2.0)]
-    for i in range(n):
-        y = -span / 2.0 + (i + 1) / (n + 1) * span
-        wall_holes.append((f"road wheel y={y:+.0f}", y, P["axle_hole_dia"] / 2.0))
-    for name, y, r in wall_holes:
+    # Every side-wall shaft hole must actually be open, on both sides. Each
+    # entry carries its own z and its own local wall thickness now: the road
+    # wheels sit 8 mm lower than the sprocket and pass through the 5.4 mm skirt
+    # pads, not the 2.4 mm wall.
+    ah = P["axle_hole_dia"] / 2.0
+    skirt_t = WALL + P["skirt_pad_t"]
+    travel = P["idler_slot_travel"] / 2.0
+    wall_holes = [("drive bearing seat", Y_REAR, AXLE,
+                   P["drive_bearing_od"] / 2.0, WALL),
+                  ("idler slot, slack end", Y_IDLER - travel, AXLE, ah, WALL),
+                  ("idler slot, taut end", Y_IDLER + travel, AXLE, ah, WALL)]
+    for y in j5_params.roadwheel_ys(P):
+        wall_holes.append((f"road wheel y={y:+.0f}", y, RW_AXLE, ah, skirt_t))
+    for name, y, z, r, thick in wall_holes:
         for sgn in (-1, 1):
-            probe = L.cyl(r * 0.8, WALL + 1,
-                          min(sgn * X_WALL, sgn * X_WALL_IN) - 0.5, y, AXLE, axis="x")
+            side = "left" if sgn < 0 else "right"
+            x0 = min(sgn * X_WALL, sgn * (X_WALL - thick))
+            probe = L.cyl(r * 0.8, thick + 1, x0 - 0.5, y, z, axis="x")
             blocked = probe.common(tub_shape).Volume
             if blocked > 1e-6:
-                side = "left" if sgn < 0 else "right"
                 raise RuntimeError(f"{name} hole is not open in the {side} wall: "
                                    f"{blocked:.1f} mm3 still in the bore")
             # ...and must not be oversized. Something has to remain solid just
@@ -630,12 +780,28 @@ def main():
             # the check above even when a stray full-width cut has opened it to
             # half again its size, which is how the idler locating holes first
             # came out at 5.2 mm instead of 3.2 mm.
-            wide = L.cyl(r + 0.75, WALL + 0.6,
-                         min(sgn * X_WALL, sgn * X_WALL_IN) - 0.3, y, AXLE, axis="x")
+            wide = L.cyl(r + 0.75, thick - 0.4, x0 - 0.3, y, z, axis="x")
             if wide.common(tub_shape).Volume < 1e-6:
-                side = "left" if sgn < 0 else "right"
                 raise RuntimeError(f"{name} hole in the {side} wall is oversized: "
                                    f"nothing solid at +1.5 mm on diameter")
+
+    # Each rod runs the full width of the tub, so its whole length has to be
+    # clear -- not just the two holes it passes through. The road-wheel rods
+    # run below the floor in open air; the idler rod crosses the tub interior
+    # and has to miss the shelf ribs at every tension setting.
+    rods = [("idler rod", Y_IDLER, AXLE, P["idler_slot_len"]),
+            ("idler rod, taut end", Y_IDLER + travel, AXLE, 0.0)]
+    rods += [(f"road-wheel rod y={y:+.0f}", y, RW_AXLE, 0.0)
+             for y in j5_params.roadwheel_ys(P)]
+    for name, y, z, _ in rods:
+        # probe the rod itself, not the hole: at hole radius this check trips
+        # on the 0.1 mm of clearance the hole is supposed to have.
+        rod = L.cyl(P["idler_axle_dia"] / 2.0, 2 * X_WALL + 4,
+                    -X_WALL - 2, y, z, axis="x")
+        fouled = rod.common(tub_shape).Volume
+        if fouled > 1e-6:
+            raise RuntimeError(f"{name} is obstructed by {fouled:.1f} mm3 along "
+                               "its length")
 
     # Keep-outs: volumes that have to stay empty for the robot to go together.
     pack = L.box(P["battery_w"], P["battery_l"], P["battery_h"], 0, -6, Z0 + WALL)
@@ -644,23 +810,31 @@ def main():
         raise RuntimeError(f"battery envelope obstructed by {clash:.1f} mm3 -- "
                            "the pack cannot seat")
 
-    h = P["imu_hole_cc"] / 2.0
-    for dx in (-h, h):
-        for dy in (-h, h):
-            col = L.cyl(2.0, ZTOP - (Z0 + WALL + 2.5),
-                        P["imu_pos_x"] + dx, P["imu_pos_y"] + dy, Z0 + WALL + 2.5)
-            clash = col.common(tub_shape).Volume
-            if clash > 1e-6:
-                raise RuntimeError(
-                    f"no driver access to the imu screw at "
-                    f"({P['imu_pos_x'] + dx:+.1f}, {P['imu_pos_y'] + dy:+.1f}): "
-                    f"{clash:.1f} mm3 overhead")
+    # The IMU shares the shelf with the Pi now, so what has to be proved is that
+    # the two do not want the same space -- the same class of error as the old
+    # floor pad, where the battery bay and the IMU both wanted the centroid and
+    # neither knew about the other.
+    z_top = Z0 + WALL + P["pi_shelf_z"] + P["pi_shelf_t"] + P["pi_standoff_h"]
+    board = L.box(P["pi_w"], P["pi_l"], 12.0, 0, P["pi_board_cy"], z_top)
+    imu = L.box(P["imu_hole_cc"] + 8, P["imu_hole_cc"] + 8, 12.0,
+                P["imu_pos_x"], P["imu_pos_y"], z_top)
+    clash = board.common(imu).Volume
+    if clash > 1e-6:
+        raise RuntimeError(f"Pi-M board and IMU overlap on the shelf by "
+                           f"{clash:.1f} mm3")
+    for env, nm in ((board, "Pi-M board"), (imu, "IMU")):
+        c = env.common(tub_shape).Volume
+        if c > 1e-6:
+            raise RuntimeError(f"{nm} envelope fouls the tub by {c:.1f} mm3")
+        if env.BoundBox.ZMax > ZTOP:
+            raise RuntimeError(f"{nm} stands {env.BoundBox.ZMax - ZTOP:.1f} mm "
+                               "proud of the tub rim; the deck will not close")
 
     # Shelf in its assembled position: it should touch the rib tops and nothing
     # else, and every screw must find a tapped hole under it.
     z_shelf = Z0 + WALL + P["pi_shelf_z"]
     placed = shelf_check.copy()
-    placed.translate(Vector(0, Y_FRONT - 28, z_shelf))
+    placed.translate(Vector(0, P["pi_shelf_cy"], z_shelf))
     clash = placed.common(tub_shape).Volume
     if clash > 1e-6:
         raise RuntimeError(f"pi shelf fouls the tub by {clash:.1f} mm3 "
@@ -684,15 +858,77 @@ def main():
         raise RuntimeError(f"battery bay is walled off at its aft end by "
                            f"{blocked:.1f} mm3 -- the pack is longer than the "
                            "ring and has to run past it")
+    # The tail has to bolt on and its roller has to end up where the tip
+    # calculation assumes. The old caster failed both: bosses bored on one axis,
+    # an arm eye on another, and a wheel hanging 6 mm clear of the floor with
+    # nothing to bring it down.
+    tail = tail_boom()
+    tail.translate(Vector(0, P["tail_mount_y"] - P["tail_flange_t"],
+                          P["caster_pivot_z"]))
+    clash = tail.common(tub_shape).Volume
+    if clash > 1e-6:
+        raise RuntimeError(f"tail boom fouls the tub by {clash:.1f} mm3")
+    for sx in (-1, 1):
+        x = sx * P["tail_mount_cc"] / 2.0
+        pilot = L.cyl(P["m3_tap_dia"] / 2.0 * 0.8, WALL + P["idler_boss_t"] - 1.0,
+                      x, -Lg / 2.0 + 0.5, P["caster_pivot_z"], axis="y")
+        blocked = pilot.common(tub_shape).Volume
+        if blocked > 1e-6:
+            raise RuntimeError(f"no tapped hole behind the tail flange bolt at "
+                               f"x={x:+.0f}: {blocked:.1f} mm3")
+    z_axle = P["caster_pivot_z"] - P["tail_axle_drop"]
+    roller = tail_roller()
+    roller.translate(Vector(0, P["tail_contact_y"], z_axle))
+    tyre = tail_tyre()
+    tyre.translate(Vector(0, P["tail_contact_y"], z_axle))
+    for shp, nm in ((roller, "roller hub"), (tyre, "tyre")):
+        if shp.common(tail).Volume > 1e-6:
+            raise RuntimeError(f"anti-tip {nm} does not fit between the fork cheeks")
+    # The tyre has to be the thing that touches, and it has to be a tyre: bored
+    # under the hub so it goes on stretched, and with the hub's lips buried well
+    # inside its outer diameter so they never reach the floor.
+    if roller.common(tyre).Volume <= 1e-6:
+        raise RuntimeError("tyre bore is not an interference fit on the hub")
+    if roller.BoundBox.ZMin <= tyre.BoundBox.ZMin + 1.0:
+        raise RuntimeError(f"hub reaches z={roller.BoundBox.ZMin:.2f} against the "
+                           f"tyre at {tyre.BoundBox.ZMin:.2f}; the lips would ground")
+    low = tyre.BoundBox.ZMin
+    if abs(low - P["caster_float"]) > 1e-6:
+        raise RuntimeError(f"anti-tip tyre sits {low:.2f} mm off the floor, "
+                           f"not the {P['caster_float']:.1f} mm it is designed to")
+    if tail.BoundBox.ZMin <= low:
+        raise RuntimeError(f"tail structure reaches z={tail.BoundBox.ZMin:.1f}, "
+                           f"below the roller at {low:.1f} -- it would ground first")
+
+    # The underside is a floor, not a grille. Probe it just below the skin and
+    # again just above it: material missing from both is a hole right through.
+    # The two the motors make are unavoidable -- a ø12 motor on a 23.5 mm axle
+    # line has its belly at 17.5, below the tub's own underside at 18.0 -- so
+    # they are named and allowed, and anything else is a mistake.
+    lo = L.box(W, Lg, 0.2, 0, 0, Z0 + 0.05)
+    hi = L.box(W, Lg, 0.2, 0, 0, Z0 + WALL - 0.25)
+    lo_open = lo.cut(tub_shape)
+    hi_open = hi.cut(tub_shape)
+    hi_open.translate(Vector(0, 0, -(WALL - 0.3)))     # onto the lower probe
+    through = lo_open.common(hi_open)
+    area = through.Volume / 0.2
+    motor_holes = 2 * (P["motor_pocket_l"] + 1) * (P["motor_dia"] + P["motor_fit_clear"])
+    if area > motor_holes:
+        raise RuntimeError(f"{area:.0f} mm2 of the tub underside is open right "
+                           f"through, more than the {motor_holes:.0f} mm2 the "
+                           "motor pockets account for")
+
     L.export(tub_shape, os.path.join(STL, "chassis_tub_v1.stl"))
     L.export(deck_shape, os.path.join(STL, "chassis_deck_v1.stl"))
-    L.export(arm_shape, os.path.join(STL, "caster_arm_v1.stl"))
-    L.export(wheel_shape, os.path.join(STL, "caster_wheel_v1.stl"))
+    L.export(arm_shape, os.path.join(STL, "tail_boom_v1.stl"))
+    L.export(wheel_shape, os.path.join(STL, "tail_roller_v1.stl"))
+    L.export(tyre_shape, os.path.join(STL, "tail_tyre_v1.stl"))
     L.export(cap_shape, os.path.join(STL, "motor_cap_v1.stl"))
     L.export(shelf_shape, os.path.join(STL, "pi_shelf_v1.stl"))
 
     for shp, nm in ((tub_shape, "chassis_tub"), (deck_shape, "chassis_deck"),
-                    (arm_shape, "caster_arm"), (wheel_shape, "caster_wheel"),
+                    (arm_shape, "tail_boom"), (wheel_shape, "tail_roller"),
+                    (tyre_shape, "tail_tyre"),
                     (cap_shape, "motor_cap"), (shelf_shape, "pi_shelf")):
         o = doc.addObject("Part::Feature", nm)
         o.Shape = shp

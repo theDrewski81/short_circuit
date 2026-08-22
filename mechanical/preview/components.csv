@@ -30,32 +30,37 @@ Connectors + caps + PDB,power,1,20,base,1,
 Fasteners + heat-set inserts,hardware,1,25,base,1,M2/M3 throughout
 #
 # --- printed structure (estimated) ---
-Chassis tub + deck (PLA),printed,1,190,base,1,validated shell+deck estimate
-Drive sprocket (PLA),printed,2,10,base,1,
-Idler wheel (PLA),printed,2,9,base,1,
-Road wheel (PLA),printed,4,8,base,1,
-TPU track loop,printed,2,22,base,1,lugged band estimate
-Torso front+back shell (PLA),printed,1,180,base,1,keyed two-part
-Neck riser + yaw mount (PLA),printed,1,30,base,1,
-Head shell + brow + eyes + antenna (PLA),printed,1,90,base,1,
-Arm assembly (PLA),printed,2,40,base,1,<=50 g/arm budget
+Chassis tub (PLA),printed,1,161,base,0,measured; shelf ribs became columns and the deck/floor windows landed
+Chassis deck (PLA),printed,1,32,base,0,measured; lightening windows cut Session 04
+Motor retention cap (PLA),printed,2,6,base,0,measured
+Pi-M shelf plate (PLA),printed,1,20,base,0,measured; one electronics shelf, Pi forward and IMU aft, with wire passthroughs
+Drive sprocket (PLA),printed,2,25,base,0,measured; 10-pocket rim on hub and spokes
+Idler wheel (PLA),printed,2,22,base,0,measured
+Road wheel (PLA),printed,4,11,base,0,measured
+Idler tensioner carrier (PLA),printed,2,3,base,0,measured
+Axle collar (PLA),printed,6,1,base,0,measured; two per rod
+TPU track loop,printed,2,36,base,0,measured; herringbone treads relieved out of the band drop the continuous section to 2.0 mm
+Axle rod 3 mm steel,hardware,3,7,base,0,176 mm each: idler + 2 road wheel. Never budgeted before
+Bearings 623ZZ + MR106ZZ,hardware,1,17,base,0,8 x 623ZZ + 2 x MR106ZZ. Never budgeted before
+Misc brackets / mounts (PLA),printed,1,20,base,1,sensor mounts and board standoffs; caps and shelf now itemised
+Torso front+back shell (PLA),printed,1,218,base,0,measured at a 2.0 mm wall, incl. the new shoulder deck, split pads and deck-bolt ribs
+Head shell face+back (PLA),printed,1,181,base,0,measured at a 2.0 mm wall, incl. split pads; antenna rod is 0.3 g and folded in
+Arm assembly (PLA),printed,2,23,base,0,measured; well inside the 50 g/arm ceiling
 Utility box + bracket (PLA),printed,1,25,base,1,
-Misc brackets / mounts (PLA),printed,1,40,base,1,motor caps, board standoffs, sensor mounts
 #
 # --- 5th-servo head-nod option (incremental) ---
 SCS0009 serial servo (head nod),servo,1,20,nod,0,5th servo
-Head nod gimbal + bracket (PLA),printed,1,25,nod,1,pitch joint between yaw output and head
+Head nod bracket (PLA),printed,1,18,nod,1,neck-side bracket only; the head ears are 7.1 g and already inside the measured head shell
 Neck reinforcement (PLA),printed,1,12,nod,1,added structure for nod load
 Nod wiring + fasteners,wiring,1,8,nod,1,
 #
 # --- articulated brow option (6th servo, Session 02) ---
 SCS0009 serial servo (brow roll),servo,1,20,brow,0,6th servo
-Brow blade (PLA, thin),printed,2,5,brow,1,lightweight shader panel
+Brow blade (PLA thin),printed,2,4,brow,0,measured
 Brow rocker + gear bridge + idler (PLA),printed,1,8,brow,1,pinion + left gear + idler + right gear
 Brow wiring,wiring,1,4,brow,1,
 #
 # --- rear trailing caster (passive stability, approved Session 02) ---
-Trailing caster wheel (TPU/PLA),printed,1,10,wheel,1,swiveling stabilizer
-Trailing arm + rear pivot mount (PLA),printed,1,12,wheel,1,
-Caster preload spring,hardware,1,3,wheel,0,
-Caster pivot pins + bearings,hardware,1,8,wheel,1,
+Anti-tip tail boom (PLA),printed,1,20,wheel,0,measured; fixed boom replacing the sprung caster arm
+Anti-tip roller hub (PLA),printed,1,4,wheel,0,measured; carries the bore and the tyre lips
+Anti-tip roller tyre (TPU),printed,1,2,wheel,0,measured; same 90A filament as the tracks, no new BOM line

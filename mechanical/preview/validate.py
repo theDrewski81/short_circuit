@@ -151,26 +151,88 @@ chk("Shelf screw inset clears the plate edge",
 chk("Pi board fits the shelf plate", P["pi_w"] <= 2 * P["pi_shelf_half_w"],
     f'{P["pi_w"]:.0f} <= {2*P["pi_shelf_half_w"]:.0f}')
 imu_half = (P["imu_hole_cc"] + 8) / 2
-chk("IMU pad clear of the battery bay",
-    P["imu_pos_x"] - imu_half >= P["battery_w"] / 2 + P["battery_clear"] + 2,
-    f'pad inner edge {P["imu_pos_x"] - imu_half:.1f} >= bay outer '
-    f'{P["battery_w"]/2 + P["battery_clear"] + 2:.1f}')
-chk("IMU screws reachable from above (aft of the shelf)",
-    P["imu_pos_y"] + imu_half <= (P["wheelbase"] / 2 - 28) - (P["pi_l"] + 8) / 2,
-    f'pad front edge {P["imu_pos_y"] + imu_half:.1f} <= shelf aft edge '
-    f'{(P["wheelbase"]/2 - 28) - (P["pi_l"] + 8)/2:.1f}')
-chk("IMU pad inside the tub interior",
-    P["imu_pos_x"] + imu_half <= P["tub_width"] / 2 - P["tub_wall"],
-    f'{P["imu_pos_x"] + imu_half:.1f} <= {P["tub_width"]/2 - P["tub_wall"]:.1f}')
-# Bearings sit in the wheel hubs, so the wall only carries a locating hole --
-# but the pad behind it is what gives the shaft usable bearing length.
-chk("Idler shaft bearing length worth having",
-    P["tub_wall"] + P["idler_pad_t"] >= 1.5 * P["idler_axle_dia"],
-    f'{P["tub_wall"] + P["idler_pad_t"]:.1f} >= '
+# The IMU rides the Pi-M shelf now, not the tub floor, so the checks are about
+# sharing a plate with the Pi rather than dodging the battery bay ring.
+chk("IMU sits aft of the Pi board on the shelf",
+    P["imu_pos_y"] + imu_half + 3 <= P["pi_board_cy"] - P["pi_l"] / 2,
+    f'IMU front edge {P["imu_pos_y"] + imu_half:.1f} <= board aft edge '
+    f'{P["pi_board_cy"] - P["pi_l"]/2:.1f}')
+chk("IMU fits across the shelf",
+    abs(P["imu_pos_x"]) + imu_half <= P["pi_shelf_half_w"],
+    f'{abs(P["imu_pos_x"]) + imu_half:.1f} <= {P["pi_shelf_half_w"]:.0f}')
+chk("Shelf reaches aft of the IMU",
+    P["pi_shelf_aft_y"] <= P["imu_pos_y"] - imu_half - 3,
+    f'shelf aft {P["pi_shelf_aft_y"]:.1f} <= IMU aft edge - 3 '
+    f'{P["imu_pos_y"] - imu_half - 3:.1f}')
+chk("Electronics stack clears the tub rim",
+    (P["ground_clearance"] + P["tub_wall"] + P["pi_shelf_z"] + P["pi_shelf_t"]
+     + P["pi_standoff_h"] + 12) <= P["ground_clearance"] + P["tub_height"],
+    f'board top {P["ground_clearance"] + P["tub_wall"] + P["pi_shelf_z"] + P["pi_shelf_t"] + P["pi_standoff_h"] + 12:.1f}'
+    f' <= rim {P["ground_clearance"] + P["tub_height"]:.1f}')
+_cols = j5_params.pi_column_ys(P)
+chk("Shelf columns clear the idler rod",
+    max(_cols) + P["pi_column_len"] / 2
+    <= P["idler_y_nom"] - P["idler_axle_dia"] / 2 - 2,
+    f'front column face {max(_cols) + P["pi_column_len"]/2:.1f} <= rod aft '
+    f'{P["idler_y_nom"] - P["idler_axle_dia"]/2 - 2:.1f}')
+chk("Shelf columns clear the battery bay ring",
+    P["pi_rib_x_in"] >= (P["battery_w"] + 2 * P["battery_clear"]) / 2 + 2,
+    f'{P["pi_rib_x_in"]:.1f} >= {(P["battery_w"] + 2*P["battery_clear"])/2 + 2:.1f}')
+
+# --- track treads --------------------------------------------------------
+chk("Tread relief leaves a usable continuous band",
+    P["track_band_t"] >= 1.6,
+    f'{P["track_band_t"]:.1f} mm continuous under a {P["tread_depth"]:.1f} mm tread')
+chk("Tread depth does not change the ride height",
+    abs(P["track_outer_r"] - (P["sprocket_pitch_dia"] / 2 + P["track_thickness"])) < 1e-9,
+    f'tip radius {P["track_outer_r"]:.1f} unchanged')
+chk("Chevron lean is self-supporting",
+    P["tread_angle"] <= 45,
+    f'{P["tread_angle"]:.0f} deg off vertical in the print orientation')
+chk("Ground run always spans several chevrons",
+    P["track_straight_len"] /
+    ((2 * P["track_straight_len"] + 2 * math.pi * P["tread_valley_r"])
+     / P["tread_count"]) >= 4,
+    f'{P["track_straight_len"] / ((2*P["track_straight_len"] + 2*math.pi*P["tread_valley_r"])/P["tread_count"]):.1f} chevrons in contact')
+
+# Bearings sit in the wheel hubs, so the wall carries only a locating feature.
+# The idler's is now a slot, and the carrier clamped over it is what gives the
+# rod its bearing length -- the old inner-face pad is gone with the fixed hole.
+chk("Idler rod bearing length worth having",
+    P["idler_carrier_t"] >= 1.5 * P["idler_axle_dia"],
+    f'carrier {P["idler_carrier_t"]:.1f} >= '
     f'{1.5*P["idler_axle_dia"]:.1f} (1.5x shaft dia)')
-chk("Idler pad wider than its hole",
-    P["idler_pad_od"] > P["axle_hole_dia"] + 4,
-    f'{P["idler_pad_od"]:.0f} > {P["axle_hole_dia"] + 4:.1f}')
+chk("Idler slot leaves the rod somewhere to go",
+    P["idler_slot_len"] > P["axle_hole_dia"] + 1,
+    f'{P["idler_slot_len"]:.1f} > {P["axle_hole_dia"] + 1:.1f}')
+chk("Track loop closes inside the idler slot travel",
+    abs(P["idler_y_nom"] - P["idler_slot_cy"]) <= P["idler_slot_travel"] / 2 + 1e-9,
+    f'zero-strain idler y {P["idler_y_nom"]:.2f} within '
+    f'{P["idler_slot_travel"]/2:.1f} mm of slot centre {P["idler_slot_cy"]:.2f}')
+
+# --- road wheels ---------------------------------------------------------
+_rw_ys = j5_params.roadwheel_ys(P)
+chk("Road wheels reach the track inner surface",
+    abs((P["roadwheel_axle_z"] - P["roadwheel_dia"] / 2) - P["track_thickness"]) < 1e-9,
+    f'wheel bottom {P["roadwheel_axle_z"] - P["roadwheel_dia"]/2:.1f} == '
+    f'band inner face {P["track_thickness"]:.1f}')
+chk("Road wheels clear each other",
+    all(abs(a - b) > P["roadwheel_dia"] + 1
+        for i, a in enumerate(_rw_ys) for b in _rw_ys[i+1:]),
+    f'centres {[round(y,1) for y in _rw_ys]}, need > {P["roadwheel_dia"]+1:.0f} apart')
+chk("Skirt carries the road-wheel hole",
+    P["skirt_z_bottom"] + 2.5 <= P["roadwheel_axle_z"] - P["axle_hole_dia"] / 2,
+    f'skirt bottom {P["skirt_z_bottom"]:.1f}+2.5 <= hole bottom '
+    f'{P["roadwheel_axle_z"] - P["axle_hole_dia"]/2:.1f}')
+
+# --- rear anti-tip tail --------------------------------------------------
+chk("Anti-tip roller floats clear of the floor",
+    P["tail_axle_z"] - P["caster_wheel_dia"] / 2 > 2.0,
+    f'{P["tail_axle_z"] - P["caster_wheel_dia"]/2:.1f} mm float')
+chk("Roller is the tail's lowest point",
+    P["caster_pivot_z"] - P["tail_boom_h"] / 2 > P["tail_axle_z"],
+    f'boom underside {P["caster_pivot_z"] - P["tail_boom_h"]/2:.1f} > axle '
+    f'{P["tail_axle_z"]:.1f}')
 
 # --- full stack height ---------------------------------------------------
 chk("Total height in floor-roaming band",
