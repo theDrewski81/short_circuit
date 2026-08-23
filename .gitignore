@@ -12,9 +12,7 @@ johnny5-env/
 .DS_Store
 Thumbs.db
 
-# Large/binary model artifacts (document separately, do not commit)
-*.onnx
-policies/*.onnx
+# Large/binary artifacts. Deployed policies ARE tracked; training outputs are not.
 simulation/**/*.mjb
 
 # Logs
