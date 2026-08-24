@@ -36,8 +36,5 @@ scripts/      Setup, deployment, and maintenance scripts
 
 ## Status
 
-Phase 01 — Infrastructure & Repository gate met 2026-06-22. Currently in
-**Phase 02 — Locomotion**. See
-[`phases/PHASE_02_LOCOMOTION.md`](./phases/PHASE_02_LOCOMOTION.md) for
-gate conditions and [`INITIATING_PROMPT.md`](./INITIATING_PROMPT.md) for the
-current session handoff state.
+Current phase, blockers and next steps live in [`PROJECT_STATE.md`](./PROJECT_STATE.md),
+which is the project's single source of truth for where the work stands.

@@ -1,5 +1,11 @@
 # Phase 06 — Form & Finish
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Take the validated-but-boxy body from massing fidelity to a screen-accurate, cohesive Johnny 5 form, then give the fully assembled robot a holistic finish review. Form only — no functional, electrical, or firmware changes. All work stays inside the envelopes the earlier phases froze.

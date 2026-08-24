@@ -1,5 +1,11 @@
 # Phase 05 — Integration & Hardening
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Validate the full stack under realistic operating conditions, resolve integration issues surfaced by end-to-end testing, harden the system against known failure modes, profile and tune performance, and produce a documented, tagged v1.0 release. This phase does not add new capabilities -- it makes the existing capabilities reliable.
@@ -101,7 +107,7 @@ Before tagging v5.0:
 - `README.md`: complete project description, architecture overview, setup instructions, and demo video placeholder.
 - `BOM.md`: confirm reflects final purchased components, not Phase 00 selections. Update any substitutions made during build.
 - `CLAUDE.md`: update any architectural decisions that changed during implementation.
-- Phase coordinator documents: mark gate status on each.
+- `PROJECT_STATE.md`: phase ledger brought current, all gates evidenced. Phase coordinator documents carry no gate status of their own.
 - `simulation/chassis/TUNING.md` and `simulation/full_body/TUNING.md`: document any reality-gap corrections applied.
 - `scripts/`: all deployment scripts confirmed working and documented.
 - `policies/README.md`: document each policy file, training configuration, and performance metrics.

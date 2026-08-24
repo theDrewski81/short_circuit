@@ -8,6 +8,29 @@
 
 ---
 
+## Project State & Orchestration
+
+**`PROJECT_STATE.md` at the repo root is the sole authority for where the project stands.**
+Phase documents in `/phases/` say what the work *is*; `PROJECT_STATE.md` says where the work
+*stands*. Where they disagree, `PROJECT_STATE.md` wins; where it and the repository disagree,
+the repository wins and `PROJECT_STATE.md` is corrected.
+
+The project runs an orchestrator/worker split. One orchestrator session owns project state
+and dispatches every other session with a bounded brief. Workers do the work and return a
+close-out report; the orchestrator verifies that report against the repository before
+updating state. A worker's report is a claim, never a fact. **No worker edits
+`PROJECT_STATE.md`, and no worker writes its own successor's brief** — a session doing exactly
+that on 2026-08-21 produced an initiating prompt for a phase that had closed two months
+earlier, which is why this section exists.
+
+**A worker session's read path, in order:** `CLAUDE.md`, then `PROJECT_STATE.md`, then its own
+phase document, then its dispatch brief. Nothing else is authoritative. A phase document's
+engineering detail is trusted; any status claim still lurking in one is not.
+
+Read the file, never an index line summarising it.
+
+---
+
 ## System Architecture
 
 ### Edge Layer
@@ -103,9 +126,16 @@ Hardware not yet selected (Phase 00 scope): DC motors, H-bridge driver, tread sy
 
 **Merging:** Squash merge to `main` via PR. No merge commits on `main`. Linear history enforced.
 
-**Tagging:** Tag `main` at each phase gate: `v0.0` through `v6.0`. Iteration tags within a phase use minor version: `v2.1`, `v2.2`, etc.
+**Tagging:** Tag `main` at each phase gate: `v0.0` through `v6.0`. There are no intra-phase iteration tags -- that convention was documented but never used, and was removed 2026-08-23 rather than left standing as a rule the project ignores.
 
-**Agent boundaries — history is Andrew's.** Claude may create and switch branches as part of delivering work (creating a branch is on par with creating files). Claude does not commit, push, merge, tag, or stash. Claude delivers files to the working tree on an appropriately named work branch and provides the exact commit/push commands; Andrew reviews, commits, and pushes. (The repo is Nextcloud-synced and git can be unreliable from the agent sandbox; if a branch operation fails there, Claude reports it and hands off rather than forcing it.)
+**Agent boundaries — every git write is Andrew's.** Claude edits the working tree and verifies its own work; Claude does not commit, push, merge, tag, or stash. Claude hands Andrew an exact command block and he runs it from Windows.
+
+Commit authority was granted with prior approval on 2026-08-22, exercised once, and handed back on 2026-08-23 on Claude's own recommendation. Two environment facts make it cost more than it saves, and both are worth knowing before anyone proposes granting it again:
+
+- The Cowork device mount cannot delete files. Every git command that takes `.git/index.lock` strands it, and the stranded lock then blocks the next git write — Andrew's included. Only he can clear it.
+- Line-ending handling differs between the two environments, so a text file committed by Claude can land with the wrong line endings in an otherwise-LF repository. This happened.
+
+Practical pattern: Claude prefers git commands that only read the object database (`log`, `show`, `cat-file`, `ls-tree`, `rev-parse`, `for-each-ref`, `check-ignore`), avoids `status`/`diff`/`add`, checks `find .git -maxdepth 2 -name "*.lock"` before handing over a command block, and says which locks need clearing first.
 
 ---
 

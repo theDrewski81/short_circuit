@@ -1,5 +1,11 @@
 # Phase 04 — Cognition
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Implement the full LLM agent loop on Pi-V: camera capture pipeline, voice input processing, intent generation, LED expressiveness, and the Johnny 5 personality. At the gate, the robot responds to spoken input with coordinated motion, speech, and LED expression, with the LLM reasoning about its environment from camera-captured context.

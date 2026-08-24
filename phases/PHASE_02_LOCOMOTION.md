@@ -1,5 +1,11 @@
 # Phase 02 — Locomotion
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Implement tread locomotion on Pi-M: hardware driver integration, basic commanded motion, MuJoCo simulation environment for the tread chassis, locomotion policy training, and deployment of a trained policy to the Pi. At the gate, the physical robot drives forward, backward, and turns on command via a trained policy receiving intent from the motion loop.

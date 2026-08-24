@@ -1,5 +1,11 @@
 # Phase 01 — Infrastructure & Repository
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Stand up the GitHub repository, configure both Pis, establish inter-Pi communication, connect to the home lab LiteLLM endpoint, and implement the offline fallback state machine. No motion control or cognition code is written in this phase, but every software system that later code depends on must be operational at the gate.

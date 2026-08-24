@@ -1,5 +1,11 @@
 # Phase 00 — Hardware Design & BOM
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Finalize all hardware selections and produce a complete, orderable Bill of Materials. Baseline the Johnny 5 body design in FreeCAD. No software is written in this phase, but all physical constraints that affect software design are locked in. Ordering should not happen and printing should not start until the gate is met.
@@ -119,11 +125,7 @@ Begin by reviewing the GrowBot BOM.md (https://github.com/britcruise9/GrowBot/bl
 
 ---
 
-## Session 01 — Status & Handoff (2026-06-17)
-
-### Gate status: PARTIAL
-
-BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining gate item. Ordering and printing hold until the body is baselined.
+## Session 01 — Engineering Log (2026-06-17)
 
 ### Open questions — resolved
 
@@ -148,12 +150,6 @@ BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining ga
 - STS3215 servo upgrade if the arms lack authority.
 - Path B (25D motors + higher-current driver) if Path A is inadequate.
 
-### Next session — initiating prompt (Phase 00, Task 7)
-
-> Johnny 5 — Phase 00, Session 02. Read CLAUDE.md, then `phases/PHASE_00_HARDWARE.md` (note this Session 01 status and decision log) and `BOM.md`. We resume Phase 00 at **Task 7: baseline the body in FreeCAD 1.1.1**. The BOM is approved and dimensions are locked. Session config: Opus, Extended Thinking, High effort.
->
-> Work the brief's design sequence (chassis → torso → arms → head), one printable subassembly at a time, honoring: floor-roaming ~38–42 cm; the **1.6 kg weight ceiling** (design light — thin walls, low infill, lightening pockets); Ender 3 Pro 220×220×250 mm splits with keyed alignment; provisional track geometry (40 mm sprocket pitch dia, 28 mm track width, ~150 mm track center-to-center, 15–20 mm clearance); and all mounting features from the BOM (N20 motors + TB6612, 2S 2200 mAh battery bay, 2× Pi Zero 2 W, VL53L1X forward-facing, IMU, 4× SCS0009 incl. shoulder utility box, head camera + mouth/eye LEDs, speaker). Deliver FreeCAD as **parametric Python build scripts** (driven by a parameters spreadsheet) to `mechanical/freecad/`, STL exports to `mechanical/stl/`. Start with the chassis/tread base and confirm geometry before proceeding up the stack. Expect an interactive, question-driven pace.
-
 ### Attachments / docs for next session
 
 - `CLAUDE.md`, this phase file, `BOM.md` (locked dimensions + pin maps).
@@ -162,11 +158,7 @@ BOM approved (`BOM.md`). FreeCAD body baseline (Task 7) is the only remaining ga
 
 ---
 
-## Session 02 — Status & Handoff (2026-06-18)
-
-### Gate status: MET
-
-Both gate criteria satisfied. BOM approved (updated this session to 6× SCS0009 + rear trailing caster). Body baselined in FreeCAD 1.1.1 — all four build scripts run in the GUI Python console, all 13 STLs and the FCStd files generated, and the STLs confirmed to open and slice cleanly. The remaining mechanical detail (brow gear teeth, drivetrain/caster parts, eye/camera press-fit inserts, power-harness schematic) is refinement that carries forward into the relevant downstream phases and Phase 06 by design — it is not part of the baseline gate.
+## Session 02 — Engineering Log (2026-06-18)
 
 ### What was built
 
@@ -189,7 +181,7 @@ Parametric build scripts in `mechanical/freecad/`, all driven by `params.csv` (s
 
 V2 tendon gripper (single-actuator underactuated claw); Dynamixel XL330 servo-standard alt; V2 powered waist; elbow servos; STS3215 arm-torque upgrade; motor-rail boost; Path B motors.
 
-### Open threads for next session
+### Open threads
 
 - Run `freecadcmd build_*.py` to produce STL/FCStd; inspect in FreeCAD for interferences (the in-sandbox checks are dimensional/mass, not solid booleans).
 - Generate brow **gear teeth** (FreeCAD Gear workbench, module in `params.csv`) — currently modelled as gear blanks.
@@ -197,17 +189,9 @@ V2 tendon gripper (single-actuator underactuated claw); Dynamixel XL330 servo-st
 - Power wiring/harness schematic (carried over from Session 01).
 - **Commit:** the `mechanical/` tree, `BOM.md`, `.gitignore`, and this phase update are written and ready — the commit failed only because the `.git` index/locks on the Nextcloud mount are permission-locked from the sandbox.
 
-### Next session — initiating prompt (Phase 01)
-
-> Johnny 5 — Phase 01, Session 01. Read CLAUDE.md, then `phases/PHASE_01_INFRASTRUCTURE.md`, and note the Phase 00 close state in `phases/PHASE_00_HARDWARE.md` (Session 02 handoff). **Phase 00 is closed:** body baselined in FreeCAD (13 STLs slice cleanly), BOM approved at 6× SCS0009 + trailing caster, `mechanical/` committed on `phase/00-hardware` (merge → `main`, tag `v0.0`). Begin Phase 01 — stand up infrastructure: image both Pi Zero 2 W (Pi OS Lite 64-bit), finalize the inter-Pi message-queue protocol and the Pi-V→Pi-M intent contract, establish connectivity to the home-lab LiteLLM proxy, and implement the offline fallback (Pi-M conservative mode) — the **offline fallback is the Phase 01 gate**. Carry forward the power wiring/harness schematic owed from Phase 00 before any ordering or build. Session config: Sonnet, Standard, Medium.
-
 ---
 
-## Session 03 — Status & Handoff (2026-08-20)
-
-### Gate status: REOPENED for chassis rework, tub now printable
-
-Phase 00 was closed at Session 02 on a body that had never been printed. Printing it reopened the tub: the first physical part had no motor-shaft, road-wheel or idler holes on its right wall, motors that could not be inserted, and an IMU pad underneath the battery. Four print-and-measure rounds later the tub is correct. The rest of the stack (torso, arms, head) is untouched and still stands on the Session 02 baseline.
+## Session 03 — Engineering Log (2026-08-20)
 
 ### Decision log (Session 03)
 
@@ -223,7 +207,7 @@ Phase 00 was closed at Session 02 on a body that had never been printed. Printin
 - **Drive motor fixed as Pololu #5218**, 150:1 HPCB 12V with 12 CPR encoder, back connector — closing the Session 01 "side vs back connector" question. Its connector needs a 3 × 11 mm relief in the −Y pocket wall, accepted knowing it grazes one cap screw (65% of surrounding material survives, so the screw is weakened rather than lost).
 - **Hand edits in the FreeCAD GUI rejected as a workflow.** A rebuild overwrites the FCStd, and a GUI edit does not propagate to `params.csv`, so the defect returns on the next build. Physical measurement plus a description is the channel that has actually worked: every defect this session was found with the part in hand and fixed at the parameter level.
 
-### Open threads for next session
+### Open threads
 
 - **Drivetrain parts do not exist.** No build script produces the sprocket, idler, road wheel or TPU track. This is the only thing between the current tub and a rolling chassis.
 - **Road wheels do not reach the track.** Stub-axle holes are cut at `AXLE` (23.5) but `roadwheel_dia` is 24, so the wheel bottom sits at 11.5 against a track inner surface at 3.5. Needs ø40 wheels or axles dropped to z 15.5. Decide inside the drivetrain work.
@@ -231,13 +215,11 @@ Phase 00 was closed at Session 02 on a body that had never been printed. Printin
 - **Accepted as-is:** the floor lightening pocket's cut starts 0.05 mm above the belly surface, leaving a sub-layer skin that makes its depth ambiguous; the "fore and aft" floor pockets promised in that comment are one pocket.
 - The Cowork remote-tools bridge drops `execute_code` intermittently while `list_documents` keeps working. Two false signals cost real time: a document in `list_documents` is usually left open from a previous session, and a fresh `.FCStd` timestamp with stale STLs is a GUI save, never a build — `main()` exports before it saves. Trust STL mtimes read from FreeCAD's own `os.listdir`; the sandbox bash mount lags badly on this repo.
 
-### 
+## Session 04 — Engineering Log (2026-08-21)
 
-Session 04 — Status & Handoff (2026-08-21)
-Gate status: MET
 The drivetrain exists and is guarded, the chassis carries it, and the assembled robot measures 1531 g against the 1.6 kg ceiling — 69 g of headroom, with the +25 % sensitivity on the remaining estimates landing at 1578 g, also under. `mass_budget.py` exits clean for the first time since Session 02 and `validate.py` passes every check. Every printed part in the robot is now measured from its built solid rather than estimated, and every build script refuses to export a part that is not a single solid.
-The four missing drivetrain parts exist, the chassis carries them, and the rear tail assembles. What is now blocking the gate is not geometry: measuring every printed part instead of estimating it puts the assembled robot at 1655 g against a 1.6 kg ceiling.
-What was built
+### What was built
+
 `mechanical/freecad/build_drivetrain.py`, driven from `params.csv` like the rest, producing five printable parts and running its checks against the real chassis solid:
 
 * Drive sprocket — ø40 pitch, 10 lug pockets, stepped ø6 hub on the MR106ZZ in the rear wall, D-profile bore over the #5218 shaft with a grub collar in the 3 mm gap outboard of the wall. 25 g.
@@ -247,7 +229,8 @@ What was built
 * Idler tensioner carrier and axle collar — the tensioning hardware and the rod stops.
 
 `build_chassis.py` reworked to match: road-wheel skirts, the idler slot and its carrier bosses, road wheels respaced, the drive hub clearance tightened to a plain-bearing land, deck and floor lightening, and the caster replaced by the anti-tip tail.
-Decision log (Session 04)
+### Decision log (Session 04)
+
 
 * Centre-guide lug track, not full-width teeth. One lug row down the middle of the band; the sprocket pockets drive it, the idler and road wheels ride the two smooth lands either side. This is what lets a ø24 road wheel and a ø40 sprocket share one track, and the lug row doubles as the derailment guide and as the axial stop that keeps the wheels on their rods.
 * Lug pitch is the sprocket's tooth pitch by construction, and the loop closes at whatever straight run 29 of them demand — 119.38 mm, not the tub's nominal 120. Engagement error cannot accumulate around the loop; the 0.62 mm and all pretension are absorbed in the idler slot, where 1 mm forward is 2 mm of path and 0.55 % strain.
@@ -269,7 +252,8 @@ Decision log (Session 04)
 * A boolean can be too tight as well as too loose. The first shoulder deck was sized to the torso cavity exactly, and that cavity is a lofted taper: plate and wall agreed to within 0.04 mm across the plate thickness, overlapping on one side of that and gapping on the other. FreeCAD ground on the slivers for minutes and never returned. Every mating feature here now takes a deliberate bite — 1.5 mm for bosses, 0.6 mm for the deck, chosen to leave 1.36 mm of skin outboard.
 * Mass is now measured, not estimated. `components.csv` carries built-solid volumes for every printed part and those lines are marked firm rather than soft.
 
-Open threads for next session
+### Open threads
+
 
 * ~~Over the ceiling by 18 g.~~ Closed this session at 1531 g: shell walls to 2.0 mm on torso and head, and two double-counted lines removed from `components.csv` — the neck riser (52.9 g) is fused into the torso solid and the head nod ears (7.1 g) into the head, so both were being paid for twice.
 * ~~`build_torso.py` and `build_head.py` export floating islands.~~ Closed this session. Both now carry the single-solid guard and both halves of both parts build as one solid.
@@ -281,20 +265,15 @@ Open threads for next session
 * Screen accuracy of the track pattern is a Phase 06 question. The reference photographs show transverse rectangular grouser pads on the film tracks, not the herringbone adopted here — the herringbone was chosen as a design preference and for its lateral bite in tank turns, and swapping the pattern later is a parameter change, not a redesign.
 * Not yet done: reprint the tub, print the drivetrain, update `preview/` massing for the new parts, and the power wiring/harness schematic still owed from Session 01.
 
-Next session — initiating prompt (Phase 01)
-Johnny 5 — Phase 01, Session 01. Read CLAUDE.md, then `phases/PHASE_01_INFRASTRUCTURE.md`, and note the Phase 00 close state in `phases/PHASE_00_HARDWARE.md` (Session 04 handoff). Phase 00 is closed: every printed part is measured from its built solid, the assembled robot is 1531 g against a 1.6 kg ceiling with the +25 % worst case at 1578 g, `mass_budget.py` and `validate.py` both pass, and every build script refuses to export a part that is not a single solid. Merge `phase/00-hardware` to `main` and tag `v0.0`.
+### Deferred to Phase 06 (cosmetic pass)
 
-Two things carry forward before anything is ordered or printed. The power wiring and harness schematic is still owed from Session 01 and blocks ordering. And the tub must be reprinted before the drivetrain is assembled — the printed one predates the road-wheel skirts, the idler tensioning slot and the electronics shelf columns.
-
-Then begin Phase 01: image both Pi Zero 2 W (Pi OS Lite 64-bit), finalize the inter-Pi message-queue protocol and the Pi-V→Pi-M intent contract, establish connectivity to the home-lab LiteLLM proxy, and implement the offline fallback (Pi-M conservative mode), which is the Phase 01 gate. Session config: Sonnet, Standard, Medium.
-
-Deferred to Phase 06 (cosmetic pass)
 
 * Screen accuracy of the track pattern. The reference photographs show transverse rectangular grouser pads on the film tracks, not the herringbone adopted here; swapping the pattern is a parameter change, not a redesign.
 * Fine circumferential ribs on the anti-tip tyre if the smooth wall reads wrong up close. Structurally it should stay smooth.
 * Brow gear teeth, currently pitch-diameter blanks, and the press-fit eye-dome and camera inserts.
 
-Known weaknesses logged, not fixed
+### Known weaknesses logged, not fixed
+
 
 * The torso's four M3 split screws pass through the front wall, cross 90 mm of open interior and land in the back wall. That is registration, not clamping, and it should be revisited when the torso is first assembled.
 * The sprocket sits 16 mm outboard of a single 3 mm MR106ZZ. Loads are small enough that it should hold; it is the least-supported joint in the drivetrain and the first thing to look at if the drive feels rough on the bench.

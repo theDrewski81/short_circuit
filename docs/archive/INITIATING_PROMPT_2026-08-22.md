@@ -1,3 +1,8 @@
+> **FROZEN 2026-08-23. Superseded by [`PROJECT_STATE.md`](../../PROJECT_STATE.md).**
+> This was the project's de facto state document from 2026-06-20 to 2026-08-22. Its decision
+> log has been migrated into `PROJECT_STATE.md` section 9 and its status claims are stale.
+> Kept for provenance only — do not read it for project state, and do not update it.
+
 # Initiating Prompt
 
 Read `CLAUDE.md`. Then read the active phase coordinator in `/phases/`. Follow all instructions in both documents.

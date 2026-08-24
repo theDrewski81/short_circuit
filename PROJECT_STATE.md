@@ -202,8 +202,6 @@ Carried non-blocking items. Blocking ones live in section 2.
 | O9 | **`locomotion_v3` run extraction unverified.** A copy of `best/best_model.zip`, `vecnormalize.pkl` and the checkpoints was extracted to a lab path outside the connected folder on 2026-08-23. The orchestrator cannot see that path and has not confirmed it. Until confirmed, `archive/runs-937311c` is the only known copy. | Andrew | Next session | 2026-08-23 |
 | O10 | **Loose project-memory notes committed at the repo root** — `feedback_conciseness.md`, `johnny5-cloud-mount-quirks.MD`, `johnny5-phase02-locomotion.MD`, `johnny5-pi-m-env.md`, `sandbox-no-torch.md`. Two carry a `.MD` extension that `MEMORY.md` spells `.md`. Decide whether they belong in the repo at all and make the index match. | Worker | D2 | 2026-08-23 |
 | O11 | **Phase 06 cosmetic deferral list** — track pattern screen accuracy (references show transverse grouser pads, not the herringbone adopted); optional fine circumferential ribs on the anti-tip tyre; brow gear teeth, currently pitch-diameter blanks; press-fit eye-dome and camera inserts. | Worker | Phase 06 | 2026-08-21 |
-| O12 | **`CLAUDE.md` amendments outstanding.** Agent boundaries still read "Claude does not commit, push, merge, tag, or stash", which no longer matches the 2026-08-23 policy. The intra-phase iteration-tag clause has never been used. No orchestration section exists. | Orchestrator | Next session | 2026-08-23 |
-| O13 | **Competing status documents not yet demoted.** `INITIATING_PROMPT.md` still carries a "Current Phase" section and belongs in `docs/archive/`. `README.md` still carries a dated Status section. `phases/*.md` still carry per-session status and "next session" blocks. All should point here. | Orchestrator | Next session | 2026-08-23 |
 
 ---
 
@@ -292,6 +290,19 @@ received. **Never truncate this section.** Archive by year or phase if it outgro
 - **Orchestrator/worker split established.** One session owns state and dispatches bounded
   briefs; workers return close-out reports that are verified against the repository before any
   state update. Workers never write their own successor's brief, which is exactly how S14 failed.
+- **The competing state documents were demoted the same day.** `INITIATING_PROMPT.md` moved to
+  `docs/archive/INITIATING_PROMPT_2026-08-22.md` behind a frozen header; `README.md`'s Status
+  section became a pointer; all seven phase documents gained a pointer and Phase 00 lost its four
+  gate-status lines and all four "next session — initiating prompt" blocks. Those blocks were not
+  merely stale — copying one is precisely how S14 failed, so they are gone rather than corrected.
+  The Session 04 handoff's malformed headings were fixed and its stale "1655 g against a 1.6 kg
+  ceiling" paragraph deleted; the measured figure is 1531 g. `PHASE_05_INTEGRATION.md`'s
+  documentation task, which instructed a future session to "mark gate status on each" phase
+  document, now points at `PROJECT_STATE.md` instead — it would have rebuilt the disease at Phase 05.
+- **`CLAUDE.md` amended.** A Project State & Orchestration section names `PROJECT_STATE.md` as sole
+  authority and fixes the worker read path; the agent-boundaries paragraph records why commit
+  authority was returned and what the environment does to git writes; the intra-phase iteration-tag
+  convention was removed rather than left standing as a rule the project has never followed.
 
 ### 2026-08-22 — S14 — the failure that created the orchestrator role
 

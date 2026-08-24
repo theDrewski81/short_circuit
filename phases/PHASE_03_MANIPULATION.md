@@ -1,5 +1,11 @@
 # Phase 03 — Manipulation
 
+> **Status lives in [`PROJECT_STATE.md`](../PROJECT_STATE.md), not here.** This document
+> defines what the work *is* — objective, gate condition, tasks, known constraints, and the
+> engineering record of the sessions that worked on it. For where the project stands, what is
+> blocked, and what happens next, read `PROJECT_STATE.md`. Any status claim left in this file
+> is historical context, not authority.
+
 ## Objective
 
 Integrate the Feetech serial bus servos for both shoulder joints and the head rotation axis. Implement position and load telemetry. Extend the MuJoCo simulation to include arms and head. Train and deploy arm and head motion policies. At the gate, all three servos respond correctly to commanded positions with position and load feedback flowing into the motion loop.
