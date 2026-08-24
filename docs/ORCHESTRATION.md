@@ -41,7 +41,49 @@ menu of options — recommend one and let him correct it.
 
 ---
 
-## 2. Dispatch protocol
+## 2. How a turn begins
+
+Two kinds of session, two openers.
+
+**A worker turn** begins with its dispatch brief, pasted whole. Nothing else.
+
+**An orchestrator turn** begins with the standing invocation below. It is deliberately short: a
+turn that arrives knowing nothing and reads its way to the answer is the property that keeps
+state honest.
+
+> Johnny 5 — orchestrator turn. Read `CLAUDE.md`, then `PROJECT_STATE.md`, then
+> `docs/ORCHESTRATION.md`. Verify sections 1 and 6 of `PROJECT_STATE.md` against the repository
+> before relying on either. Then **one of**:
+>
+> - write the dispatch brief for *\<queue item\>*;
+> - verify the close-out report at `docs/reports/J5-S<nn>.md`, update `PROJECT_STATE.md`, and
+>   write the next dispatch brief.
+>
+> Opus, Extended Thinking, High.
+
+The cycle alternates: orchestrator turn, worker turn, orchestrator turn. The turn following a
+worker does double duty — verify and update, then dispatch — which keeps the overhead at one
+short session per unit of work rather than two.
+
+**Briefs are written by orchestrator turns, never by the worker whose work precedes them.** The
+rule is not that no session writes a brief; it is that **no session writes the brief for the work
+that follows its own**. What is being guarded against is a session with a long context and beliefs
+it has stopped checking. A short fresh turn that has read only the repository is not that.
+
+**Close-out reports are files, not messages.** A worker writes its report to
+`docs/reports/J5-S<nn>.md` and stops. The orchestrator reads that file and verifies it against the
+repository, rather than the report being ferried between sessions where it can be trimmed or
+paraphrased on the way. It is committed alongside the state update it produces, which gives the
+session ledger something to point at.
+
+**Proportionality.** Not every task earns the full cycle. Work that changes no state worth
+verifying — a config fix, a dependency declaration — can be done in whatever session is open and
+noted afterwards. The cycle is for work that moves a task, closes a gate, or changes a decision.
+Ceremony that outweighs the work is its own failure mode.
+
+---
+
+## 3. Dispatch protocol
 
 Every worker session begins with a brief the orchestrator writes. A brief that does not fit
 on two screens is probably two sessions.
@@ -58,14 +100,14 @@ on two screens is probably two sessions.
    answer is always "stop and report", never "work around it".
 7. **Definition of done.** Testable. For CAD, a build-time guard that passes. For code, a
    test. For a document, a specific claim a reader can check. "Looks right" is not one.
-8. **Close-out requirements.** Section 3 of this file, verbatim.
+8. **Close-out requirements.** Section 4 of this file, verbatim.
 9. **Session config.** Model, thinking and effort from `CLAUDE.md`'s per-phase table, with a
    reason if deviating.
-10. **Standing constraints.** Section 5's hazards, trimmed to the ones this session will meet.
+10. **Standing constraints.** Section 7's hazards, trimmed to the ones this session will meet.
 
 ---
 
-## 3. Close-out protocol
+## 4. Close-out protocol
 
 A worker's report contains: what it did, the commits or files it produced, the
 definition-of-done evidence, decisions taken with rationale, open threads discovered, and
@@ -89,7 +131,7 @@ If a report and the repository disagree, **the repository wins**, and say so to 
 
 ---
 
-## 4. Concurrency: the integration lock
+## 5. Concurrency: the integration lock
 
 Work is mostly sequential, occasionally parallel. The rule that makes occasional parallelism
 safe:
@@ -112,7 +154,7 @@ merging two sessions' judgement about the same geometry costs more than running 
 
 ---
 
-## 5. Git authority and mechanics
+## 6. Git authority and mechanics
 
 **Every git write is Andrew's.** Claude edits the working tree and verifies its own work, then
 hands over an exact command block. Claude does not commit, push, merge, tag or stash. A fenced
@@ -148,7 +190,7 @@ on 2026-08-23. Two environment facts drove that, and both still hold:
 
 ---
 
-## 6. Environment hazards
+## 7. Environment hazards
 
 Carried forward because every session otherwise rediscovers them at cost.
 
@@ -176,7 +218,7 @@ Carried forward because every session otherwise rediscovers them at cost.
 
 ---
 
-## 7. Operating style
+## 8. Operating style
 
 `CLAUDE.md`'s Token Discipline and Style sections apply in full. In particular: outline in two
 or three sentences and wait before producing a multi-section document; one targeted question
@@ -191,7 +233,7 @@ of the project, say so in a line.
 
 ---
 
-## 8. How this fails
+## 9. How this fails
 
 The failure that created the role, stated so its shape is recognisable:
 
@@ -224,7 +266,7 @@ figure quoted in that window was produced by hand without anyone noticing.
 
 ---
 
-## 9. `PROJECT_STATE.md` required structure
+## 10. `PROJECT_STATE.md` required structure
 
 Repo root. Orchestrator-owned. Keep it under about 1,200 lines by moving closed material into
 `docs/archive/` — a state document nobody finishes reading is the problem this exists to solve.

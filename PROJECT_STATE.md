@@ -316,6 +316,12 @@ received. **Never truncate this section.** Archive by year or phase if it outgro
   than continuity — no worker edits this file, and no worker writes its own successor's brief.
   The signal that this is not working would be a close-out report accepted without verification,
   or two consecutive sessions disagreeing about position; section 10 is where that becomes visible.
+- **Session cadence fixed.** Orchestrator turns and worker turns alternate, and briefs are
+  written by orchestrator turns only — the rule is that no session writes the brief for the work
+  that follows its own, not that no session writes briefs. Worker close-out reports go to
+  `docs/reports/J5-S<nn>.md` as files, so the orchestrator verifies an artifact against the
+  repository instead of a report ferried between sessions. `docs/ORCHESTRATION.md` section 2
+  carries the standing invocation that opens an orchestrator turn.
 - **`CLAUDE.md` amended.** A Project State & Orchestration section names `PROJECT_STATE.md` as sole
   authority and fixes the worker read path; the agent-boundaries paragraph records why commit
   authority was returned and what the environment does to git writes; the intra-phase iteration-tag
