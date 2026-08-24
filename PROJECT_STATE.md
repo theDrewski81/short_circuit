@@ -299,6 +299,23 @@ received. **Never truncate this section.** Archive by year or phase if it outgro
   ceiling" paragraph deleted; the measured figure is 1531 g. `PHASE_05_INTEGRATION.md`'s
   documentation task, which instructed a future session to "mark gate status on each" phase
   document, now points at `PROJECT_STATE.md` instead — it would have rebuilt the disease at Phase 05.
+- **`ORCHESTRATOR_PROMPT.md` split and retired.** The document that created this role had
+  become the thing it warns about: its section 2, "Ground truth as of 2026-08-22", carried
+  fourteen references to facts this session had just made false — five branches, a trunk named
+  `fix/chassis-tub-defects`, `937311c` on `main`, the Nextcloud path. Handed to a future session
+  it would have taught stale ground truth, which is precisely the failure mode it was written to
+  prevent. Its durable half — dispatch and close-out protocols, the integration lock, git
+  mechanics, environment hazards, operating style, and the account of how the project fails —
+  is now `docs/ORCHESTRATION.md`, which carries no project state by construction. The original is
+  archived at `docs/archive/ORCHESTRATOR_PROMPT_2026-08-22.md`. Its section 10 open items were
+  already in section 7 above, so nothing was dropped.
+- **The orchestrator is a role, not a session.** Recorded here because it is a design decision
+  with a failure mode: it is instantiated fresh from the repository each time and stops when its
+  turn is done. A long-lived orchestrator accumulates beliefs that drift from the repository,
+  which is the original disease wearing a badge. What the split actually depends on is narrower
+  than continuity — no worker edits this file, and no worker writes its own successor's brief.
+  The signal that this is not working would be a close-out report accepted without verification,
+  or two consecutive sessions disagreeing about position; section 10 is where that becomes visible.
 - **`CLAUDE.md` amended.** A Project State & Orchestration section names `PROJECT_STATE.md` as sole
   authority and fixes the worker read path; the agent-boundaries paragraph records why commit
   authority was returned and what the environment does to git writes; the intra-phase iteration-tag

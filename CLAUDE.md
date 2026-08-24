@@ -23,9 +23,15 @@ updating state. A worker's report is a claim, never a fact. **No worker edits
 that on 2026-08-21 produced an initiating prompt for a phase that had closed two months
 earlier, which is why this section exists.
 
-**A worker session's read path, in order:** `CLAUDE.md`, then `PROJECT_STATE.md`, then its own
-phase document, then its dispatch brief. Nothing else is authoritative. A phase document's
-engineering detail is trusted; any status claim still lurking in one is not.
+**A worker session's read path, in order:** `CLAUDE.md`, then `PROJECT_STATE.md`, then
+`docs/ORCHESTRATION.md`, then its own phase document, then its dispatch brief. Nothing else is
+authoritative. A phase document's engineering detail is trusted; any status claim still lurking
+in one is not.
+
+`docs/ORCHESTRATION.md` carries the working protocol: how a dispatch brief is written, how a
+close-out report is verified, the integration lock that makes occasional parallel work safe,
+git authority and mechanics, the environment hazards worth knowing before you meet them, and
+the required structure of `PROJECT_STATE.md`. It holds no project state of its own.
 
 Read the file, never an index line summarising it.
 
