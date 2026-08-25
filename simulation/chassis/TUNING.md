@@ -69,7 +69,7 @@ hardware**, so `MotorDriver`/`EncoderReader` stay at `invert_*=False`:
   channels to **YEL→GPIO23, WHT→GPIO22** (A/B were reversed). Left encoder was
   already correct.
 
-Side assignment **locked: #5218 = LEFT (channel A), #5219 = RIGHT (channel B).**
+Side assignment **locked: LEFT = channel A, RIGHT = channel B.**
 Post-fix run: forward → both encoders positive (L +984 / R +980, within ~0.4%),
 backward → both negative, CCW → L−/R+, CW → L+/R−. Motors track closely.
 

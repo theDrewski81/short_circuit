@@ -1,0 +1,21 @@
+# Runtime dependencies for the Pi-V vision and LLM client.
+#
+#   pip install -r src/vision/requirements-vision.txt
+#
+# Covers `src/vision/llm_client.py` plus the two Pi-V bench scripts that drive
+# it, `scripts/test_llm_client.py` and `scripts/whats_this_color.py`. Everything
+# else those three modules import is standard library.
+#
+# Pinned exactly rather than by range: this is a two-package runtime on a Pi
+# Zero 2 W, and a silent minor bump in the HTTP client is not worth the
+# convenience. `simulation/chassis/requirements-train.txt` uses ranges for the
+# opposite reason, because its resolver has to find a compatible SB3/Gymnasium
+# pair.
+#
+# These are the current PyPI releases as of 2026-08-25. They have NOT been
+# verified against what is installed on Pi-V, which no agent session can reach;
+# if a `pip install -r` on the Pi disagrees with a working install, the Pi wins
+# and this file should be corrected to match it.
+
+httpx==0.28.1
+python-dotenv==1.2.3

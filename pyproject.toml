@@ -1,0 +1,14 @@
+# Project-level tool configuration. There is no build system section here on
+# purpose: Johnny 5 is deployed by copying `src/` onto a Pi, not by installing a
+# package, so this file exists only to configure the tools that look for it.
+
+[tool.pytest.ini_options]
+# The suite is `tests/` and nothing else. Without this, a bare `pytest` at the
+# repository root also collects `scripts/test_llm_client.py` and
+# `simulation/chassis/test_env.py`, neither of which is a unit test, and dies
+# during collection on their imports (`httpx`, and the training environment's
+# `env` module). Both are runnable programs whose names merely happen to start
+# with `test_`. `test_llm_client.py` is a Pi-V bench script that talks to a live
+# LiteLLM endpoint; `test_env.py` is a MuJoCo smoke check that needs the
+# training requirements installed. Neither belongs in a sandbox unit-test run.
+testpaths = ["tests"]

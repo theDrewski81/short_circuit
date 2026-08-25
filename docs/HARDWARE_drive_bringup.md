@@ -9,7 +9,7 @@ speed, braking, encoder feedback, and a fail-safe standby interlock.
 
 | Part | Detail |
 |---|---|
-| Drive motor ×2 | Pololu #5219 — 150:1 Micro Metal Gearmotor HPCB 12V, 12 CPR encoder, side connector |
+| Drive motor ×2 | Pololu #5218 — 150:1 Micro Metal Gearmotor HPCB 12V, 12 CPR encoder, back connector |
 | Driver | Pololu #713 — TB6612FNG dual H-bridge carrier (VM 4.5–13.5 V, VCC 2.7–5.5 V, 1 A cont. / 3 A peak per ch) |
 | Motor rail (VM) | Battery-direct 2S LiPo, ~7.4 V nom (8.4 V full) — within TB6612 range; 1000 µF across VM |
 | Logic rail (VCC) | 3.3 V from Pi-M (so all logic + encoder outputs are 3.3 V, GPIO-safe) |
