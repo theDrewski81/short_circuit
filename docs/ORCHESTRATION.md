@@ -99,7 +99,10 @@ on two screens is probably two sessions.
 6. **Preconditions.** What must be true before starting, and what to do if one is not. The
    answer is always "stop and report", never "work around it".
 7. **Definition of done.** Testable. For CAD, a build-time guard that passes. For code, a
-   test. For a document, a specific claim a reader can check. "Looks right" is not one.
+   test. For a document, a specific claim a reader can check. "Looks right" is not one. A
+   check that greps for a superseded string must exclude `docs/archive/` and `docs/reports/`
+   — both are records of the era in which the string was correct, and a grep that counts
+   them reads as a failure it is not.
 8. **Close-out requirements.** Section 4 of this file, verbatim.
 9. **Session config.** Model, thinking and effort from `CLAUDE.md`'s per-phase table, with a
    reason if deviating.

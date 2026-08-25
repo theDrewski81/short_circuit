@@ -7,8 +7,8 @@ Phase documents in `/phases/` say what the work *is*; this file says where the w
 Owner: the orchestrator session. No worker session edits this file. A worker that
 believes it is wrong reports that to the orchestrator.
 
-**Last verified: 2026-08-25 against `docs/power-harness-schematic` @ `678c68a`,
-and `main` @ `344c8b7`.**
+**Last verified: 2026-08-25 against `docs/repo-hygiene` @ `f31e687` and `main` @
+`769c618`.**
 
 ---
 
@@ -23,6 +23,12 @@ and the Phase 02 gate, and no agent session can advance it.
 2026-08-25 with S17, and the two threads it raised that looked like order gates — the fuse
 margin and the encoder cable line item — were both settled the same day. Everything in
 `BOM.md` can now be bought. Ordering is Andrew's to do and is not a dispatchable item.
+
+**Nothing on the Phase 02 critical path is dispatchable.** S18 closed the last of the
+documentation debt this file was carrying against the critical path. What remains for a
+worker is off the path: the Pi-M bringup salvage queued as D3, which fixes a live defect in
+a setup script but does not move Task 6b. Everything that moves Task 6b is a printer or a
+bench job.
 
 Gate condition, verbatim from `phases/PHASE_02_LOCOMOTION.md`:
 
@@ -49,13 +55,14 @@ policy and a live offline-fallback test, logged in `simulation/chassis/TUNING.md
 B1 through B4 are physical-world blockers. **No agent session can clear any of them.**
 Dispatching a Phase 02 session before they are done is dispatching it to wait.
 
-**B5 closed 2026-08-25 (S17).** It was the oldest live debt in the project, owed since
-S01. `docs/diagrams/power_harness_schematic.svg`, `docs/HARDWARE_power_harness.md` and the
-`scripts/check_harness_nets.py` guard exist and were verified against the repository on
-2026-08-25. They sit on `docs/power-harness-schematic` @ `678c68a`, which has **not yet been
-merged to `main`** — see section 6. Every physical blocker that remains is a printer or bench
-job, so there is nothing left that a dispatched session can clear on the Phase 02 critical
-path.
+**B5 closed 2026-08-25 (S17), and its deliverables are now on `main`.** It was the oldest
+live debt in the project, owed since S01. `docs/diagrams/power_harness_schematic.svg`,
+`docs/HARDWARE_power_harness.md` and the `scripts/check_harness_nets.py` guard were verified
+against the repository on 2026-08-25 and reached `main` the same day as `9e5191f` and
+`678c68a`; the branch has been deleted. The guard was re-run from `main` on 2026-08-25 and
+exits 0, reproducing all six checks and every figure. Every physical blocker that remains is
+a printer or bench job, so there is nothing left that a dispatched session can clear on the
+Phase 02 critical path.
 
 ---
 
@@ -89,6 +96,12 @@ by design. The live test is folded into Phase 02 Task 6b.
 Sessions are numbered **globally** (S01, S02, …), not per phase. Per-phase numbering is
 how Phase 00 ended up with two "Session 01"s in different eras and is not used here.
 
+**Orchestrator turns take the suffix `-O` on the worker session they close out**, so `S17-O`
+is the turn that verified S17 and dispatched S18. Convention adopted 2026-08-25 because the
+turn that produced `06783fe` and `769c618` had no row and its commits were being read as
+S17's. Numbering orchestrator turns in the main sequence would double the ledger for a cycle
+that alternates by design; leaving them out loses the commits.
+
 **Reconstruction caveat:** S01–S14 are reconstructed from decision-log entries, phase
 handoffs and commit dates. The boundaries of S03–S06 in particular are inferred from
 breaks in the Phase 01 decision log, not from any recorded session marker. Commit dates
@@ -112,7 +125,10 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 | S14 | 2026-08-22 | 00 → orchestration | Handoff authoring | **Failed.** Wrote a Phase 01 initiating prompt for a phase closed two months earlier. Caught only because Andrew ran it. Then authored `ORCHESTRATOR_PROMPT.md`, creating this role. | — |
 | S15 | 2026-08-23 | Orchestration | Verify state, reconcile git, create this file | Git topology collapsed to one branch; policy artifact tracked; repo migrated to `C:\dev\johnny5`; this file created; the competing state documents demoted to pointers. | `da6e1fa` `049494b` `31073ac` `d1d4c2b` |
 | S16 | 2026-08-24 | Orchestration | Distil the orchestration protocol; retire `ORCHESTRATOR_PROMPT.md` | `docs/ORCHESTRATION.md` created and archived predecessor frozen; turn opener, close-out report convention and section references added. The session logged nothing itself; this row is reconstructed from commit contents on 2026-08-25. | `8bfc0d9` `344c8b7` |
-| S17 | 2026-08-25 | 00 (paid off late) | D1 — power wiring and harness schematic | **B5 closed, O6 closed.** 64-net schematic and companion document, a net-consistency guard with a mutation suite, and three `BOM.md` corrections. Report at `docs/reports/J5-S17.md`; verified against the repository 2026-08-25. On `docs/power-harness-schematic`, unmerged. | `9e5191f` `678c68a` |
+| S17 | 2026-08-25 | 00 (paid off late) | D1 — power wiring and harness schematic | **B5 closed, O6 closed.** 64-net schematic and companion document, a net-consistency guard with a mutation suite, and three `BOM.md` corrections. Report at `docs/reports/J5-S17.md`; verified against the repository 2026-08-25 and merged to `main` the same day. | `9e5191f` `678c68a` |
+| S17-O | 2026-08-25 | Orchestration | Verify S17, update state, dispatch D2 | S17 verified with nothing failing; B5 and O6 closed; S16 and S17 logged; O12–O14 opened; the PowerShell line-ending check recorded in `docs/ORCHESTRATION.md`. Not previously logged. | `06783fe` `769c618` |
+| S18 | 2026-08-25 | Orchestration/repo | D2 — repository hygiene and documentation corrections | **O7, O8, O12, O13, O14 closed; O10 closed on its index half.** `pyproject.toml` pytest config, `src/vision/requirements-vision.txt`, the `#5219` corrections in three files, and two `BOM.md` corrections. Report at `docs/reports/J5-S18.md`; verified against the repository 2026-08-25. On `docs/repo-hygiene` @ `f31e687`, unmerged. | `f31e687` |
+| S18-O | 2026-08-25 | Orchestration | Verify S18, update state, dispatch D3 | This row's own turn. S18 verified with nothing failing; five open items closed, four opened; queue renumbered and D3 added. | pending |
 
 ---
 
@@ -120,23 +136,38 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 
 What to dispatch next, in order, with preconditions. **Read only this section on a busy day.**
 
+**Renumbered 2026-08-25.** D3 was inserted after S18 found a live defect worth its own
+session, so the former D3–D5 are now D4–D6. Anything citing the old numbers predates that.
+
 **D1 — Power wiring and harness schematic.** **COMPLETE (S17, 2026-08-25).**
-Delivered on `docs/power-harness-schematic` @ `678c68a` and verified. Awaiting squash merge
-to `main`, which is Andrew's to run. Kept in the queue rather than deleted so this section
-reads as a history as well as a plan.
+Delivered on `docs/power-harness-schematic` and merged to `main` the same day as `9e5191f`
+and `678c68a`; the branch has been deleted. Kept in the queue rather than removed so this
+section reads as a history as well as a plan.
 
-**D2 — Repository hygiene and documentation corrections.** *Ready now. One session, small.*
-Two groups of text-only work, merged because neither is worth a session alone and they do not
-overlap. From S15: no pytest configuration (O7 — bare `pytest` at the repo root fails
-collection on two non-suite files; add `[tool.pytest.ini_options] testpaths = ["tests"]`),
-`httpx` and `python-dotenv` imported by `src/vision/llm_client.py` and declared in no
-requirements file (O8), and the loose project-memory notes at the repo root with their
-`.MD`/`.md` index mismatch (O10). From S17: the three now plainly wrong `#5219` references
-(O12), the superseded 1655 g mass claim in `BOM.md` (O13), and the 1807 counts-per-revolution
-figure in `BOM.md` section 1 (O14). Nothing here touches geometry, the trained policy or the
-motion loop. Session config: Sonnet, Standard, Medium.
+**D2 — Repository hygiene and documentation corrections.** **COMPLETE (S18, 2026-08-25).**
+Delivered on `docs/repo-hygiene` @ `f31e687` and verified against the repository the same
+day. Closed O7, O8, O12, O13 and O14, and closed O10's index half. Report at
+`docs/reports/J5-S18.md`. **Awaiting a fast-forward merge to `main`**, which is Andrew's to
+run.
 
-**D3 — Phase 02 Task 6b, Floor Integration Test.** *Blocked on B1–B4.*
+**D3 — Pi-M bringup salvage, motion requirements, and root-note removal.** *Ready now. One
+session, small–medium. Added 2026-08-25 from S18's findings.*
+`scripts/setup_motion_pi.sh` carries an install line that is known to fail on Pi-M —
+`pip install … gpiozero lgpio` on Trixie with Python 3.13, where there is no cp313 piwheel
+and the sdist links against a system `-llgpio` that is not present (O15). The correction has
+sat in a loose root note since 2026-07-12 and has never reached the script; the same note
+records that the script's `JOHNNY5_VENV` default (`$HOME/johnny5/venv`) is not the venv that
+exists on the Pi (`~/johnny5-env`), so re-running it builds a second one. Fold that note into
+the script and into a Pi-M runtime section under `docs/`, add
+`src/motion/requirements-motion.txt` derived from the script's install line (O16), diff
+`johnny5-phase02-locomotion.MD` against `simulation/chassis/TUNING.md` and section 9 of this
+file for anything unique — including its stale `#5218 = LEFT / #5219 = RIGHT` line (O18) —
+then hand Andrew a `git rm` block for the five root notes and `MEMORY.md`. **Nothing in this
+session can be tested against Pi-M**, which no agent can reach; the definition of done is
+`bash -n`, a diff a reader can check, and Andrew re-running the script on the Pi afterwards.
+Session config: Sonnet, Standard, Medium.
+
+**D4 — Phase 02 Task 6b, Floor Integration Test.** *Blocked on B1–B4. Was D3.*
 Do not dispatch until the tub and drivetrain are printed, motors are bolted in and the
 drive wiring is off breadboard. When those are done: floor run, verify straight-line
 travel and turn direction, live offline-fallback test, and log sim-vs-real deltas in
@@ -144,9 +175,9 @@ travel and turn direction, live offline-fallback test, and log sim-vs-real delta
 Standard, Medium — the code exists, this is procedure and tuning capture. Escalate to
 Opus if the sim-to-real deltas are large enough to force revisiting reward shaping.
 
-**D4 — Phase 02 gate close and `v2.0` tag.** *Blocked on D3.*
+**D5 — Phase 02 gate close and `v2.0` tag.** *Blocked on D4. Was D4.*
 
-**D5 — Phase 03 kickoff, Manipulation.** *Blocked on D4.*
+**D6 — Phase 03 kickoff, Manipulation.** *Blocked on D5. Was D5.*
 
 ---
 
@@ -158,14 +189,24 @@ Opus if the sim-to-real deltas are large enough to force revisiting reward shapi
 **Dispatch hazard.** The folder connected to a Cowork session is
 `C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5`, the retired copy, and it
 is **empty**. Every session must request access to `C:\dev\johnny5` before doing anything
-else. S17 hit this and so did the orchestrator turn that verified it. Say so in every brief.
+else. S17, S18 and both orchestrator turns since have hit this. Say so in every brief.
 
 **Branches — two.**
 
 | Branch | Role |
 |---|---|
-| `main` | The trunk. `344c8b7`. Matches `origin/main`. |
-| `docs/power-harness-schematic` | `678c68a`, two commits ahead of `main` and containing all of S17: the schematic, the companion document, the net guard, the `BOM.md` corrections and the close-out report. Verified 2026-08-25. **Awaiting squash merge to `main`.** Until it merges, `main` does not carry the harness schematic. |
+| `main` | The trunk. `769c618`. Matches `origin/main`. Carries all of S17. |
+| `docs/repo-hygiene` | `f31e687`, one commit ahead of `main` and containing all of S18: the pytest configuration, the Pi-V requirements file, the `#5219` corrections in three files, the two `BOM.md` corrections and the close-out report. Eight paths. Verified 2026-08-25. **Awaiting a fast-forward merge to `main`.** Unpushed. |
+
+`docs/power-harness-schematic` was merged and deleted on 2026-08-25.
+
+**The merge was a fast-forward, not a squash, and that is fine.** `CLAUDE.md` says "squash
+merge to `main` via PR". S17's branch went in as its two own commits, `9e5191f` and
+`678c68a`, followed by the orchestrator turn's `06783fe` and `769c618` committed directly on
+`main`. Linear history held, which is what the rule protects; the PR-and-squash half of it
+describes a workflow this single-operator repository does not run. Recorded here rather than
+silently diverged from. `docs/repo-hygiene` is a single commit, so a fast-forward and a squash
+produce the identical tree and the identical history — take the fast-forward.
 
 Four branches were deleted on 2026-08-23 — `fix/chassis-tub-defects`, `feat/motor-driver`,
 `sim/chassis-env`, `phase/00-hardware`. The first *was* the real trunk under a misleading
@@ -217,14 +258,18 @@ Carried non-blocking items. Blocking ones live in section 2.
 | O4 | **FreeCAD MCP addon update.** The installed neka-nat addon predates `get_rpc_status`, which would diagnose the intermittent GUI-dispatch jam in one call instead of by elimination. | Worker | Before the next CAD session | 2026-08-21 |
 | O5 | **`preview/` massing not updated** for the new drivetrain parts. | Worker | Phase 06 | 2026-08-21 |
 | ~~O6~~ | **CLOSED 2026-08-25 (S17, and Andrew at the bench).** Both drive motors are Pololu **#5218**; the #5219 was bought deliberately as a fit test and does not fit the chassis cleanly. `BOM.md` corrected to $32.45 each, $65 the pair. The wrong references left behind are now O12. Original text: **Drive motor part number contradiction.** S12 fixes the motor as Pololu **#5218** (150:1 HPCB 12 V, 12 CPR encoder, back connector). The 2026-06-26 decision entry prices **#5219** at ~$32.45 each and flags BOM Section 1 as running ~$25 over. One of the two is wrong and `BOM.md` should say which. | Worker | Before ordering (with D1) | 2026-08-23 |
-| O7 | **No pytest configuration.** Bare `pytest` at the repo root collects `scripts/test_llm_client.py` and `simulation/chassis/test_env.py` and fails collection. The real suite is `python -m pytest tests\ -q`, 48 tests. | Worker | D2 | 2026-08-23 |
-| O8 | **`httpx` and `python-dotenv` undeclared.** Imported by `src/vision/llm_client.py`; present in no requirements file. Only `simulation/chassis/requirements-train.txt` exists. | Worker | D2 | 2026-08-23 |
+| ~~O7~~ | **CLOSED 2026-08-25 (S18).** `pyproject.toml` added with `[tool.pytest.ini_options] testpaths = ["tests"]` and a comment naming both offending files and why neither is a unit test. Verified: bare `python -m pytest -q` from the repository root gives `48 passed`, exit 0; the same command with `--override-ini="testpaths="` still dies with the two collection errors, so the fix is what is doing the work. Original text: **No pytest configuration.** Bare `pytest` at the repo root collects `scripts/test_llm_client.py` and `simulation/chassis/test_env.py` and fails collection. The real suite is `python -m pytest tests\ -q`, 48 tests. | Worker | D2 | 2026-08-23 |
+| ~~O8~~ | **CLOSED 2026-08-25 (S18), with the item's own premise corrected.** `src/vision/requirements-vision.txt` added, pinning `httpx==0.28.1` and `python-dotenv==1.2.3`, sited beside the code it serves on the `requirements-train.txt` precedent. **`llm_client.py` imports `httpx` only**; `python-dotenv` is imported by `scripts/test_llm_client.py` and `scripts/whats_this_color.py`, the two Pi-V bench programs that drive that module. Both packages still belong in one Pi-V file, so the deliverable is unchanged. The pins are current PyPI releases and are **not** verified against Pi-V, which no agent can reach; the file says so. Pi-M's equivalent gap is O16. Original text: **`httpx` and `python-dotenv` undeclared.** Imported by `src/vision/llm_client.py`; present in no requirements file. Only `simulation/chassis/requirements-train.txt` exists. | Worker | D2 | 2026-08-23 |
 | O9 | **`locomotion_v3` run extraction unverified.** A copy of `best/best_model.zip`, `vecnormalize.pkl` and the checkpoints was extracted to a lab path outside the connected folder on 2026-08-23. The orchestrator cannot see that path and has not confirmed it. Until confirmed, `archive/runs-937311c` is the only known copy. | Andrew | Next session | 2026-08-23 |
-| O10 | **Loose project-memory notes committed at the repo root** — `feedback_conciseness.md`, `johnny5-cloud-mount-quirks.MD`, `johnny5-phase02-locomotion.MD`, `johnny5-pi-m-env.md`, `sandbox-no-torch.md`. Two carry a `.MD` extension that `MEMORY.md` spells `.md`. Decide whether they belong in the repo at all and make the index match. | Worker | D2 | 2026-08-23 |
-| O12 | **Three `#5219` references are now plainly wrong**, not merely contradictory: `docs/HARDWARE_drive_bringup.md` line 12, five labels in `docs/diagrams/bench_full_schematic.svg`, and the "side assignment locked" line at `simulation/chassis/TUNING.md` line 72. `TUNING.md` needs the most care — that line carries two separate facts, the part numbers (wrong) and the left/right channel assignment with its lead and encoder crossovers (measured, right). Only the part numbers go. `BOM.md`'s own closing note lists two of the three locations and should be completed. | Worker | D2 | 2026-08-25 |
-| O13 | **`BOM.md` carries a superseded mass claim.** Its open-items list still reads "the assembled total is 1655 g against a 1.6 kg ceiling". The identical paragraph was deleted from `phases/PHASE_00_HARDWARE.md` on 2026-08-23 as stale, and section 3 evidences the Phase 00 gate at 1531 g. As written, `BOM.md` says a met gate condition is breached. | Worker | D2 | 2026-08-25 |
-| O14 | **`BOM.md` section 1 quotes 1807 counts per output revolution.** S10 settled that `gpiozero.RotaryEncoder` decodes 1× and that the operative constant is 451.74, with 450.6 measured. 1807 is defensible as the raw 4× quadrature figure but reads as the operative one. Wants a clarifying half-sentence, not a deletion. | Worker | D2 | 2026-08-25 |
+| ~~O10~~ | **CLOSED 2026-08-25 (S18) on both halves it could reach; the removal is now D3.** The index defect is fixed — `MEMORY.md` spells both `.MD` names as git tracks them, drops the reference to the deleted `sim/chassis-env` branch, and carries a header saying it is an index and not a summary, pointing at `docs/ORCHESTRATION.md` section 9. The membership question is answered: **the notes do not belong in the repository**, but `johnny5-pi-m-env.md` must be salvaged into `scripts/setup_motion_pi.sh` and `docs/` before any of them go, because it holds a live correction to a script Andrew will run again. That salvage and the `git rm` are D3. The files could not be renamed or deleted from a session in any case; the mount does neither. Original text: **Loose project-memory notes committed at the repo root** — `feedback_conciseness.md`, `johnny5-cloud-mount-quirks.MD`, `johnny5-phase02-locomotion.MD`, `johnny5-pi-m-env.md`, `sandbox-no-torch.md`. Two carry a `.MD` extension that `MEMORY.md` spells `.md`. Decide whether they belong in the repo at all and make the index match. | Worker | D2 | 2026-08-23 |
 | O11 | **Phase 06 cosmetic deferral list** — track pattern screen accuracy (references show transverse grouser pads, not the herringbone adopted); optional fine circumferential ribs on the anti-tip tyre; brow gear teeth, currently pitch-diameter blanks; press-fit eye-dome and camera inserts. | Worker | Phase 06 | 2026-08-21 |
+| ~~O12~~ | **CLOSED 2026-08-25 (S18).** All three corrected: `docs/HARDWARE_drive_bringup.md` line 12 to `#5218 … back connector`, five labels in `docs/diagrams/bench_full_schematic.svg`, and `simulation/chassis/TUNING.md` line 72 with the part numbers removed and `LEFT = channel A, RIGHT = channel B` kept. Verified: `grep -c 5219` returns 0 in all three; the `TUNING.md` diff touches one line and both measured crossovers on lines 65–70 are byte-identical; the SVG still parses as well-formed XML; `BOM.md`'s closing note now lists all three locations. A fourth stale reference outside the item's scope is O18. Original text: **Three `#5219` references are now plainly wrong**, not merely contradictory: `docs/HARDWARE_drive_bringup.md` line 12, five labels in `docs/diagrams/bench_full_schematic.svg`, and the "side assignment locked" line at `simulation/chassis/TUNING.md` line 72. `TUNING.md` needs the most care — that line carries two separate facts, the part numbers (wrong) and the left/right channel assignment with its lead and encoder crossovers (measured, right). Only the part numbers go. `BOM.md`'s own closing note lists two of the three locations and should be completed. | Worker | D2 | 2026-08-25 |
+| ~~O13~~ | **CLOSED 2026-08-25 (S18).** The entry is struck through rather than deleted, on the file's own convention for resolved items, and now states 1531 g against the 1.6 kg ceiling with 69 g of headroom and 1578 g at +25 % on the printed parts. Verified by running `mechanical/preview/mass_budget.py` in a scratch copy: `ASSEMBLED TOTAL 1531 g (95.7% of ceiling)`. That is the script, not a document — the figure this project quoted by hand for two months came from a script that was crashing. Original text: **`BOM.md` carries a superseded mass claim.** Its open-items list still reads "the assembled total is 1655 g against a 1.6 kg ceiling". The identical paragraph was deleted from `phases/PHASE_00_HARDWARE.md` on 2026-08-23 as stale, and section 3 evidences the Phase 00 gate at 1531 g. As written, `BOM.md` says a met gate condition is breached. | Worker | D2 | 2026-08-25 |
+| ~~O14~~ | **CLOSED 2026-08-25 (S18).** `BOM.md` section 1 now reads "1807 counts/output-rev at 4× quadrature, which is **not** the operative figure", names `COUNTS_PER_OUTPUT_REV` as 451.74 with 450.6 measured at S10, and points at `TUNING.md`. Clarified rather than deleted, as the item asked. Verified in place. Original text: **`BOM.md` section 1 quotes 1807 counts per output revolution.** S10 settled that `gpiozero.RotaryEncoder` decodes 1× and that the operative constant is 451.74, with 450.6 measured. 1807 is defensible as the raw 4× quadrature figure but reads as the operative one. Wants a clarifying half-sentence, not a deletion. | Worker | D2 | 2026-08-25 |
+| O15 | **`scripts/setup_motion_pi.sh` carries an install line known to fail on Pi-M, and a venv default that is not the venv.** Line 76 runs `pip install onnxruntime numpy smbus2 gpiozero lgpio rpi-hardware-pwm paho-mqtt`; `lgpio` cannot pip-build on Trixie with Python 3.13 — no cp313 piwheel, and the sdist links against a system `-llgpio` that is not present. The fix used on the bench was `sudo apt install python3-gpiozero python3-lgpio` plus `include-system-site-packages = true` in the venv. Separately, line 16 defaults `JOHNNY5_VENV` to `$HOME/johnny5/venv` while the venv on the Pi is `~/johnny5-env`, so a re-run builds a second one. Both corrections have lived only in the root note `johnny5-pi-m-env.md` since 2026-07-12. **This is a live defect in a script, not a documentation nit.** | Worker | D3 | 2026-08-25 |
+| O16 | **Pi-M runtime dependencies are undeclared.** `src/motion/` imports `numpy` at module scope and `onnxruntime` inside `LocomotionPolicy`; `scripts/setup_motion_pi.sh` installs seven packages inline and no requirements file names any of them. `numpy` appears declared only because `simulation/chassis/requirements-train.txt` happens to list it, which is the training environment, not the Pi. Same class of gap as O8, which covered Pi-V only. | Worker | D3 | 2026-08-25 |
+| O17 | **`docs/diagrams/bench_full_schematic.svg`'s wiring key now prefixes both columns `#5218`.** Correct and redundant: with no left/right variant the column headers are the only thing telling them apart, so the per-row part number is noise. Change the six row prefixes to `LEFT`/`RIGHT` and drop the part number from the rows. Cosmetic; do it whenever that drawing is next revised, not on its own. | Worker | Next revision of that drawing | 2026-08-25 |
+| O18 | **`johnny5-phase02-locomotion.MD` still states `#5218 = LEFT (ch A) / #5219 = RIGHT (ch B)`.** The same defect O12 closed, in a fourth file. S18's definition of done scoped its grep to `BOM.md docs simulation`, and this note sits at the repository root. Closes with the file's removal in D3; if the file survives that decision, the line must be corrected instead. | Worker | D3 | 2026-08-25 |
 
 ---
 
@@ -283,6 +328,37 @@ Most recent first. Migrated from `INITIATING_PROMPT.md`'s decision log, which ra
 2026-06-20 to 2026-08-11, and from the four session handoffs in
 `phases/PHASE_00_HARDWARE.md`, which carry Sessions 03 and 04 that the former never
 received. **Never truncate this section.** Archive by year or phase if it outgrows the file.
+
+### 2026-08-25 — S18 and S18-O — Repository hygiene, and what the hygiene pass turned up
+
+- **The two verification scripts S18 wrote are not committed, and that is now settled rather
+  than left open.** `check_vision_deps.py` and `check_memory_index.py` proved two
+  definition-of-done items and were both demonstrated failing on the real defect, which makes
+  them defensible. They stay out. `check_memory_index.py` becomes pointless the moment D3
+  removes `MEMORY.md` and the notes behind it, and `check_vision_deps.py` would enter the tree
+  as a guard with no failing input and nothing invoking it — which is how `mass_budget.py`
+  came to crash silently for two months. A guard earns its place by being run, not by
+  existing. If Pi-M's dependencies grow past one file, revisit.
+- **`pyproject.toml` deliberately carries no `[build-system]` section.** Johnny 5 is deployed
+  by copying `src/` onto a Pi. A build-system table would make the repository look installable
+  and invite `pip install -e .`, which nothing here supports.
+- **`MEMORY.md` was made to match the files rather than the files renamed to match it.** The
+  rename is tidier and impossible from a session — the mount does not rename — and it is a git
+  write either way. The index now spells the names as git spells them, which is the fix that
+  survives whatever happens to the files. It also gained a header saying it is an index and
+  not a summary, pointing at `docs/ORCHESTRATION.md` section 9. Deleting one stale line and
+  leaving the index otherwise inviting would have fixed the instance and not the shape, and
+  this is the exact file that was read in place of its documents on 2026-08-21.
+- **Orchestrator turns are logged with an `-O` suffix on the worker they close out.** See
+  section 4. Adopted because `06783fe` and `769c618` were sitting in `main` attributable to no
+  session, and S18's report read all four of the post-S17 commits as S17's work.
+- **A definition of done that greps for a superseded string must exclude `docs/archive/` and
+  `docs/reports/`.** Both are records of the era in which the string was correct. S18's grep
+  returned twelve hits that were all correct behaviour, and the operative test had to be
+  restated after the fact. Added to `docs/ORCHESTRATION.md` section 3.
+- **The fast-forward merge is accepted practice and `CLAUDE.md` is the document that is
+  behind.** See section 6. Not changed in `CLAUDE.md` this turn; recorded so the divergence is
+  deliberate rather than drift.
 
 ### 2026-08-25 — S17 — Power harness schematic, and Andrew's rulings on the motor, cables and fuse
 
@@ -722,6 +798,8 @@ by the script.** When a number appears in a report, ask which script printed it.
 | 2026-08-23 | `main` @ `049494b`, and the remote | Full re-derivation of project position, git topology, document inventory and the contradiction list in the orchestrator brief. Branch ancestry, tag targets, `937311c` contents and byte count, tracked-versus-ignored artifacts, `.gitignore` behaviour, worktree cleanliness, the 48-test suite, and the migrated clone's root tree SHA against the original. | The brief's claim that `INITIATING_PROMPT.md`, `README.md`, `BOM.md` and `PROTOCOL.md` were missing from `main` — all four were present. The brief's all-branch merge base (`428d53f`, tag `v0.0`, not `0b13d84`). `INITIATING_PROMPT.md`'s decision log ended at 2026-08-11 and was missing Sessions 03 and 04 entirely, so the migration into section 9 needed two sources. `docs/kipilot-mcp-setup.md` was absent from the brief's inventory. The Pololu #5218/#5219 contradiction (O6). Three repository defects not previously recorded: no pytest config (O7), undeclared vision dependencies (O8), and the loose root notes (O10). |
 
 | 2026-08-25 | `docs/power-harness-schematic` @ `678c68a`, and `main` @ `344c8b7` | The `docs/reports/J5-S17.md` close-out report against the repository. Every claimed file present on the claimed branch by `git cat-file`, at the claimed size (the SVG at exactly 65,827 bytes); `scripts/check_harness_nets.py` md5 identical in worktree and blob to the report's `cb3f5166…`; all five text blobs CR-free; the guard rerun from the repository root, exit 0, reproducing the report's output verbatim including all six checks and every current figure; four of the report's nine mutation classes independently reproduced in a scratch tree, each failing the intended check with the intended message; the SVG parsed as well-formed XML; and every claim about `BOM.md`, `docs/HARDWARE_drive_bringup.md`, `docs/diagrams/bench_full_schematic.svg` and `simulation/chassis/TUNING.md` checked in place. Sections 1 and 6 of this file re-derived from `git for-each-ref` and `git log`. | **Nothing in the report failed verification.** Every defect found was in *this* file. The header and section 6 were four commits stale on `main` (`049494b` → `344c8b7`). Section 6 stated one branch where there are two, and did not record that S17's deliverables sit on an unmerged branch — **`main` does not carry the harness schematic.** Section 6's sentence about intra-phase iteration tags being "pending removal" from `CLAUDE.md` was stale; they were removed on 2026-08-23. Section 4 was missing S16 entirely and two of S15's four commits. The report's own list of what it could not fix was complete and is now O12–O14. |
+
+| 2026-08-25 | `docs/repo-hygiene` @ `f31e687`, and `main` @ `769c618` | The `docs/reports/J5-S18.md` close-out report against the repository. `f31e687` touches exactly the eight claimed paths and no others; `30fef4d`, the pre-amend commit, still exists as a dangling object, so the amend the report describes happened as described. Bare `python -m pytest -q` from the repository root: **48 passed**, exit 0, no path argument — and the same run with `--override-ini="testpaths="` reproduces both collection errors, so the fix is load-bearing. `scripts/check_harness_nets.py` re-run from `main`: exit 0, all six checks, 64 nets, 38 BOM line items, 145 endpoints, 11 % fuse margin, identical to the report. `grep -c 5219` returns 0 in all three named files. `mechanical/preview/mass_budget.py` run in a scratch copy prints `ASSEMBLED TOTAL 1531 g (95.7% of ceiling)`, matching the new `BOM.md` entry. All eight blobs CR-free by a `git cat-file` CR count read from the object database, and `i/lf w/lf` by `git ls-files --eol`; `git diff --ignore-cr-at-eol` was not used. The SVG parses as well-formed XML. The `TUNING.md` diff is one line and both measured crossovers are untouched. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`. | **Nothing in the report failed verification.** Two corrections to it, neither material to its deliverables. It reads the four post-S17 commits as "S17's work merged as four ordinary commits"; `06783fe` and `769c618` are the orchestrator turn's own, and that turn had no ledger row — both fixed here, and the `-O` convention adopted. Its `5219` grep was scoped to `BOM.md docs simulation`, which missed `johnny5-phase02-locomotion.MD` at the repository root still carrying `#5218 = LEFT / #5219 = RIGHT`; that is now O18. Defects in *this* file: the header and section 6 were stale again in the same two places — `main` at `344c8b7` where it is `769c618`, and a branch table naming `docs/power-harness-schematic`, which was merged and deleted. Section 6 asserted `main` does not carry the harness schematic; it does. |
 
 **Attribution note, 2026-08-25.** `d1d4c2b` is dated 2026-08-24 but its content is the
 document demotion that section 9 records as S15's work on 2026-08-23. It is logged against S15
