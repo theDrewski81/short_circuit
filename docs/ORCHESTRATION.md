@@ -215,6 +215,10 @@ Carried forward because every session otherwise rediscovers them at cost.
   `_fill_cache`). Author and run Python in `/tmp` and copy results over, verifying by `md5sum`.
 - **The agent's writes to the mount can land truncated.** Author in `/tmp`, copy over, verify
   by `md5sum` — for edits as well as new files.
+- **The connected folder is the wrong folder.** Cowork sessions are connected to
+  `C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5`, the copy retired on
+  2026-08-23, and it is empty. The repository is at `C:\dev\johnny5`. Request access to that
+  path before anything else. Two sessions have now hit this; every brief should say so.
 
 ---
 

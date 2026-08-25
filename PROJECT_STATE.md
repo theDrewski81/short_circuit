@@ -7,7 +7,8 @@ Phase documents in `/phases/` say what the work *is*; this file says where the w
 Owner: the orchestrator session. No worker session edits this file. A worker that
 believes it is wrong reports that to the orchestrator.
 
-**Last verified: 2026-08-23 against `main` @ `049494b`.**
+**Last verified: 2026-08-25 against `docs/power-harness-schematic` @ `678c68a`,
+and `main` @ `344c8b7`.**
 
 ---
 
@@ -17,6 +18,11 @@ believes it is wrong reports that to the orchestrator.
 
 Tasks 1, 2, 3, 4, 5 and 6a are complete. Task 6b is the only task between the project
 and the Phase 02 gate, and no agent session can advance it.
+
+**Ordering is no longer gated.** B5, the power wiring and harness schematic, closed on
+2026-08-25 with S17, and the two threads it raised that looked like order gates — the fuse
+margin and the encoder cable line item — were both settled the same day. Everything in
+`BOM.md` can now be bought. Ordering is Andrew's to do and is not a dispatchable item.
 
 Gate condition, verbatim from `phases/PHASE_02_LOCOMOTION.md`:
 
@@ -39,13 +45,17 @@ policy and a live offline-fallback test, logged in `simulation/chassis/TUNING.md
 | B2 | **Physical.** The drivetrain has never been printed: 2× `drive_sprocket_v1`, 2× `front_idler_v1`, 4× `road_wheel_v1`, 2× `track_loop_v1` (TPU), 2× `idler_carrier_v1`, 6× `axle_collar_v1`, 2× `motor_cap_v1`, `pi_shelf_v1`, `tail_boom_v1`, `tail_roller_v1`, `tail_tyre_v1`. | Phase 02 Task 6b | Andrew (printer) | 2026-08-21 |
 | B3 | **Physical.** Motors seated in their cradles and caps screwed down. M2 thread-forming into the columns, no heat-sets. | Phase 02 Task 6b | Andrew (bench) | 2026-07-16 |
 | B4 | **Physical.** Drive wiring moved off breadboard — soldered or a secured connector. Breadboard jumpers work loose under tread vibration, which turns a real bug into a connection fault hunt. | Phase 02 Task 6b | Andrew (bench) | 2026-07-16 |
-| B5 | **Deliverable.** The power wiring and harness schematic does not exist. **It blocks ordering.** Nothing in the power architecture can be bought until it is drawn. | All hardware purchasing | A dispatched worker | 2026-06-17 |
 
 B1 through B4 are physical-world blockers. **No agent session can clear any of them.**
 Dispatching a Phase 02 session before they are done is dispatching it to wait.
 
-B5 is the oldest live debt in the project and the only substantial item that is not
-waiting on the printer. It is first in the dispatch queue for that reason.
+**B5 closed 2026-08-25 (S17).** It was the oldest live debt in the project, owed since
+S01. `docs/diagrams/power_harness_schematic.svg`, `docs/HARDWARE_power_harness.md` and the
+`scripts/check_harness_nets.py` guard exist and were verified against the repository on
+2026-08-25. They sit on `docs/power-harness-schematic` @ `678c68a`, which has **not yet been
+merged to `main`** — see section 6. Every physical blocker that remains is a printer or bench
+job, so there is nothing left that a dispatched session can clear on the Phase 02 critical
+path.
 
 ---
 
@@ -100,7 +110,9 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 | S12 | 2026-08-20 | 00 | **Phase 00 REOPENED** — tub rework after first print | Four print-and-measure rounds. Bearings moved into hubs, idler on a full-width rod, sprocket on its own bearing. | `7d8c30a` |
 | S13 | 2026-08-21 | 00 | Drivetrain design; Phase 00 re-close | **Gate MET** at 1531 g. `build_drivetrain.py` with five printable parts; chassis reworked to carry them; shells to 2.0 mm. | `c88033b` |
 | S14 | 2026-08-22 | 00 → orchestration | Handoff authoring | **Failed.** Wrote a Phase 01 initiating prompt for a phase closed two months earlier. Caught only because Andrew ran it. Then authored `ORCHESTRATOR_PROMPT.md`, creating this role. | — |
-| S15 | 2026-08-23 | Orchestration | Verify state, reconcile git, create this file | Git topology collapsed to one branch; policy artifact tracked; repo migrated to `C:\dev\johnny5`; this file created. | `da6e1fa` `049494b` |
+| S15 | 2026-08-23 | Orchestration | Verify state, reconcile git, create this file | Git topology collapsed to one branch; policy artifact tracked; repo migrated to `C:\dev\johnny5`; this file created; the competing state documents demoted to pointers. | `da6e1fa` `049494b` `31073ac` `d1d4c2b` |
+| S16 | 2026-08-24 | Orchestration | Distil the orchestration protocol; retire `ORCHESTRATOR_PROMPT.md` | `docs/ORCHESTRATION.md` created and archived predecessor frozen; turn opener, close-out report convention and section references added. The session logged nothing itself; this row is reconstructed from commit contents on 2026-08-25. | `8bfc0d9` `344c8b7` |
+| S17 | 2026-08-25 | 00 (paid off late) | D1 — power wiring and harness schematic | **B5 closed, O6 closed.** 64-net schematic and companion document, a net-consistency guard with a mutation suite, and three `BOM.md` corrections. Report at `docs/reports/J5-S17.md`; verified against the repository 2026-08-25. On `docs/power-harness-schematic`, unmerged. | `9e5191f` `678c68a` |
 
 ---
 
@@ -108,20 +120,21 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 
 What to dispatch next, in order, with preconditions. **Read only this section on a busy day.**
 
-**D1 — Power wiring and harness schematic.** *Ready now, nothing blocks it.*
-Owed since S01. It blocks all ordering, which in turn blocks everything physical beyond
-what is already in hand. Produce a formal schematic for the three-rail architecture
-documented in `BOM.md`: motor rail battery-direct on 2S, 5 V buck for compute, 6 V buck
-for servos, inline 7.5 A fuse, TB6612 STBY interlock, ADS1115 battery sensing. KiCad 10.0
-with KiPilot is already set up on the desktop. Session config: Opus, Extended, High
-(Phase 00 default — this is Phase 00 work being paid off late).
+**D1 — Power wiring and harness schematic.** **COMPLETE (S17, 2026-08-25).**
+Delivered on `docs/power-harness-schematic` @ `678c68a` and verified. Awaiting squash merge
+to `main`, which is Andrew's to run. Kept in the queue rather than deleted so this section
+reads as a history as well as a plan.
 
-**D2 — Repository hygiene.** *Ready now. Small, one hour.*
-Three defects found during S15, all in the same neighbourhood: no pytest configuration
-(bare `pytest` at the repo root fails collection on two non-suite files), and `httpx` and
-`python-dotenv` imported by `src/vision/llm_client.py` but declared in no requirements
-file. Add `[tool.pytest.ini_options] testpaths = ["tests"]` and a vision requirements
-file. Session config: Sonnet, Standard, Medium.
+**D2 — Repository hygiene and documentation corrections.** *Ready now. One session, small.*
+Two groups of text-only work, merged because neither is worth a session alone and they do not
+overlap. From S15: no pytest configuration (O7 — bare `pytest` at the repo root fails
+collection on two non-suite files; add `[tool.pytest.ini_options] testpaths = ["tests"]`),
+`httpx` and `python-dotenv` imported by `src/vision/llm_client.py` and declared in no
+requirements file (O8), and the loose project-memory notes at the repo root with their
+`.MD`/`.md` index mismatch (O10). From S17: the three now plainly wrong `#5219` references
+(O12), the superseded 1655 g mass claim in `BOM.md` (O13), and the 1807 counts-per-revolution
+figure in `BOM.md` section 1 (O14). Nothing here touches geometry, the trained policy or the
+motion loop. Session config: Sonnet, Standard, Medium.
 
 **D3 — Phase 02 Task 6b, Floor Integration Test.** *Blocked on B1–B4.*
 Do not dispatch until the tub and drivetrain are printed, motors are bolted in and the
@@ -142,11 +155,17 @@ Opus if the sim-to-real deltas are large enough to force revisiting reward shapi
 **Remote:** `https://github.com/theDrewski81/short_circuit.git`
 **Working copy:** `C:\dev\johnny5` (moved here 2026-08-23; see the decision record).
 
-**Branches — one.**
+**Dispatch hazard.** The folder connected to a Cowork session is
+`C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5`, the retired copy, and it
+is **empty**. Every session must request access to `C:\dev\johnny5` before doing anything
+else. S17 hit this and so did the orchestrator turn that verified it. Say so in every brief.
+
+**Branches — two.**
 
 | Branch | Role |
 |---|---|
-| `main` | The trunk. `049494b`. All work happens here or on short-lived branches off it. |
+| `main` | The trunk. `344c8b7`. Matches `origin/main`. |
+| `docs/power-harness-schematic` | `678c68a`, two commits ahead of `main` and containing all of S17: the schematic, the companion document, the net guard, the `BOM.md` corrections and the close-out report. Verified 2026-08-25. **Awaiting squash merge to `main`.** Until it merges, `main` does not carry the harness schematic. |
 
 Four branches were deleted on 2026-08-23 — `fix/chassis-tub-defects`, `feat/motor-driver`,
 `sim/chassis-env`, `phase/00-hardware`. The first *was* the real trunk under a misleading
@@ -161,7 +180,8 @@ name; the other three were strictly its ancestors. `main` now carries all of the
 | `archive/runs-937311c` | `937311c` | Preserves 64 training artifacts, 7.9 MiB of locomotion_v1/v2/v3 checkpoints, dropped from the tracked tree on 2026-08-23. Not a project milestone. |
 
 Per `CLAUDE.md`, `v2.0` is applied at the Phase 02 gate. The intra-phase iteration tags
-that `CLAUDE.md` describes have never been used and are pending removal from it.
+this file previously described as "pending removal" from `CLAUDE.md` were in fact removed
+from it on 2026-08-23; that sentence was stale and is corrected here.
 
 **Deliberately untracked, and where the content lives instead.**
 
@@ -196,11 +216,14 @@ Carried non-blocking items. Blocking ones live in section 2.
 | O3 | **`.env` secrets management** — local per-Pi files versus the Agentic OS secrets manager. Unresolved; no preference stated. | Andrew | Phase 05 | 2026-06-22 |
 | O4 | **FreeCAD MCP addon update.** The installed neka-nat addon predates `get_rpc_status`, which would diagnose the intermittent GUI-dispatch jam in one call instead of by elimination. | Worker | Before the next CAD session | 2026-08-21 |
 | O5 | **`preview/` massing not updated** for the new drivetrain parts. | Worker | Phase 06 | 2026-08-21 |
-| O6 | **Drive motor part number contradiction.** S12 fixes the motor as Pololu **#5218** (150:1 HPCB 12 V, 12 CPR encoder, back connector). The 2026-06-26 decision entry prices **#5219** at ~$32.45 each and flags BOM Section 1 as running ~$25 over. One of the two is wrong and `BOM.md` should say which. | Worker | Before ordering (with D1) | 2026-08-23 |
+| ~~O6~~ | **CLOSED 2026-08-25 (S17, and Andrew at the bench).** Both drive motors are Pololu **#5218**; the #5219 was bought deliberately as a fit test and does not fit the chassis cleanly. `BOM.md` corrected to $32.45 each, $65 the pair. The wrong references left behind are now O12. Original text: **Drive motor part number contradiction.** S12 fixes the motor as Pololu **#5218** (150:1 HPCB 12 V, 12 CPR encoder, back connector). The 2026-06-26 decision entry prices **#5219** at ~$32.45 each and flags BOM Section 1 as running ~$25 over. One of the two is wrong and `BOM.md` should say which. | Worker | Before ordering (with D1) | 2026-08-23 |
 | O7 | **No pytest configuration.** Bare `pytest` at the repo root collects `scripts/test_llm_client.py` and `simulation/chassis/test_env.py` and fails collection. The real suite is `python -m pytest tests\ -q`, 48 tests. | Worker | D2 | 2026-08-23 |
 | O8 | **`httpx` and `python-dotenv` undeclared.** Imported by `src/vision/llm_client.py`; present in no requirements file. Only `simulation/chassis/requirements-train.txt` exists. | Worker | D2 | 2026-08-23 |
 | O9 | **`locomotion_v3` run extraction unverified.** A copy of `best/best_model.zip`, `vecnormalize.pkl` and the checkpoints was extracted to a lab path outside the connected folder on 2026-08-23. The orchestrator cannot see that path and has not confirmed it. Until confirmed, `archive/runs-937311c` is the only known copy. | Andrew | Next session | 2026-08-23 |
 | O10 | **Loose project-memory notes committed at the repo root** — `feedback_conciseness.md`, `johnny5-cloud-mount-quirks.MD`, `johnny5-phase02-locomotion.MD`, `johnny5-pi-m-env.md`, `sandbox-no-torch.md`. Two carry a `.MD` extension that `MEMORY.md` spells `.md`. Decide whether they belong in the repo at all and make the index match. | Worker | D2 | 2026-08-23 |
+| O12 | **Three `#5219` references are now plainly wrong**, not merely contradictory: `docs/HARDWARE_drive_bringup.md` line 12, five labels in `docs/diagrams/bench_full_schematic.svg`, and the "side assignment locked" line at `simulation/chassis/TUNING.md` line 72. `TUNING.md` needs the most care — that line carries two separate facts, the part numbers (wrong) and the left/right channel assignment with its lead and encoder crossovers (measured, right). Only the part numbers go. `BOM.md`'s own closing note lists two of the three locations and should be completed. | Worker | D2 | 2026-08-25 |
+| O13 | **`BOM.md` carries a superseded mass claim.** Its open-items list still reads "the assembled total is 1655 g against a 1.6 kg ceiling". The identical paragraph was deleted from `phases/PHASE_00_HARDWARE.md` on 2026-08-23 as stale, and section 3 evidences the Phase 00 gate at 1531 g. As written, `BOM.md` says a met gate condition is breached. | Worker | D2 | 2026-08-25 |
+| O14 | **`BOM.md` section 1 quotes 1807 counts per output revolution.** S10 settled that `gpiozero.RotaryEncoder` decodes 1× and that the operative constant is 451.74, with 450.6 measured. 1807 is defensible as the raw 4× quadrature figure but reads as the operative one. Wants a clarifying half-sentence, not a deletion. | Worker | D2 | 2026-08-25 |
 | O11 | **Phase 06 cosmetic deferral list** — track pattern screen accuracy (references show transverse grouser pads, not the herringbone adopted); optional fine circumferential ribs on the anti-tip tyre; brow gear teeth, currently pitch-diameter blanks; press-fit eye-dome and camera inserts. | Worker | Phase 06 | 2026-08-21 |
 
 ---
@@ -240,6 +263,18 @@ surface, leaving a sub-layer skin. The comment promises "fore and aft" pockets; 
 **Phase 01 offline fallback never tested live.** Verified as unit-tested pure logic only.
 *Closes as part of Task 6b.*
 
+**Fuse margin is 11 % against a synthetic worst case.** Worst-case simultaneous draw at the
+7.5 A inline blade fuse computes to 6.65 A, summing a motor stall, a servo stall and
+full-volume audio that do not coincide; a realistic worst case is roughly 3.5–4 A. Andrew
+ruled on 2026-08-25 that nothing changes: a blade fuse carries its rating continuously and
+needs roughly twice it to open in seconds, and the ~0.1 J switch-on inrush across the three
+bulk electrolytics is orders of magnitude below its I²t, which makes inrush a question about
+master-switch contact life rather than about the fuse. A larger fuse would only weaken
+protection against a partial short. *Two standing cautions survive: never substitute a
+fast-blow glass fuse into the same holder, and if the deferred motor-rail boost to 9–10 V is
+ever taken up, redo the battery-side calculation in section 5 of
+`docs/HARDWARE_power_harness.md` before wiring it.*
+
 ---
 
 ## 9. Decision record
@@ -248,6 +283,69 @@ Most recent first. Migrated from `INITIATING_PROMPT.md`'s decision log, which ra
 2026-06-20 to 2026-08-11, and from the four session handoffs in
 `phases/PHASE_00_HARDWARE.md`, which carry Sessions 03 and 04 that the former never
 received. **Never truncate this section.** Archive by year or phase if it outgrows the file.
+
+### 2026-08-25 — S17 — Power harness schematic, and Andrew's rulings on the motor, cables and fuse
+
+- **The harness is a hand-authored SVG, not KiCad.** No KiCad or KiPilot tool was exposed to
+  the worker session, so the queue entry's claim that KiPilot "is already set up" did not hold
+  from inside a session — it is a fact about the desktop, not about a dispatched worker. The
+  brief pre-authorised the fallback and it was taken without asking. The reasoning stands
+  independently: this is an interconnect drawing whose consumers are a bench and a parts
+  order, and `docs/diagrams/bench_full_schematic.svg` already establishes a diffable house
+  convention for exactly that.
+- **Passives are properties of a net, not endpoints of their own, and `BOM.md` now carries
+  them.** A series resistor or bulk capacitor does not terminate a conductor, so modelling
+  them as endpoints would have forced an exemption list into the endpoint check and weakened
+  it. Andrew approved adding a resistor line to `BOM.md`; the guard now asserts that every
+  value called out on a net is a `BOM.md` line item. Without that line the harness could have
+  been drawn, approved and ordered against with five components missing.
+- **Rail names carry in the net name, and every rail-prefixed net must declare a current** —
+  `[peak N A]` or `[reflected]`. A forgotten figure fails loudly instead of summing to zero.
+- **Inter-rail feeds are `[reflected]`, not peaks.** Charging buck input current to VBAT as
+  well as to the rail it supplies would double-count it and make the net table irreconcilable
+  with the Power Budget, which models rails as loads. Reflected current is computed once, in
+  the fuse check.
+- **The net table may exceed the Power Budget by up to 0.25 A per rail and may never fall
+  below it.** The table is finer-grained than the budget — it pays for the encoder supplies
+  and the TB6612 logic supply that the budget rolls into other rows. A missing load makes the
+  table fall short and fails; an invented one blows the allowance and fails.
+- **Two derived 3.3 V supplies come off the Pi header pins rather than a third converter.**
+  Their combined 0.09 A is checked against a 0.25 A ceiling for a Pi Zero 2 W 3.3 V pin, which
+  is an assumption and is labelled as one in both the document and the guard, because `BOM.md`
+  states no such rating.
+- **The battery sense divider is 100 kΩ over 47 kΩ, downstream of the master switch.** 8.4 V
+  divides to 2.685 V at 57 µA, inside both the 3.3 V VDD and the ±4.096 V full-scale range.
+  Placing it after the switch means telemetry reads zero when the robot is off, which is
+  correct behaviour; the alternative leaves a permanent load on a pack that looks disconnected.
+- **Encoder returns go to Pi-M, not to the star ground,** following their own signal pair back
+  in the same six-conductor cable, so a signal return is never in parallel with a motor return.
+- **Ground is drawn as a bus and wired as a star,** per the bench drawing's own convention and
+  labelled on the drawing so nobody builds a daisy chain from it.
+- **O6 was settled at the bench, not on paper.** The Pololu catalogue fixes #5218 and #5219 as
+  the same 150:1 HPCB 12 V 12 CPR motor differing only in connector orientation, both $32.45.
+  `BOM.md`'s part number was right and its price was wrong; corrected to $65 the pair. Andrew
+  then confirmed with the parts in hand that the #5219 was bought deliberately as a fit test,
+  that the side-connector variant does **not** fit the chassis cleanly, and that **both drive
+  motors are #5218 and #5218 is the only drive motor this project will use.** That converts
+  the surviving `#5219` references from a contradiction into plain errors (O12).
+- **The 6-pin JST SH encoder cables ship with the motors and need no `BOM.md` line.** The
+  connector type is recorded in the net table so a replacement can be identified. The sentence
+  S17 first added saying they are sold separately was wrong and was corrected in `678c68a`.
+- **The 7.5 A inline blade fuse stands, unchanged.** See section 8; the report's framing of
+  this as a decision owed before ordering overstated it, and Andrew said so.
+- **A guard is only worth what its failures prove.** S17 ran nine single-edit mutations
+  against copies of the three files and caught all nine. The orchestrator independently
+  reproduced four of the nine on 2026-08-25 rather than taking the table on trust. This is the
+  direct countermeasure to `validate.py` reporting ALL CHECKS PASS while three defects reached
+  the print bed.
+
+### 2026-08-24 — S16 — Orchestration protocol distilled
+
+- **`docs/ORCHESTRATION.md` created and `ORCHESTRATOR_PROMPT.md` retired** to
+  `docs/archive/ORCHESTRATOR_PROMPT_2026-08-22.md` behind a frozen header, its durable half
+  distilled and its ground-truth section dropped as factually wrong. The standing orchestrator
+  turn opener, the close-out-report-as-file convention and the proportionality rule were added.
+  The session recorded none of this itself; the entry is reconstructed from commit contents.
 
 ### 2026-08-23 — S15 — Orchestration, git reconciliation, repo migration
 
@@ -622,6 +720,14 @@ by the script.** When a number appears in a report, ask which script printed it.
 | Date | Verified against | What was checked | What was found wrong |
 |---|---|---|---|
 | 2026-08-23 | `main` @ `049494b`, and the remote | Full re-derivation of project position, git topology, document inventory and the contradiction list in the orchestrator brief. Branch ancestry, tag targets, `937311c` contents and byte count, tracked-versus-ignored artifacts, `.gitignore` behaviour, worktree cleanliness, the 48-test suite, and the migrated clone's root tree SHA against the original. | The brief's claim that `INITIATING_PROMPT.md`, `README.md`, `BOM.md` and `PROTOCOL.md` were missing from `main` — all four were present. The brief's all-branch merge base (`428d53f`, tag `v0.0`, not `0b13d84`). `INITIATING_PROMPT.md`'s decision log ended at 2026-08-11 and was missing Sessions 03 and 04 entirely, so the migration into section 9 needed two sources. `docs/kipilot-mcp-setup.md` was absent from the brief's inventory. The Pololu #5218/#5219 contradiction (O6). Three repository defects not previously recorded: no pytest config (O7), undeclared vision dependencies (O8), and the loose root notes (O10). |
+
+| 2026-08-25 | `docs/power-harness-schematic` @ `678c68a`, and `main` @ `344c8b7` | The `docs/reports/J5-S17.md` close-out report against the repository. Every claimed file present on the claimed branch by `git cat-file`, at the claimed size (the SVG at exactly 65,827 bytes); `scripts/check_harness_nets.py` md5 identical in worktree and blob to the report's `cb3f5166…`; all five text blobs CR-free; the guard rerun from the repository root, exit 0, reproducing the report's output verbatim including all six checks and every current figure; four of the report's nine mutation classes independently reproduced in a scratch tree, each failing the intended check with the intended message; the SVG parsed as well-formed XML; and every claim about `BOM.md`, `docs/HARDWARE_drive_bringup.md`, `docs/diagrams/bench_full_schematic.svg` and `simulation/chassis/TUNING.md` checked in place. Sections 1 and 6 of this file re-derived from `git for-each-ref` and `git log`. | **Nothing in the report failed verification.** Every defect found was in *this* file. The header and section 6 were four commits stale on `main` (`049494b` → `344c8b7`). Section 6 stated one branch where there are two, and did not record that S17's deliverables sit on an unmerged branch — **`main` does not carry the harness schematic.** Section 6's sentence about intra-phase iteration tags being "pending removal" from `CLAUDE.md` was stale; they were removed on 2026-08-23. Section 4 was missing S16 entirely and two of S15's four commits. The report's own list of what it could not fix was complete and is now O12–O14. |
+
+**Attribution note, 2026-08-25.** `d1d4c2b` is dated 2026-08-24 but its content is the
+document demotion that section 9 records as S15's work on 2026-08-23. It is logged against S15
+on that basis. Commit dates in this repository record when Andrew ran the git write, not when
+the work was done, because every git write is his; the gap is expected and is not evidence of
+a separate session. This is an inference, not a record.
 
 **Orchestrator errors this session, recorded so they are not repeated.** A commit was certified
 with `git diff --ignore-cr-at-eol`, which is precisely the flag that conceals line-ending defects,
