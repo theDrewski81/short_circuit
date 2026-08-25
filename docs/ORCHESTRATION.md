@@ -180,9 +180,15 @@ on 2026-08-23. Two environment facts drove that, and both still hold:
 - Run `find .git -maxdepth 2 -name "*.lock"` before handing over a command block, and say which
   locks need clearing first.
 - Show the exact `git add` list and the message before any commit block, and show what will land.
-- Verify line endings after any text commit: `git cat-file -p <ref>:<path> | tr -cd '\r' | wc -c`
-  must be 0. `git diff --ignore-cr-at-eol` **hides** this defect — use it to read content
-  changes, never to certify a commit.
+- Verify line endings after any text commit. `git diff --ignore-cr-at-eol` **hides** this
+  defect — use it to read content changes, never to certify a commit. Andrew's shell is
+  PowerShell, which has no `tr` or `wc`, and piping git's output through the PowerShell
+  pipeline strips line endings, so a CR count taken after a PS pipe reads 0 whatever the
+  truth is. Use `git ls-files --eol <path>`, which must report `i/lf w/lf`. For an arbitrary
+  ref, `cmd` must do the redirect because PowerShell's `>` re-encodes:
+  `cmd /c "git cat-file -p main:<path> > %TEMP%\eol.bin"` then
+  `([IO.File]::ReadAllBytes("$env:TEMP\eol.bin") -eq 13).Count`, which must print 0. From a
+  POSIX shell the old form still applies: `git cat-file -p <ref>:<path> | tr -cd '\r' | wc -c`.
 - **Recovering a commit that failed on "cannot lock ref HEAD":** the commit object is already
   written and only the ref move failed. Find it with `git fsck --dangling`, match the subject,
   verify its tree, then `git update-ref refs/heads/<branch> <sha>` and `git reset` (mixed, no
