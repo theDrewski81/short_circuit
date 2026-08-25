@@ -1,0 +1,776 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 2860" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1640" height="2860" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="820" y="38" text-anchor="middle" font-size="25" font-weight="700" fill="#1f2328">Johnny 5 &#8212; Power Wiring and Harness Schematic</text>
+  <text x="820" y="62" text-anchor="middle" font-size="13.5" fill="#57606a">2S LiPo, three rails, whole robot. Companion document: docs/HARDWARE_power_harness.md. Guard: scripts/check_harness_nets.py. Master switch OFF until step 8 of the build order.</text>
+
+  <!-- ============ LEGEND ============ -->
+  <rect x="40" y="82" width="1560" height="46" rx="8" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+  <line x1="58" y1="105" x2="108" y2="105" stroke="#bc4c00" stroke-width="5"/><text x="116" y="109" font-size="11.5" fill="#1f2328">VBAT 7.4 V nom / 8.4 V full</text>
+  <line x1="300" y1="105" x2="350" y2="105" stroke="#d1242f" stroke-width="5"/><text x="358" y="109" font-size="11.5" fill="#1f2328">5 V rail</text>
+  <line x1="450" y1="105" x2="500" y2="105" stroke="#8250df" stroke-width="5"/><text x="508" y="109" font-size="11.5" fill="#1f2328">6 V rail</text>
+  <line x1="600" y1="105" x2="650" y2="105" stroke="#bf3989" stroke-width="5"/><text x="658" y="109" font-size="11.5" fill="#1f2328">3.3 V from Pi header</text>
+  <line x1="820" y1="105" x2="870" y2="105" stroke="#1f2328" stroke-width="5"/><text x="878" y="109" font-size="11.5" fill="#1f2328">GND / star</text>
+  <line x1="1000" y1="105" x2="1050" y2="105" stroke="#57606a" stroke-width="2" stroke-dasharray="6 3"/><text x="1058" y="109" font-size="11.5" fill="#1f2328">signal (thin, dashed)</text>
+  <circle cx="1250" cy="105" r="5" fill="#1f2328"/><text x="1264" y="109" font-size="11.5" fill="#1f2328">junction. Conductors crossing without a dot are NOT connected.</text>
+
+  <!-- ============ BAND 1: pack, fuse, switch, distribution board ============ -->
+  <rect x="60" y="150" width="200" height="110" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="160" y="174" text-anchor="middle" font-size="14" font-weight="700" fill="#7d4e00">Battery</text>
+  <text x="160" y="192" text-anchor="middle" font-size="11" fill="#7d4e00">2S LiPo 2200 mAh &#8805;10C</text>
+  <text x="160" y="208" text-anchor="middle" font-size="11" fill="#7d4e00">7.4 V nom, 8.4 V full, ~130 g</text>
+  <circle cx="260" cy="190" r="5" fill="#bc4c00"/><text x="266" y="180" font-size="10.5" fill="#1f2328">XT60 +</text>
+  <circle cx="260" cy="235" r="5" fill="#1f2328"/><text x="240" y="254" text-anchor="end" font-size="10.5" fill="#1f2328">XT60 &#8211;</text>
+
+  <rect x="300" y="165" width="130" height="60" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="2"/>
+  <text x="365" y="189" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7d4e00">FUSE</text>
+  <text x="365" y="207" text-anchor="middle" font-size="11" fill="#7d4e00">7.5 A inline blade</text>
+
+  <rect x="470" y="165" width="130" height="60" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="2"/>
+  <text x="535" y="189" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7d4e00">SPST switch</text>
+  <text x="535" y="207" text-anchor="middle" font-size="11" fill="#7d4e00">&#8805;10 A, after fuse</text>
+
+  <rect x="640" y="150" width="220" height="110" rx="8" fill="#f6f8fa" stroke="#57606a" stroke-width="2.5"/>
+  <text x="750" y="174" text-anchor="middle" font-size="14" font-weight="700" fill="#1f2328">Distribution board</text>
+  <text x="750" y="192" text-anchor="middle" font-size="11" fill="#57606a">VBAT pad &#183; 5 V pad &#183; STAR GROUND</text>
+  <text x="750" y="208" text-anchor="middle" font-size="11" fill="#57606a">3&#215; 1000 &#181;F bulk &#183; sense divider</text>
+  <text x="750" y="228" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1a7f37">single-point star: every return lands here</text>
+
+  <!-- pack -> fuse -> switch -> PDB (power trunk) -->
+  <polyline points="260,190 300,190" fill="none" stroke="#bc4c00" stroke-width="5"/>
+  <polyline points="430,190 470,190" fill="none" stroke="#bc4c00" stroke-width="5"/>
+  <polyline points="600,190 640,190" fill="none" stroke="#bc4c00" stroke-width="5"/>
+  <text x="365" y="152" text-anchor="middle" font-size="10" fill="#57606a">VBAT_PACK 18 AWG</text>
+  <text x="535" y="152" text-anchor="middle" font-size="10" fill="#57606a">VBAT_FUSED 18 AWG</text>
+  <text x="632" y="170" text-anchor="end" font-size="10" fill="#57606a">VBAT_SW</text>
+
+  <!-- pack negative -> star ground bus -->
+  <polyline points="260,235 200,235 200,285 45,285 45,1190" fill="none" stroke="#1f2328" stroke-width="5"/>
+  <text x="120" y="278" font-size="10" fill="#57606a">GND_BATT 18 AWG</text>
+
+  <!-- PDB star -> ground bus -->
+  <polyline points="700,260 700,315 890,315 890,1190" fill="none" stroke="#1f2328" stroke-width="5"/>
+  <circle cx="700" cy="260" r="5" fill="#1f2328"/>
+  <circle cx="890" cy="1190" r="5" fill="#1f2328"/>
+
+  <!-- PDB VBAT pad -> VBAT bus -->
+  <polyline points="800,260 800,300" fill="none" stroke="#bc4c00" stroke-width="5"/>
+  <circle cx="800" cy="300" r="5" fill="#bc4c00"/>
+
+  <!-- ============ VBAT BUS ============ -->
+  <line x1="60" y1="300" x2="1600" y2="300" stroke="#bc4c00" stroke-width="5"/>
+  <text x="210" y="292" font-size="12.5" font-weight="700" fill="#bc4c00">VBAT &#8212; battery-direct, fused and switched</text>
+
+  <!-- ============ BAND 3: converters, sense divider, motor driver ============ -->
+  <rect x="60" y="330" width="240" height="150" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="180" y="354" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7d4e00">Buck converter (5 V)</text>
+  <text x="180" y="372" text-anchor="middle" font-size="11" fill="#7d4e00">adjustable synchronous, 5 A</text>
+  <text x="180" y="392" text-anchor="middle" font-size="11.5" font-weight="700" fill="#cf222e">SET TO 5.00 V OFF-LOAD FIRST</text>
+  <text x="180" y="412" text-anchor="middle" font-size="11" fill="#7d4e00">in 1.95 A worst case @ 7.4 V</text>
+  <text x="180" y="430" text-anchor="middle" font-size="11" fill="#7d4e00">out 2.60 A peak of 5 A</text>
+  <text x="180" y="452" text-anchor="middle" font-size="10.5" fill="#57606a">1000 &#181;F on the 5 V pad</text>
+
+  <rect x="340" y="330" width="240" height="150" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="460" y="354" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7d4e00">Buck converter (6 V)</text>
+  <text x="460" y="372" text-anchor="middle" font-size="11" fill="#7d4e00">adjustable synchronous, 5 A</text>
+  <text x="460" y="392" text-anchor="middle" font-size="11.5" font-weight="700" fill="#cf222e">SET TO 6.00 V OFF-LOAD FIRST</text>
+  <text x="460" y="412" text-anchor="middle" font-size="11" fill="#7d4e00">in 2.70 A worst case @ 7.4 V</text>
+  <text x="460" y="430" text-anchor="middle" font-size="11" fill="#7d4e00">out 3.00 A peak of 5 A</text>
+  <text x="460" y="452" text-anchor="middle" font-size="10.5" fill="#cf222e">8.4 V would exceed SCS0009 7.4 V max</text>
+
+  <rect x="600" y="330" width="270" height="150" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="2"/>
+  <text x="614" y="352" font-size="12.5" font-weight="700" fill="#7d4e00">Battery sense divider</text>
+  <polyline points="780,336 680,336 680,368" fill="none" stroke="#bc4c00" stroke-width="3"/>
+  <polyline points="680,368 671,373 689,379 671,385 689,391 680,396" fill="none" stroke="#bc4c00" stroke-width="2.5"/>
+  <text x="640" y="382" text-anchor="end" font-size="10.5" fill="#7d4e00">100 k&#937;</text>
+  <circle cx="680" cy="400" r="4.5" fill="#bc4c00"/>
+  <polyline points="680,404 671,409 689,415 671,421 689,427 680,432" fill="none" stroke="#1f2328" stroke-width="2.5"/>
+  <text x="640" y="418" text-anchor="end" font-size="10.5" fill="#1f2328">47 k&#937;</text>
+  <polyline points="680,432 680,450" fill="none" stroke="#1f2328" stroke-width="3"/>
+  <line x1="669" y1="450" x2="691" y2="450" stroke="#1f2328" stroke-width="3"/>
+  <line x1="673" y1="455" x2="687" y2="455" stroke="#1f2328" stroke-width="3"/>
+  <line x1="676" y1="460" x2="684" y2="460" stroke="#1f2328" stroke-width="3"/>
+  <text x="680" y="474" text-anchor="middle" font-size="9.5" fill="#57606a">to star</text>
+  <polyline points="680,400 856,400" fill="none" stroke="#57606a" stroke-width="2" stroke-dasharray="6 3"/>
+  <text x="694" y="394" font-size="9.5" fill="#57606a">OUT_SENSE_TAP &#8594; ADS1115 A0</text>
+  <text x="694" y="414" font-size="9.5" fill="#57606a">8.4 V &#8594; 2.685 V, under VDD and FSR</text>
+
+  <rect x="900" y="330" width="260" height="150" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="1030" y="354" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0a3069">TB6612FNG</text>
+  <text x="1030" y="372" text-anchor="middle" font-size="11" fill="#0a3069">dual H-bridge, 1 A cont / 3 A pk per ch</text>
+  <text x="914" y="394" font-size="10.5" fill="#0a3069">VM &#8592; VBAT (2.00 A pk)   VCC &#8592; 3.3 V</text>
+  <text x="914" y="410" font-size="10.5" fill="#0a3069">1000 &#181;F + 0.1 &#181;F across VM&#8211;GND</text>
+  <text x="914" y="428" font-size="10.5" font-weight="700" fill="#cf222e">VCC is 3.3 V. 5 V here kills Pi-M GPIO.</text>
+  <text x="914" y="446" font-size="10" fill="#57606a">reverse protection covers VM only</text>
+  <text x="914" y="466" font-size="10.5" font-weight="700" fill="#8250df">STBY 100 k&#937; pull-down &#8594; star</text>
+
+  <!-- VBAT taps -->
+  <polyline points="120,300 120,330" fill="none" stroke="#bc4c00" stroke-width="5"/><circle cx="120" cy="300" r="5" fill="#bc4c00"/>
+  <text x="128" y="322" font-size="9.5" fill="#57606a">VBAT_BUCK5_IN</text>
+  <polyline points="400,300 400,330" fill="none" stroke="#bc4c00" stroke-width="5"/><circle cx="400" cy="300" r="5" fill="#bc4c00"/>
+  <text x="408" y="322" font-size="9.5" fill="#57606a">VBAT_BUCK6_IN</text>
+  <polyline points="780,300 780,330" fill="none" stroke="#bc4c00" stroke-width="3"/><circle cx="780" cy="300" r="5" fill="#bc4c00"/>
+  <text x="788" y="291" font-size="9.5" fill="#57606a">VBAT_SENSE</text>
+  <polyline points="1000,300 1000,330" fill="none" stroke="#bc4c00" stroke-width="5"/><circle cx="1000" cy="300" r="5" fill="#bc4c00"/>
+  <text x="1008" y="322" font-size="9.5" fill="#57606a">VBAT_VM 18 AWG, 2.00 A pk</text>
+
+  <!-- converter ground symbols -->
+  <polyline points="250,480 250,494" fill="none" stroke="#1f2328" stroke-width="4"/>
+  <line x1="239" y1="494" x2="261" y2="494" stroke="#1f2328" stroke-width="3"/><line x1="243" y1="499" x2="257" y2="499" stroke="#1f2328" stroke-width="3"/><line x1="246" y1="504" x2="254" y2="504" stroke="#1f2328" stroke-width="3"/>
+  <text x="268" y="500" font-size="9.5" fill="#57606a">GND_BUCK5</text>
+  <polyline points="360,480 360,494" fill="none" stroke="#1f2328" stroke-width="4"/>
+  <line x1="349" y1="494" x2="371" y2="494" stroke="#1f2328" stroke-width="3"/><line x1="353" y1="499" x2="367" y2="499" stroke="#1f2328" stroke-width="3"/><line x1="356" y1="504" x2="364" y2="504" stroke="#1f2328" stroke-width="3"/>
+  <text x="378" y="508" font-size="9.5" fill="#57606a">GND_BUCK6</text>
+  <polyline points="1160,440 1230,440 1230,456" fill="none" stroke="#1f2328" stroke-width="4"/>
+  <line x1="1219" y1="456" x2="1241" y2="456" stroke="#1f2328" stroke-width="3"/><line x1="1223" y1="461" x2="1237" y2="461" stroke="#1f2328" stroke-width="3"/><line x1="1226" y1="466" x2="1234" y2="466" stroke="#1f2328" stroke-width="3"/>
+  <text x="1248" y="462" font-size="9.5" fill="#57606a">GND_MOTOR 18 AWG &#8594; star</text>
+
+  <!-- ============ BAND 4: drive motors ============ -->
+  <rect x="900" y="510" width="310" height="140" rx="8" fill="#f0f0f8" stroke="#6e7781" stroke-width="2"/>
+  <text x="1055" y="532" text-anchor="middle" font-size="13" font-weight="700" fill="#24292f">Drive gearmotor LEFT (channel A)</text>
+  <text x="914" y="552" font-size="10.5" fill="#1f2328">Pololu #5218, 150:1 HPCB 12 V, 12 CPR, back connector</text>
+  <text x="914" y="570" font-size="10.5" fill="#1f2328"><tspan fill="#cf222e" font-weight="700">RED</tspan> M1 &#8594; AO2   <tspan font-weight="700">BLK</tspan> M2 &#8594; AO1   (bench crossover)</text>
+  <text x="914" y="588" font-size="10.5" fill="#1f2328"><tspan fill="#0969da" font-weight="700">BLU</tspan> Vcc &#8594; 3.3 V-M   <tspan fill="#1a7f37" font-weight="700">GRN</tspan> GND &#8594; Pi-M pin 14</text>
+  <text x="914" y="606" font-size="10.5" fill="#1f2328"><tspan fill="#9a6700" font-weight="700">YEL</tspan> A &#8594; GPIO17   <tspan fill="#6e7781" font-weight="700">WHT</tspan> B &#8594; GPIO27</text>
+  <text x="914" y="628" font-size="10" fill="#57606a">6-pin JST SH 1.0 mm, 28 AWG supplied cable</text>
+
+  <rect x="1290" y="510" width="310" height="140" rx="8" fill="#f0f0f8" stroke="#6e7781" stroke-width="2"/>
+  <text x="1445" y="532" text-anchor="middle" font-size="13" font-weight="700" fill="#24292f">Drive gearmotor RIGHT (channel B)</text>
+  <text x="1304" y="552" font-size="10.5" fill="#1f2328">Pololu #5218, identical part, no left/right variant</text>
+  <text x="1304" y="570" font-size="10.5" fill="#1f2328"><tspan fill="#cf222e" font-weight="700">RED</tspan> M1 &#8594; BO1   <tspan font-weight="700">BLK</tspan> M2 &#8594; BO2</text>
+  <text x="1304" y="588" font-size="10.5" fill="#1f2328"><tspan fill="#0969da" font-weight="700">BLU</tspan> Vcc &#8594; 3.3 V-M   <tspan fill="#1a7f37" font-weight="700">GRN</tspan> GND &#8594; Pi-M pin 14</text>
+  <text x="1304" y="606" font-size="10.5" fill="#1f2328"><tspan fill="#9a6700" font-weight="700">YEL</tspan> A &#8594; GPIO23   <tspan fill="#6e7781" font-weight="700">WHT</tspan> B &#8594; GPIO22   (A/B crossover)</text>
+  <text x="1304" y="628" font-size="10" fill="#57606a">6-pin JST SH 1.0 mm, 28 AWG supplied cable</text>
+
+  <!-- driver outputs to motors -->
+  <polyline points="950,480 950,510" fill="none" stroke="#cf222e" stroke-width="3.5"/>
+  <polyline points="990,480 990,510" fill="none" stroke="#1f2328" stroke-width="3.5"/>
+  <text x="944" y="502" font-size="9.5" fill="#57606a">OUT_MOT_L</text>
+  <polyline points="1080,480 1080,492 1350,492 1350,510" fill="none" stroke="#cf222e" stroke-width="3.5"/>
+  <polyline points="1120,480 1120,502 1390,502 1390,510" fill="none" stroke="#1f2328" stroke-width="3.5"/>
+  <text x="1300" y="486" font-size="9.5" fill="#57606a">OUT_MOT_R</text>
+
+  <!-- ============ DETAIL: STBY interlock ============ -->
+  <rect x="340" y="516" width="520" height="134" rx="8" fill="#faf5ff" stroke="#8250df" stroke-width="2"/>
+  <text x="356" y="538" font-size="12.5" font-weight="700" fill="#6639ba">TB6612 STBY interlock &#8212; the primary fail-safe</text>
+  <polyline points="360,566 430,566" fill="none" stroke="#57606a" stroke-width="2" stroke-dasharray="6 3"/>
+  <circle cx="360" cy="566" r="4" fill="#57606a"/>
+  <text x="356" y="554" font-size="10.5" fill="#1f2328">GPIO20, Pi-M pin 38</text>
+  <circle cx="430" cy="560" r="4" fill="#8250df"/>
+  <text x="440" y="563" font-size="10.5" fill="#1f2328">TB6612 STBY</text>
+  <text x="440" y="576" font-size="9.5" fill="#57606a">SIG_STBY, 26 AWG</text>
+  <polyline points="430,566 430,578 421,583 439,589 421,595 439,601 430,606 430,620" fill="none" stroke="#8250df" stroke-width="2.5"/>
+  <text x="446" y="594" font-size="10.5" font-weight="700" fill="#8250df">100 k&#937;</text>
+  <line x1="419" y1="620" x2="441" y2="620" stroke="#1f2328" stroke-width="3"/><line x1="423" y1="625" x2="437" y2="625" stroke="#1f2328" stroke-width="3"/><line x1="426" y1="630" x2="434" y2="630" stroke="#1f2328" stroke-width="3"/>
+  <text x="430" y="644" text-anchor="middle" font-size="9.5" fill="#57606a">to star</text>
+  <text x="560" y="560" font-size="10.5" fill="#1f2328">Motors are off on boot, off after a crash, and off</text>
+  <text x="560" y="576" font-size="10.5" fill="#1f2328">whenever GPIO20 floats. Fit the pull-down at the</text>
+  <text x="560" y="592" font-size="10.5" fill="#1f2328">TB6612 end, not at the Pi. Confirm with a meter</text>
+  <text x="560" y="608" font-size="10.5" fill="#1f2328">that STBY reads low with Pi-M unpowered, before</text>
+  <text x="560" y="624" font-size="10.5" fill="#1f2328">the VM lead is ever fitted.</text>
+
+  <!-- ============ DETAIL: rail summary ============ -->
+  <rect x="130" y="516" width="200" height="134" rx="8" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+  <text x="144" y="536" font-size="12" font-weight="700" fill="#1f2328">Rail peaks vs rating</text>
+  <text x="144" y="556" font-size="10.5" fill="#bc4c00">VBAT   2.00 A of 7.5 A fuse</text>
+  <text x="144" y="573" font-size="10.5" fill="#d1242f">5 V      2.60 A of 5 A buck</text>
+  <text x="144" y="590" font-size="10.5" fill="#8250df">6 V      3.00 A of 5 A buck</text>
+  <text x="144" y="607" font-size="10.5" fill="#bf3989">3.3 V   0.09 A, Pi header pins</text>
+  <text x="144" y="628" font-size="10.5" font-weight="700" fill="#1f2328">At the fuse: 6.65 A of 7.5 A</text>
+  <text x="144" y="643" font-size="9.5" fill="#cf222e">11 % margin. Blade fuse, not fast-blow.</text>
+
+  <!-- ============ 3.3 V (Pi-M) BUS ============ -->
+  <line x1="200" y1="675" x2="1560" y2="675" stroke="#bf3989" stroke-width="4"/>
+  <text x="1568" y="679" font-size="11.5" font-weight="700" fill="#bf3989">3.3 V-M</text>
+  <polyline points="200,675 200,740" fill="none" stroke="#bf3989" stroke-width="4"/><circle cx="200" cy="675" r="5" fill="#bf3989"/>
+  <text x="208" y="666" font-size="9.5" fill="#57606a">Pi-M pins 1 and 17 (source)</text>
+  <polyline points="880,675 880,440 900,440" fill="none" stroke="#bf3989" stroke-width="3"/><circle cx="880" cy="675" r="5" fill="#bf3989"/>
+  <text x="874" y="664" text-anchor="end" font-size="9.5" fill="#bf3989">3V3M_TB_VCC</text>
+  <polyline points="770,675 770,740" fill="none" stroke="#bf3989" stroke-width="3"/><circle cx="770" cy="675" r="5" fill="#bf3989"/>
+  <polyline points="1050,675 1050,650" fill="none" stroke="#bf3989" stroke-width="3"/><circle cx="1050" cy="675" r="5" fill="#bf3989"/>
+  <polyline points="1450,675 1450,650" fill="none" stroke="#bf3989" stroke-width="3"/><circle cx="1450" cy="675" r="5" fill="#bf3989"/>
+  <text x="1058" y="668" font-size="9.5" fill="#bf3989">3V3M_ENC</text>
+  <text x="1458" y="668" font-size="9.5" fill="#bf3989">3V3M_ENC</text>
+
+  <!-- ============ 5 V BUS ============ -->
+  <line x1="60" y1="705" x2="1600" y2="705" stroke="#d1242f" stroke-width="5"/>
+  <text x="1090" y="698" font-size="12.5" font-weight="700" fill="#d1242f">5 V rail &#8212; 2.60 A peak of a 5 A buck</text>
+  <polyline points="100,480 100,705" fill="none" stroke="#d1242f" stroke-width="5"/>
+  <polyline points="100,705 100,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="100" cy="705" r="5" fill="#d1242f"/>
+  <polyline points="400,705 400,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="400" cy="705" r="5" fill="#d1242f"/>
+  <polyline points="960,705 960,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="960" cy="705" r="5" fill="#d1242f"/>
+  <polyline points="1060,705 1060,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="1060" cy="705" r="5" fill="#d1242f"/>
+  <polyline points="1330,705 1330,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="1330" cy="705" r="5" fill="#d1242f"/>
+  <polyline points="1545,705 1545,740" fill="none" stroke="#d1242f" stroke-width="4"/><circle cx="1545" cy="705" r="5" fill="#d1242f"/>
+
+  <!-- ============ 6 V drop and bus ============ -->
+  <polyline points="460,480 460,492 645,492 645,985" fill="none" stroke="#8250df" stroke-width="5"/>
+  <line x1="645" y1="985" x2="1600" y2="985" stroke="#8250df" stroke-width="5"/>
+  <text x="655" y="1006" font-size="12.5" font-weight="700" fill="#8250df">6 V servo rail</text>
+  <polyline points="1000,985 1000,1015" fill="none" stroke="#8250df" stroke-width="5"/><circle cx="1000" cy="985" r="5" fill="#8250df"/>
+
+  <!-- ============ BAND 5: compute and 5 V loads ============ -->
+  <rect x="60" y="740" width="270" height="230" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="195" y="762" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1a7f37">Pi-M &#8212; Pi Zero 2 W (motion)</text>
+  <text x="74" y="782" font-size="10.5" fill="#1f2328">5 V pin 2 &#8592; 5V_PI_M, 0.40 A pk, 20 AWG</text>
+  <text x="74" y="798" font-size="10.5" fill="#1f2328">GND pin 6 &#8594; star, 20 AWG</text>
+  <text x="74" y="814" font-size="10.5" fill="#bf3989">3.3 V pins 1, 17 &#8594; sensors, encoders, TB6612 VCC</text>
+  <text x="74" y="834" font-size="10.5" font-weight="700" fill="#57606a">Signals out</text>
+  <text x="74" y="850" font-size="10" fill="#1f2328">TB6612: 12 PWMA, 5 AIN1, 6 AIN2, 13 PWMB,</text>
+  <text x="74" y="864" font-size="10" fill="#1f2328">16 BIN1, 26 BIN2, 20 STBY</text>
+  <text x="74" y="880" font-size="10" fill="#1f2328">Encoders: L 17/27, R 23/22 (A/B crossed)</text>
+  <text x="74" y="896" font-size="10" fill="#1f2328">I&#178;C 2/3: 0x29 ToF, 0x68 IMU, 0x48 ADC</text>
+  <text x="74" y="912" font-size="10" fill="#1f2328">ToF: 24 XSHUT, 25 INT</text>
+  <text x="74" y="928" font-size="10" fill="#1f2328">UART 14/15 &#8594; bus servo adapter</text>
+  <text x="74" y="944" font-size="10" fill="#1f2328">SPI0 MOSI 10 &#8594; 74AHCT125 &#8594; eyes + gauge</text>
+  <text x="74" y="962" font-size="9.5" fill="#cf222e">UART needs dtoverlay=disable-bt</text>
+
+  <rect x="360" y="740" width="270" height="230" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="495" y="762" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1a7f37">Pi-V &#8212; Pi Zero 2 W (vision)</text>
+  <text x="374" y="782" font-size="10.5" fill="#1f2328">5 V pin 2 &#8592; 5V_PI_V, 0.40 A pk, 20 AWG</text>
+  <text x="374" y="798" font-size="10.5" fill="#1f2328">GND pin 6 &#8594; star, 20 AWG</text>
+  <text x="374" y="814" font-size="10.5" fill="#bf3989">3.3 V pin 1 &#8594; INMP441 (3V3V_MIC, 26 AWG)</text>
+  <text x="374" y="834" font-size="10.5" font-weight="700" fill="#57606a">Signals out</text>
+  <text x="374" y="850" font-size="10" fill="#1f2328">I&#178;S 18 BCLK, 19 LRCLK (both shared)</text>
+  <text x="374" y="866" font-size="10" fill="#1f2328">I&#178;S 20 DIN &#8592; mic, 21 DOUT &#8594; amp</text>
+  <text x="374" y="882" font-size="10" fill="#1f2328">SPI0 MOSI 10 &#8594; 74AHCT125 &#8594; mouth array</text>
+  <text x="374" y="898" font-size="10" fill="#1f2328">PWM 13 &#8594; MOSFET gate, navigation light</text>
+  <text x="374" y="914" font-size="10" fill="#1f2328">CSI camera ribbon, not GPIO</text>
+  <text x="374" y="936" font-size="9.5" fill="#cf222e">mic and amp share one I&#178;S bus: custom</text>
+  <text x="374" y="950" font-size="9.5" fill="#cf222e">simple-audio-card overlay required (O1)</text>
+
+  <rect x="660" y="740" width="220" height="150" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="2"/>
+  <text x="770" y="762" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7d4e00">Pi-M I&#178;C sensors</text>
+  <text x="674" y="782" font-size="10.5" fill="#bf3989">3V3M_SENSORS, 0.05 A pk, 26 AWG</text>
+  <text x="674" y="800" font-size="10.5" fill="#1f2328">VL53L1X 0x29 ToF, XSHUT 24, INT 25</text>
+  <text x="674" y="818" font-size="10.5" fill="#1f2328">MPU-6050 0x68 &#8212; IMU</text>
+  <text x="674" y="836" font-size="10.5" fill="#1f2328">ADS1115 0x48, A0 &#8592; OUT_SENSE_TAP</text>
+  <text x="674" y="856" font-size="10" fill="#57606a">4-pin JST-XH each; pull-ups on carriers</text>
+  <text x="674" y="874" font-size="10" fill="#57606a">GND_SIG_M returns via Pi-M pin 9</text>
+
+  <rect x="920" y="740" width="320" height="230" rx="8" fill="#faf5ff" stroke="#8250df" stroke-width="2"/>
+  <text x="1080" y="762" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6639ba">WS2812B strings + 74AHCT125 shifters</text>
+  <text x="934" y="784" font-size="10.5" font-weight="700" fill="#1f2328">Pi-M chain &#8212; 5V_LED_M, 0.23 A pk, 22 AWG</text>
+  <text x="934" y="800" font-size="10" fill="#1f2328">2&#215; eye pixel + 5-pixel battery gauge, 7 total</text>
+  <text x="934" y="816" font-size="10" fill="#1f2328">GPIO10 &#8594; 74AHCT125 (Pi-M) &#8594; 330 &#937; &#8594; DIN</text>
+  <text x="934" y="838" font-size="10.5" font-weight="700" fill="#1f2328">Pi-V mouth &#8212; 5V_LED_V, 0.27 A pk, 22 AWG</text>
+  <text x="934" y="854" font-size="10" fill="#1f2328">8-pixel stick, centre-out during speech</text>
+  <text x="934" y="870" font-size="10" fill="#1f2328">GPIO10 &#8594; 74AHCT125 (Pi-V) &#8594; 330 &#937; &#8594; DIN</text>
+  <text x="934" y="892" font-size="10" fill="#57606a">Shifters run on 5 V so DIN sees a true 5 V logic</text>
+  <text x="934" y="906" font-size="10" fill="#57606a">high. OE1 to GND; unused inputs to GND and</text>
+  <text x="934" y="920" font-size="10" fill="#57606a">unused OE pins to VCC. 0.1 &#181;F at each VCC.</text>
+  <text x="934" y="942" font-size="10" fill="#cf222e">Data is SPI0 MOSI, not PWM: PWM0/1 are the motors.</text>
+  <text x="934" y="958" font-size="10" fill="#57606a">3-pin JST-XH 2.54 per string: 5 V, DIN, GND.</text>
+
+  <rect x="1270" y="740" width="190" height="230" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="1365" y="762" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0a3069">Pi-V audio</text>
+  <text x="1284" y="784" font-size="10.5" fill="#bf3989">INMP441 mic</text>
+  <text x="1284" y="800" font-size="10" fill="#1f2328">3V3V_MIC 0.01 A, L/R to GND</text>
+  <text x="1284" y="816" font-size="10" fill="#1f2328">SD &#8594; GPIO20, SCK/WS shared</text>
+  <text x="1284" y="840" font-size="10.5" fill="#d1242f">MAX98357A amplifier</text>
+  <text x="1284" y="856" font-size="10" fill="#1f2328">5V_AMP 1.00 A pk, 22 AWG</text>
+  <text x="1284" y="872" font-size="10" fill="#1f2328">DIN &#8592; GPIO21, 0.1 &#181;F at VIN</text>
+  <text x="1284" y="888" font-size="10" fill="#1f2328">SD_MODE sets gain and channel</text>
+  <text x="1284" y="912" font-size="10.5" fill="#1f2328">Speaker 8 &#937;, 3 W</text>
+  <text x="1284" y="928" font-size="10" fill="#1f2328">OUT_SPK, 2-pin JST-PH 2.0</text>
+  <text x="1284" y="946" font-size="10" font-weight="700" fill="#cf222e">bridge-tied: neither leg is</text>
+  <text x="1284" y="959" font-size="10" font-weight="700" fill="#cf222e">ground. Do not tie to star.</text>
+
+  <rect x="1466" y="740" width="134" height="150" rx="8" fill="#fff8c5" stroke="#bf8700" stroke-width="2"/>
+  <text x="1533" y="762" text-anchor="middle" font-size="12" font-weight="700" fill="#7d4e00">Nav light</text>
+  <text x="1478" y="782" font-size="10" fill="#1f2328">1 W neutral white</text>
+  <text x="1478" y="798" font-size="10" fill="#1f2328">5V_NAVLIGHT</text>
+  <text x="1478" y="814" font-size="10" fill="#1f2328">0.30 A pk, 22 AWG</text>
+  <text x="1478" y="834" font-size="10" fill="#1f2328">MOSFET low side</text>
+  <text x="1478" y="850" font-size="10" fill="#1f2328">gate &#8592; GPIO13</text>
+  <text x="1478" y="868" font-size="10" fill="#57606a">OUT_NAV_LED to</text>
+  <text x="1478" y="881" font-size="10" fill="#57606a">the drain</text>
+
+  <!-- ============ BAND 6: servo bus ============ -->
+  <rect x="900" y="1015" width="280" height="115" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="1040" y="1037" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a7f37">Waveshare Bus Servo Adapter (A)</text>
+  <text x="914" y="1057" font-size="10.5" fill="#8250df">V+ &#8592; 6V_SERVO_BUS, 3.00 A pk, 18 AWG</text>
+  <text x="914" y="1073" font-size="10.5" fill="#1f2328">GND &#8594; star on its own 18 AWG conductor</text>
+  <text x="914" y="1089" font-size="10.5" fill="#1f2328">RXD &#8592; GPIO14, TXD &#8594; GPIO15 (half duplex)</text>
+  <text x="914" y="1107" font-size="10" fill="#57606a">1000 &#181;F at the adapter input</text>
+  <text x="914" y="1123" font-size="10" fill="#57606a">SC/ST half-duplex UART, 1 Mbps</text>
+
+  <rect x="1210" y="1015" width="240" height="115" rx="8" fill="#dafbe1" stroke="#2da44e" stroke-width="2"/>
+  <text x="1330" y="1037" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a7f37">SCS0009 &#215; 6</text>
+  <text x="1224" y="1057" font-size="10.5" fill="#1f2328">OUT_SERVO_BUS, daisy chain</text>
+  <text x="1224" y="1073" font-size="10" fill="#1f2328">1 L shoulder, 2 R shoulder, 3 head yaw,</text>
+  <text x="1224" y="1087" font-size="10" fill="#1f2328">4 head nod, 5 box tilt, 6 brow roll</text>
+  <text x="1224" y="1105" font-size="10" fill="#57606a">Feetech 3-pin 1.25 mm, power and data</text>
+  <text x="1224" y="1121" font-size="10" font-weight="700" fill="#cf222e">6.0 V max 7.4 V. Never battery-direct.</text>
+
+  <!-- lower-band ground drops -->
+  <polyline points="150,970 150,1190" fill="none" stroke="#1f2328" stroke-width="4"/><circle cx="150" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="158" y="1010" font-size="9.5" fill="#57606a">GND_PI_M</text>
+  <polyline points="450,970 450,1190" fill="none" stroke="#1f2328" stroke-width="4"/><circle cx="450" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="458" y="1010" font-size="9.5" fill="#57606a">GND_PI_V</text>
+  <polyline points="800,890 800,1190" fill="none" stroke="#1f2328" stroke-width="3"/><circle cx="800" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="808" y="930" font-size="9.5" fill="#57606a">GND_SIG_M via Pi-M</text>
+  <polyline points="1195,970 1195,1190" fill="none" stroke="#1f2328" stroke-width="3.5"/><circle cx="1195" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="1203" y="1000" font-size="9.5" fill="#57606a">GND_LED_M, GND_LED_V</text>
+  <polyline points="1400,970 1400,995 1500,995 1500,1190" fill="none" stroke="#1f2328" stroke-width="3.5"/><circle cx="1500" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="1508" y="1030" font-size="9.5" fill="#57606a">GND_AMP</text>
+  <polyline points="1545,890 1545,1190" fill="none" stroke="#1f2328" stroke-width="3.5"/><circle cx="1545" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="1553" y="930" font-size="9.5" fill="#57606a">GND_NAV</text>
+  <polyline points="1040,1130 1040,1190" fill="none" stroke="#1f2328" stroke-width="5"/><circle cx="1040" cy="1190" r="4.5" fill="#1f2328"/>
+  <text x="1048" y="1155" font-size="9.5" fill="#57606a">GND_SERVO 18 AWG</text>
+
+  <!-- ============ GROUND BUS ============ -->
+  <line x1="45" y1="1190" x2="1600" y2="1190" stroke="#1f2328" stroke-width="6"/>
+  <text x="60" y="1212" font-size="12.5" font-weight="700" fill="#1f2328">GND &#8212; drawn as a bus, wired as a single star point on the distribution board. Every return above lands here and nowhere else.</text>
+
+  <g transform="translate(0,18)">
+  <!-- ============ COMPLETE CONNECTION LIST ============ -->
+  <text x="60" y="1268" font-size="16" font-weight="700" fill="#1f2328">Complete connection list &#8212; 64 nets</text>
+  <text x="480" y="1268" font-size="11" fill="#57606a">Authoritative copy with full notes: docs/HARDWARE_power_harness.md. scripts/check_harness_nets.py asserts the two carry the same net names.</text>
+  <rect x="60" y="1278" width="1540" height="24" fill="#1f2328"/>
+  <text x="72" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">Net</text>
+  <text x="252" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">From</text>
+  <text x="600" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">To</text>
+  <text x="906" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">Gauge</text>
+  <text x="1024" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">Connector</text>
+  <text x="1236" y="1295" fill="#ffffff" font-size="11.5" font-weight="700">Note</text>
+  <g font-size="10">
+    <text x="72" y="1308" font-size="11" font-weight="700" fill="#0a3069">VBAT trunk and the battery-direct motor rail</text>
+    <rect x="60" y="1313" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1326" font-weight="700" fill="#1f2328">VBAT_PACK</text>
+    <text x="252" y="1326" fill="#1f2328">Battery XT60 (+)</text>
+    <text x="600" y="1326" fill="#1f2328">Fuse holder, line side</text>
+    <text x="906" y="1326" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1326" fill="#1f2328">XT60 pair</text>
+    <text x="1236" y="1326" fill="#57606a">[reflected] The only conductor upstream of the fuse. Keep…</text>
+    <text x="72" y="1344" font-weight="700" fill="#1f2328">VBAT_FUSED</text>
+    <text x="252" y="1344" fill="#1f2328">Fuse holder, load side</text>
+    <text x="600" y="1344" fill="#1f2328">Master switch, terminal 1</text>
+    <text x="906" y="1344" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1344" fill="#1f2328">6.35 mm insulated spade</text>
+    <text x="1236" y="1344" fill="#57606a">[reflected] 7.5 A inline blade fuse. Fuse before switch,…</text>
+    <rect x="60" y="1349" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1362" font-weight="700" fill="#1f2328">VBAT_SW</text>
+    <text x="252" y="1362" fill="#1f2328">Master switch, terminal 2</text>
+    <text x="600" y="1362" fill="#1f2328">Distribution board VBAT pad</text>
+    <text x="906" y="1362" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1362" fill="#1f2328">6.35 mm insulated spade</text>
+    <text x="1236" y="1362" fill="#57606a">[reflected] Everything downstream is dead with the switch…</text>
+    <text x="72" y="1380" font-weight="700" fill="#1f2328">VBAT_VM</text>
+    <text x="252" y="1380" fill="#1f2328">Distribution board VBAT pad</text>
+    <text x="600" y="1380" fill="#1f2328">TB6612 VM</text>
+    <text x="906" y="1380" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1380" fill="#1f2328">soldered to breakout pad</text>
+    <text x="1236" y="1380" fill="#57606a">[peak 2.00 A] 1000 µF electrolytic plus 0.1 µF ceramic ac…</text>
+    <rect x="60" y="1385" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1398" font-weight="700" fill="#1f2328">VBAT_BUCK5_IN</text>
+    <text x="252" y="1398" fill="#1f2328">Distribution board VBAT pad</text>
+    <text x="600" y="1398" fill="#1f2328">Buck converter (5 V) IN+</text>
+    <text x="906" y="1398" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1398" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1398" fill="#57606a">[reflected] Set the output to 5.0 V on the bench before a…</text>
+    <text x="72" y="1416" font-weight="700" fill="#1f2328">VBAT_BUCK6_IN</text>
+    <text x="252" y="1416" fill="#1f2328">Distribution board VBAT pad</text>
+    <text x="600" y="1416" fill="#1f2328">Buck converter (6 V) IN+</text>
+    <text x="906" y="1416" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1416" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1416" fill="#57606a">[reflected] Set the output to 6.0 V on the bench before a…</text>
+    <rect x="60" y="1421" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1434" font-weight="700" fill="#1f2328">VBAT_SENSE</text>
+    <text x="252" y="1434" fill="#1f2328">Distribution board VBAT pad</text>
+    <text x="600" y="1434" fill="#1f2328">ADS1115 sense divider, 100 kΩ upper leg</text>
+    <text x="906" y="1434" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="1434" fill="#1f2328">soldered on the distribution bo…</text>
+    <text x="1236" y="1434" fill="#57606a">[peak 0.00 A] 57 uA at 8.4 V. Downstream of the switch, s…</text>
+    <text x="72" y="1460" font-size="11" font-weight="700" fill="#0a3069">5 V rail</text>
+    <rect x="60" y="1465" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1478" font-weight="700" fill="#1f2328">5V_PI_M</text>
+    <text x="252" y="1478" fill="#1f2328">Buck converter (5 V) OUT+</text>
+    <text x="600" y="1478" fill="#1f2328">Pi-M 5 V (pin 2)</text>
+    <text x="906" y="1478" fill="#1f2328">20 AWG silicone</text>
+    <text x="1024" y="1478" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="1478" fill="#57606a">[peak 0.40 A] 1000 µF electrolytic across the 5 V rail at…</text>
+    <text x="72" y="1496" font-weight="700" fill="#1f2328">5V_PI_V</text>
+    <text x="252" y="1496" fill="#1f2328">Buck converter (5 V) OUT+</text>
+    <text x="600" y="1496" fill="#1f2328">Pi-V 5 V (pin 2)</text>
+    <text x="906" y="1496" fill="#1f2328">20 AWG silicone</text>
+    <text x="1024" y="1496" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="1496" fill="#57606a">[peak 0.40 A] Runs up through the torso. Keep it clear of…</text>
+    <rect x="60" y="1501" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1514" font-weight="700" fill="#1f2328">5V_LED_M</text>
+    <text x="252" y="1514" fill="#1f2328">Distribution board 5 V pad</text>
+    <text x="600" y="1514" fill="#1f2328">WS2812B eye pixels and battery gauge + 74AHCT125…</text>
+    <text x="906" y="1514" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1514" fill="#1f2328">3-pin JST-XH 2.54 (5 V, DIN, GN…</text>
+    <text x="1236" y="1514" fill="#57606a">[peak 0.23 A] Seven pixels, two eyes plus a five-pixel ga…</text>
+    <text x="72" y="1532" font-weight="700" fill="#1f2328">5V_LED_V</text>
+    <text x="252" y="1532" fill="#1f2328">Distribution board 5 V pad</text>
+    <text x="600" y="1532" fill="#1f2328">WS2812B mouth array + 74AHCT125 (Pi-V) VCC</text>
+    <text x="906" y="1532" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1532" fill="#1f2328">3-pin JST-XH 2.54 (5 V, DIN, GN…</text>
+    <text x="1236" y="1532" fill="#57606a">[peak 0.27 A] Eight pixels. 0.1 µF ceramic at the shifter…</text>
+    <rect x="60" y="1537" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1550" font-weight="700" fill="#1f2328">5V_AMP</text>
+    <text x="252" y="1550" fill="#1f2328">Distribution board 5 V pad</text>
+    <text x="600" y="1550" fill="#1f2328">MAX98357A VIN</text>
+    <text x="906" y="1550" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1550" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="1550" fill="#57606a">[peak 1.00 A] Largest transient on the rail. 0.1 µF ceram…</text>
+    <text x="72" y="1568" font-weight="700" fill="#1f2328">5V_NAVLIGHT</text>
+    <text x="252" y="1568" fill="#1f2328">Distribution board 5 V pad</text>
+    <text x="600" y="1568" fill="#1f2328">Navigation light LED module, anode</text>
+    <text x="906" y="1568" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1568" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="1568" fill="#57606a">[peak 0.30 A] Switched on the low side. The module carrie…</text>
+    <text x="72" y="1594" font-size="11" font-weight="700" fill="#0a3069">6 V servo rail</text>
+    <rect x="60" y="1599" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1612" font-weight="700" fill="#1f2328">6V_SERVO_BUS</text>
+    <text x="252" y="1612" fill="#1f2328">Buck converter (6 V) OUT+</text>
+    <text x="600" y="1612" fill="#1f2328">Waveshare Bus Servo Adapter V+</text>
+    <text x="906" y="1612" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1612" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1612" fill="#57606a">[peak 3.00 A] 1000 µF electrolytic at the adapter input.…</text>
+    <text x="72" y="1638" font-size="11" font-weight="700" fill="#0a3069">3.3 V from the Pi-M header</text>
+    <rect x="60" y="1643" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1656" font-weight="700" fill="#1f2328">3V3M_SENSORS</text>
+    <text x="252" y="1656" fill="#1f2328">Pi-M 3.3 V (pin 1)</text>
+    <text x="600" y="1656" fill="#1f2328">VL53L1X VIN + MPU-6050 VCC + ADS1115 VDD</text>
+    <text x="906" y="1656" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="1656" fill="#1f2328">4-pin JST-XH 2.54 per device</text>
+    <text x="1236" y="1656" fill="#57606a">[peak 0.05 A] Three devices on one supply and one I²C bus.</text>
+    <text x="72" y="1674" font-weight="700" fill="#1f2328">3V3M_ENC</text>
+    <text x="252" y="1674" fill="#1f2328">Pi-M 3.3 V (pin 17)</text>
+    <text x="600" y="1674" fill="#1f2328">Drive gearmotor left encoder Vcc + Drive gearmoto…</text>
+    <text x="906" y="1674" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="1674" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="1674" fill="#57606a">[peak 0.02 A] 3.3 V so both encoder outputs are GPIO-safe.</text>
+    <rect x="60" y="1679" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1692" font-weight="700" fill="#1f2328">3V3M_TB_VCC</text>
+    <text x="252" y="1692" fill="#1f2328">Pi-M 3.3 V (pin 17)</text>
+    <text x="600" y="1692" fill="#1f2328">TB6612 VCC</text>
+    <text x="906" y="1692" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="1692" fill="#1f2328">soldered to breakout pad</text>
+    <text x="1236" y="1692" fill="#57606a">[peak 0.01 A] Logic supply only. 5 V here would damage Pi…</text>
+    <text x="72" y="1718" font-size="11" font-weight="700" fill="#0a3069">3.3 V from the Pi-V header</text>
+    <rect x="60" y="1723" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1736" font-weight="700" fill="#1f2328">3V3V_MIC</text>
+    <text x="252" y="1736" fill="#1f2328">Pi-V 3.3 V (pin 1)</text>
+    <text x="600" y="1736" fill="#1f2328">INMP441 VDD</text>
+    <text x="906" y="1736" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="1736" fill="#1f2328">5-pin JST-XH 2.54</text>
+    <text x="1236" y="1736" fill="#57606a">[peak 0.01 A] L/R strapped to GND for the left channel.</text>
+    <text x="72" y="1762" font-size="11" font-weight="700" fill="#0a3069">Grounds, every one landing on the star</text>
+    <rect x="60" y="1767" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1780" font-weight="700" fill="#1f2328">GND_BATT</text>
+    <text x="252" y="1780" fill="#1f2328">Battery XT60 (-)</text>
+    <text x="600" y="1780" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1780" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1780" fill="#1f2328">XT60 pair</text>
+    <text x="1236" y="1780" fill="#57606a">The star point is the only place returns meet.</text>
+    <text x="72" y="1798" font-weight="700" fill="#1f2328">GND_MOTOR</text>
+    <text x="252" y="1798" fill="#1f2328">TB6612 GND</text>
+    <text x="600" y="1798" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1798" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1798" fill="#1f2328">soldered to breakout pad</text>
+    <text x="1236" y="1798" fill="#57606a">Own conductor, so motor return never shares a path with l…</text>
+    <rect x="60" y="1803" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1816" font-weight="700" fill="#1f2328">GND_SERVO</text>
+    <text x="252" y="1816" fill="#1f2328">Waveshare Bus Servo Adapter GND</text>
+    <text x="600" y="1816" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1816" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1816" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1816" fill="#57606a">Own conductor, for the same reason.</text>
+    <text x="72" y="1834" font-weight="700" fill="#1f2328">GND_BUCK5</text>
+    <text x="252" y="1834" fill="#1f2328">Buck converter (5 V) IN- and OUT-</text>
+    <text x="600" y="1834" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1834" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1834" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1834" fill="#57606a">Input and output returns are common inside the module.</text>
+    <rect x="60" y="1839" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1852" font-weight="700" fill="#1f2328">GND_BUCK6</text>
+    <text x="252" y="1852" fill="#1f2328">Buck converter (6 V) IN- and OUT-</text>
+    <text x="600" y="1852" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1852" fill="#1f2328">18 AWG silicone</text>
+    <text x="1024" y="1852" fill="#1f2328">screw terminal</text>
+    <text x="1236" y="1852" fill="#57606a">Input and output returns are common inside the module.</text>
+    <text x="72" y="1870" font-weight="700" fill="#1f2328">GND_PI_M</text>
+    <text x="252" y="1870" fill="#1f2328">Pi-M GND (pin 6)</text>
+    <text x="600" y="1870" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1870" fill="#1f2328">20 AWG</text>
+    <text x="1024" y="1870" fill="#1f2328">in the 5V_PI_M connector shell</text>
+    <text x="1236" y="1870" fill="#57606a">Pi-M power return.</text>
+    <rect x="60" y="1875" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1888" font-weight="700" fill="#1f2328">GND_PI_V</text>
+    <text x="252" y="1888" fill="#1f2328">Pi-V GND (pin 6)</text>
+    <text x="600" y="1888" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1888" fill="#1f2328">20 AWG</text>
+    <text x="1024" y="1888" fill="#1f2328">in the 5V_PI_V connector shell</text>
+    <text x="1236" y="1888" fill="#57606a">Pi-V power return.</text>
+    <text x="72" y="1906" font-weight="700" fill="#1f2328">GND_SIG_M</text>
+    <text x="252" y="1906" fill="#1f2328">Pi-M GND (pin 9)</text>
+    <text x="600" y="1906" fill="#1f2328">TB6612 GND + VL53L1X GND + MPU-6050 GND + ADS1115…</text>
+    <text x="906" y="1906" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="1906" fill="#1f2328">in each device connector shell</text>
+    <text x="1236" y="1906" fill="#57606a">Signal return local to Pi-M. Reaches the star through GND…</text>
+    <rect x="60" y="1911" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1924" font-weight="700" fill="#1f2328">GND_ENC</text>
+    <text x="252" y="1924" fill="#1f2328">Drive gearmotor left encoder GND + Drive gearmotor…</text>
+    <text x="600" y="1924" fill="#1f2328">Pi-M GND (pin 14)</text>
+    <text x="906" y="1924" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="1924" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="1924" fill="#57606a">Encoder return follows its signal pair back to the Pi, no…</text>
+    <text x="72" y="1942" font-weight="700" fill="#1f2328">GND_LED_M</text>
+    <text x="252" y="1942" fill="#1f2328">WS2812B eye pixels and battery gauge + 74AHCT125 (P…</text>
+    <text x="600" y="1942" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1942" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1942" fill="#1f2328">in the 5V_LED_M connector shell</text>
+    <text x="1236" y="1942" fill="#57606a"></text>
+    <rect x="60" y="1947" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1960" font-weight="700" fill="#1f2328">GND_LED_V</text>
+    <text x="252" y="1960" fill="#1f2328">WS2812B mouth array + 74AHCT125 (Pi-V) GND</text>
+    <text x="600" y="1960" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1960" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1960" fill="#1f2328">in the 5V_LED_V connector shell</text>
+    <text x="1236" y="1960" fill="#57606a"></text>
+    <text x="72" y="1978" font-weight="700" fill="#1f2328">GND_AMP</text>
+    <text x="252" y="1978" fill="#1f2328">MAX98357A GND</text>
+    <text x="600" y="1978" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1978" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1978" fill="#1f2328">in the 5V_AMP connector shell</text>
+    <text x="1236" y="1978" fill="#57606a"></text>
+    <rect x="60" y="1983" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="1996" font-weight="700" fill="#1f2328">GND_NAV</text>
+    <text x="252" y="1996" fill="#1f2328">MOSFET source</text>
+    <text x="600" y="1996" fill="#1f2328">Distribution board star ground</text>
+    <text x="906" y="1996" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="1996" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="1996" fill="#57606a">Low-side switch return.</text>
+    <text x="72" y="2014" font-weight="700" fill="#1f2328">GND_MIC</text>
+    <text x="252" y="2014" fill="#1f2328">INMP441 GND</text>
+    <text x="600" y="2014" fill="#1f2328">Pi-V GND (pin 9)</text>
+    <text x="906" y="2014" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2014" fill="#1f2328">in the INMP441 connector shell</text>
+    <text x="1236" y="2014" fill="#57606a"></text>
+    <text x="72" y="2040" font-size="11" font-weight="700" fill="#0a3069">Outputs and load-side conductors</text>
+    <rect x="60" y="2045" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2058" font-weight="700" fill="#1f2328">OUT_MOT_L</text>
+    <text x="252" y="2058" fill="#1f2328">TB6612 AO1, AO2</text>
+    <text x="600" y="2058" fill="#1f2328">Drive gearmotor left, M1 and M2</text>
+    <text x="906" y="2058" fill="#1f2328">22 AWG to the co…</text>
+    <text x="1024" y="2058" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2058" fill="#57606a">Bench-verified crossover: RED to AO2, BLK to AO1. Recorde…</text>
+    <text x="72" y="2076" font-weight="700" fill="#1f2328">OUT_MOT_R</text>
+    <text x="252" y="2076" fill="#1f2328">TB6612 BO1, BO2</text>
+    <text x="600" y="2076" fill="#1f2328">Drive gearmotor right, M1 and M2</text>
+    <text x="906" y="2076" fill="#1f2328">22 AWG to the co…</text>
+    <text x="1024" y="2076" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2076" fill="#57606a">RED to BO1, BLK to BO2, uncrossed.</text>
+    <rect x="60" y="2081" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2094" font-weight="700" fill="#1f2328">OUT_SERVO_BUS</text>
+    <text x="252" y="2094" fill="#1f2328">Waveshare Bus Servo Adapter servo port</text>
+    <text x="600" y="2094" fill="#1f2328">SCS0009 servo chain, six units daisy-chained</text>
+    <text x="906" y="2094" fill="#1f2328">22 AWG in the su…</text>
+    <text x="1024" y="2094" fill="#1f2328">Feetech 3-pin 1.25 mm</text>
+    <text x="1236" y="2094" fill="#57606a">6 V, GND and half-duplex data in one chain. IDs 1 to 6: l…</text>
+    <text x="72" y="2112" font-weight="700" fill="#1f2328">OUT_SPK</text>
+    <text x="252" y="2112" fill="#1f2328">MAX98357A OUT+ and OUT-</text>
+    <text x="600" y="2112" fill="#1f2328">Speaker</text>
+    <text x="906" y="2112" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="2112" fill="#1f2328">2-pin JST-PH 2.0</text>
+    <text x="1236" y="2112" fill="#57606a">Bridge-tied output. Neither leg is ground. Tying the minu…</text>
+    <rect x="60" y="2117" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2130" font-weight="700" fill="#1f2328">OUT_NAV_LED</text>
+    <text x="252" y="2130" fill="#1f2328">Navigation light LED module, cathode</text>
+    <text x="600" y="2130" fill="#1f2328">MOSFET drain</text>
+    <text x="906" y="2130" fill="#1f2328">22 AWG</text>
+    <text x="1024" y="2130" fill="#1f2328">2-pin JST-XH 2.54</text>
+    <text x="1236" y="2130" fill="#57606a">Switched on the low side so the gate stays referenced to…</text>
+    <text x="72" y="2148" font-weight="700" fill="#1f2328">OUT_SENSE_TAP</text>
+    <text x="252" y="2148" fill="#1f2328">ADS1115 sense divider midpoint, 100 kΩ over 47 kΩ</text>
+    <text x="600" y="2148" fill="#1f2328">ADS1115 A0</text>
+    <text x="906" y="2148" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2148" fill="#1f2328">soldered on the distribution bo…</text>
+    <text x="1236" y="2148" fill="#57606a">8.4 V divides to 2.685 V, inside both the 3.3 V VDD and t…</text>
+    <rect x="60" y="2153" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2166" font-weight="700" fill="#1f2328">OUT_LED_M_DATA</text>
+    <text x="252" y="2166" fill="#1f2328">74AHCT125 (Pi-M) Y1</text>
+    <text x="600" y="2166" fill="#1f2328">WS2812B eye pixels and battery gauge, DIN</text>
+    <text x="906" y="2166" fill="#1f2328">24 AWG</text>
+    <text x="1024" y="2166" fill="#1f2328">in the 5V_LED_M connector shell</text>
+    <text x="1236" y="2166" fill="#57606a">330 Ω in series at the shifter output.</text>
+    <text x="72" y="2184" font-weight="700" fill="#1f2328">OUT_LED_V_DATA</text>
+    <text x="252" y="2184" fill="#1f2328">74AHCT125 (Pi-V) Y1</text>
+    <text x="600" y="2184" fill="#1f2328">WS2812B mouth array, DIN</text>
+    <text x="906" y="2184" fill="#1f2328">24 AWG</text>
+    <text x="1024" y="2184" fill="#1f2328">in the 5V_LED_V connector shell</text>
+    <text x="1236" y="2184" fill="#57606a">330 Ω in series at the shifter output.</text>
+    <text x="72" y="2210" font-size="11" font-weight="700" fill="#0a3069">Signal conductors</text>
+    <rect x="60" y="2215" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2228" font-weight="700" fill="#1f2328">SIG_PWMA</text>
+    <text x="252" y="2228" fill="#1f2328">Pi-M GPIO12 (pin 32)</text>
+    <text x="600" y="2228" fill="#1f2328">TB6612 PWMA</text>
+    <text x="906" y="2228" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2228" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2228" fill="#57606a">Hardware PWM0, about 20 kHz.</text>
+    <text x="72" y="2246" font-weight="700" fill="#1f2328">SIG_AIN1</text>
+    <text x="252" y="2246" fill="#1f2328">Pi-M GPIO5 (pin 29)</text>
+    <text x="600" y="2246" fill="#1f2328">TB6612 AIN1</text>
+    <text x="906" y="2246" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2246" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2246" fill="#57606a">Left channel direction.</text>
+    <rect x="60" y="2251" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2264" font-weight="700" fill="#1f2328">SIG_AIN2</text>
+    <text x="252" y="2264" fill="#1f2328">Pi-M GPIO6 (pin 31)</text>
+    <text x="600" y="2264" fill="#1f2328">TB6612 AIN2</text>
+    <text x="906" y="2264" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2264" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2264" fill="#57606a">Left channel direction.</text>
+    <text x="72" y="2282" font-weight="700" fill="#1f2328">SIG_PWMB</text>
+    <text x="252" y="2282" fill="#1f2328">Pi-M GPIO13 (pin 33)</text>
+    <text x="600" y="2282" fill="#1f2328">TB6612 PWMB</text>
+    <text x="906" y="2282" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2282" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2282" fill="#57606a">Hardware PWM1, about 20 kHz.</text>
+    <rect x="60" y="2287" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2300" font-weight="700" fill="#1f2328">SIG_BIN1</text>
+    <text x="252" y="2300" fill="#1f2328">Pi-M GPIO16 (pin 36)</text>
+    <text x="600" y="2300" fill="#1f2328">TB6612 BIN1</text>
+    <text x="906" y="2300" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2300" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2300" fill="#57606a">Right channel direction.</text>
+    <text x="72" y="2318" font-weight="700" fill="#1f2328">SIG_BIN2</text>
+    <text x="252" y="2318" fill="#1f2328">Pi-M GPIO26 (pin 37)</text>
+    <text x="600" y="2318" fill="#1f2328">TB6612 BIN2</text>
+    <text x="906" y="2318" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2318" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2318" fill="#57606a">Right channel direction.</text>
+    <rect x="60" y="2323" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2336" font-weight="700" fill="#1f2328">SIG_STBY</text>
+    <text x="252" y="2336" fill="#1f2328">Pi-M GPIO20 (pin 38)</text>
+    <text x="600" y="2336" fill="#1f2328">TB6612 STBY</text>
+    <text x="906" y="2336" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2336" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2336" fill="#57606a">100 kΩ pull-down to the star fitted at the TB6612 end. Mo…</text>
+    <text x="72" y="2354" font-weight="700" fill="#1f2328">SIG_ENC_L_A</text>
+    <text x="252" y="2354" fill="#1f2328">Drive gearmotor left encoder A, yellow</text>
+    <text x="600" y="2354" fill="#1f2328">Pi-M GPIO17 (pin 11)</text>
+    <text x="906" y="2354" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="2354" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2354" fill="#57606a"></text>
+    <rect x="60" y="2359" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2372" font-weight="700" fill="#1f2328">SIG_ENC_L_B</text>
+    <text x="252" y="2372" fill="#1f2328">Drive gearmotor left encoder B, white</text>
+    <text x="600" y="2372" fill="#1f2328">Pi-M GPIO27 (pin 13)</text>
+    <text x="906" y="2372" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="2372" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2372" fill="#57606a"></text>
+    <text x="72" y="2390" font-weight="700" fill="#1f2328">SIG_ENC_R_A</text>
+    <text x="252" y="2390" fill="#1f2328">Drive gearmotor right encoder A, yellow</text>
+    <text x="600" y="2390" fill="#1f2328">Pi-M GPIO23 (pin 16)</text>
+    <text x="906" y="2390" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="2390" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2390" fill="#57606a">Bench-verified crossover: A and B are swapped on this mot…</text>
+    <rect x="60" y="2395" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2408" font-weight="700" fill="#1f2328">SIG_ENC_R_B</text>
+    <text x="252" y="2408" fill="#1f2328">Drive gearmotor right encoder B, white</text>
+    <text x="600" y="2408" fill="#1f2328">Pi-M GPIO22 (pin 15)</text>
+    <text x="906" y="2408" fill="#1f2328">28 AWG in the su…</text>
+    <text x="1024" y="2408" fill="#1f2328">6-pin JST SH 1.0 mm</text>
+    <text x="1236" y="2408" fill="#57606a">Second half of the crossover above.</text>
+    <text x="72" y="2426" font-weight="700" fill="#1f2328">SIG_I2C_SDA</text>
+    <text x="252" y="2426" fill="#1f2328">Pi-M GPIO2 (pin 3)</text>
+    <text x="600" y="2426" fill="#1f2328">VL53L1X SDA + MPU-6050 SDA + ADS1115 SDA</text>
+    <text x="906" y="2426" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2426" fill="#1f2328">4-pin JST-XH 2.54 per device</text>
+    <text x="1236" y="2426" fill="#57606a">One bus, three addresses: 0x29, 0x68, 0x48.</text>
+    <rect x="60" y="2431" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2444" font-weight="700" fill="#1f2328">SIG_I2C_SCL</text>
+    <text x="252" y="2444" fill="#1f2328">Pi-M GPIO3 (pin 5)</text>
+    <text x="600" y="2444" fill="#1f2328">VL53L1X SCL + MPU-6050 SCL + ADS1115 SCL</text>
+    <text x="906" y="2444" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2444" fill="#1f2328">4-pin JST-XH 2.54 per device</text>
+    <text x="1236" y="2444" fill="#57606a">Bus pull-ups are on the carrier boards.</text>
+    <text x="72" y="2462" font-weight="700" fill="#1f2328">SIG_TOF_XSHUT</text>
+    <text x="252" y="2462" fill="#1f2328">Pi-M GPIO24 (pin 18)</text>
+    <text x="600" y="2462" fill="#1f2328">VL53L1X XSHUT</text>
+    <text x="906" y="2462" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2462" fill="#1f2328">in the VL53L1X connector shell</text>
+    <text x="1236" y="2462" fill="#57606a">Reset control. Held low keeps the sensor off the bus.</text>
+    <rect x="60" y="2467" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2480" font-weight="700" fill="#1f2328">SIG_TOF_INT</text>
+    <text x="252" y="2480" fill="#1f2328">Pi-M GPIO25 (pin 22)</text>
+    <text x="600" y="2480" fill="#1f2328">VL53L1X INT</text>
+    <text x="906" y="2480" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2480" fill="#1f2328">in the VL53L1X connector shell</text>
+    <text x="1236" y="2480" fill="#57606a">Optional data-ready interrupt. Fit the wire even if unuse…</text>
+    <text x="72" y="2498" font-weight="700" fill="#1f2328">SIG_SERVO_TX</text>
+    <text x="252" y="2498" fill="#1f2328">Pi-M GPIO14 (pin 8)</text>
+    <text x="600" y="2498" fill="#1f2328">Waveshare Bus Servo Adapter RXD</text>
+    <text x="906" y="2498" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2498" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2498" fill="#57606a">PL011 on /dev/serial0. dtoverlay=disable-bt must be prese…</text>
+    <rect x="60" y="2503" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2516" font-weight="700" fill="#1f2328">SIG_SERVO_RX</text>
+    <text x="252" y="2516" fill="#1f2328">Pi-M GPIO15 (pin 10)</text>
+    <text x="600" y="2516" fill="#1f2328">Waveshare Bus Servo Adapter TXD</text>
+    <text x="906" y="2516" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2516" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2516" fill="#57606a">Half-duplex bus; the adapter handles direction.</text>
+    <text x="72" y="2534" font-weight="700" fill="#1f2328">SIG_LED_M_DATA3V3</text>
+    <text x="252" y="2534" fill="#1f2328">Pi-M GPIO10 (pin 19)</text>
+    <text x="600" y="2534" fill="#1f2328">74AHCT125 (Pi-M) A1</text>
+    <text x="906" y="2534" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2534" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2534" fill="#57606a">SPI0 MOSI. Shifter OE1 to GND; unused inputs to GND and u…</text>
+    <rect x="60" y="2539" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2552" font-weight="700" fill="#1f2328">SIG_I2S_BCLK</text>
+    <text x="252" y="2552" fill="#1f2328">Pi-V GPIO18 (pin 12)</text>
+    <text x="600" y="2552" fill="#1f2328">INMP441 SCK + MAX98357A BCLK</text>
+    <text x="906" y="2552" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2552" fill="#1f2328">in each device connector shell</text>
+    <text x="1236" y="2552" fill="#57606a">Shared bit clock, one CPU DAI and two codec DAIs.</text>
+    <text x="72" y="2570" font-weight="700" fill="#1f2328">SIG_I2S_LRCLK</text>
+    <text x="252" y="2570" fill="#1f2328">Pi-V GPIO19 (pin 35)</text>
+    <text x="600" y="2570" fill="#1f2328">INMP441 WS + MAX98357A LRC</text>
+    <text x="906" y="2570" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2570" fill="#1f2328">in each device connector shell</text>
+    <text x="1236" y="2570" fill="#57606a">Shared frame sync.</text>
+    <rect x="60" y="2575" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2588" font-weight="700" fill="#1f2328">SIG_I2S_DIN</text>
+    <text x="252" y="2588" fill="#1f2328">Pi-V GPIO20 (pin 38)</text>
+    <text x="600" y="2588" fill="#1f2328">INMP441 SD</text>
+    <text x="906" y="2588" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2588" fill="#1f2328">in the INMP441 connector shell</text>
+    <text x="1236" y="2588" fill="#57606a">Microphone into the Pi.</text>
+    <text x="72" y="2606" font-weight="700" fill="#1f2328">SIG_I2S_DOUT</text>
+    <text x="252" y="2606" fill="#1f2328">Pi-V GPIO21 (pin 40)</text>
+    <text x="600" y="2606" fill="#1f2328">MAX98357A DIN</text>
+    <text x="906" y="2606" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2606" fill="#1f2328">in the MAX98357A connector shell</text>
+    <text x="1236" y="2606" fill="#57606a">Pi into the amplifier.</text>
+    <rect x="60" y="2611" width="1540" height="18" fill="#f6f8fa"/>
+    <text x="72" y="2624" font-weight="700" fill="#1f2328">SIG_LED_V_DATA3V3</text>
+    <text x="252" y="2624" fill="#1f2328">Pi-V GPIO10 (pin 19)</text>
+    <text x="600" y="2624" fill="#1f2328">74AHCT125 (Pi-V) A1</text>
+    <text x="906" y="2624" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2624" fill="#1f2328">2.54 mm IDC or Dupont</text>
+    <text x="1236" y="2624" fill="#57606a">SPI0 MOSI. Same shifter tie-off as the Pi-M side.</text>
+    <text x="72" y="2642" font-weight="700" fill="#1f2328">SIG_NAV_PWM</text>
+    <text x="252" y="2642" fill="#1f2328">Pi-V GPIO13 (pin 33)</text>
+    <text x="600" y="2642" fill="#1f2328">MOSFET gate</text>
+    <text x="906" y="2642" fill="#1f2328">26 AWG</text>
+    <text x="1024" y="2642" fill="#1f2328">3-pin JST-XH 2.54</text>
+    <text x="1236" y="2642" fill="#57606a">Hardware PWM to a logic-level gate. The module carries it…</text>
+  </g>
+  </g>
+
+  <!-- ============ NOTES ============ -->
+  <rect x="60" y="2690" width="1540" height="142" rx="8" fill="#fff8f0" stroke="#d4a72c" stroke-width="1.5"/>
+  <text x="76" y="2712" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#cf222e">Servos are regulated, never battery-direct.</tspan> A full 2S pack sits at 8.4 V and the SCS0009 maximum is 7.4 V. The 6 V buck is set off-load and marked before a servo is ever connected.</text>
+  <text x="76" y="2732" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#bc4c00">One star ground.</tspan> Motor return, servo return and each converter return get their own 18 AWG conductor to the distribution board. Signal returns reach it through their Pi. Nothing daisy-chains.</text>
+  <text x="76" y="2752" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#8250df">STBY holds motors off</tspan> on boot, after a crash and whenever GPIO20 floats. The 100 k&#937; pull-down is fitted at the TB6612 end and is not optional on the robot, whatever the bench drawing says.</text>
+  <text x="76" y="2772" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#0a3069">Logic is 3.3 V.</tspan> TB6612 VCC and both encoder supplies come off the Pi-M header, so every logic and encoder output is GPIO-safe. The TB6612 reverse protection covers VM only, not VCC.</text>
+  <text x="76" y="2792" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#7d4e00">Fuse before switch,</tspan> 7.5 A blade and not fast-blow. Worst-case simultaneous draw at the fuse is 6.65 A, an 11 % margin; three bulk capacitors charging at switch-on is why the blade type matters.</text>
+  <text x="76" y="2812" font-size="11.5" fill="#1f2328"><tspan font-weight="700" fill="#1a7f37">Build order and the full net notes are in docs/HARDWARE_power_harness.md.</tspan> Do not wire from this drawing alone; the build order exists so nothing is live before it should be.</text>
+</svg>
