@@ -7,8 +7,8 @@ Phase documents in `/phases/` say what the work *is*; this file says where the w
 Owner: the orchestrator session. No worker session edits this file. A worker that
 believes it is wrong reports that to the orchestrator.
 
-**Last verified: 2026-08-25 (evening, local) against `main` @ `7a5f827`, and against the
-uncommitted S19 working tree at `C:\dev\johnny5`.**
+**Last verified: 2026-08-26 (evening, local) against `main` @ `ebdea9e`, and against the
+still-uncommitted S19 working tree at `C:\dev\johnny5`.**
 
 ---
 
@@ -24,11 +24,14 @@ and the Phase 02 gate, and no agent session can advance it.
 margin and the encoder cable line item — were both settled the same day. Everything in
 `BOM.md` can now be bought. Ordering is Andrew's to do and is not a dispatchable item.
 
-**Nothing on the Phase 02 critical path is dispatchable, and what is left off it is
-maintenance.** S18 closed the documentation debt this file carried against the critical path;
+**Nothing on the Phase 02 critical path is dispatchable, and the maintenance left off it is
+now blocked too.** S18 closed the documentation debt this file carried against the critical path;
 S19 delivered the Pi-M bringup salvage that was D3, fixing a live defect in a setup script
 without moving Task 6b. What remains for a worker is one drawing correction and two
-documentation nits, queued as D7. Everything that moves Task 6b is a printer or a bench job.
+documentation nits, queued as D7 and attempted as S20 on 2026-08-26. S20 stopped at its first
+precondition and was right to: **S19's two commits have still not been made**, so `main` carries
+the state update that records them and not the work itself. D7 waits on Andrew running a command
+block, not on a session. Everything that moves Task 6b is a printer or a bench job.
 
 Gate condition, verbatim from `phases/PHASE_02_LOCOMOTION.md`:
 
@@ -130,7 +133,9 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 | S18 | 2026-08-25 | Orchestration/repo | D2 — repository hygiene and documentation corrections | **O7, O8, O12, O13, O14 closed; O10 closed on its index half.** `pyproject.toml` pytest config, `src/vision/requirements-vision.txt`, the `#5219` corrections in three files, and two `BOM.md` corrections. Report at `docs/reports/J5-S18.md`; verified against the repository 2026-08-25. On `docs/repo-hygiene` @ `f31e687`, unmerged. | `f31e687` |
 | S18-O | 2026-08-25 | Orchestration | Verify S18, update state, dispatch D3 | S18 verified with nothing failing; five open items closed, four opened; queue renumbered and D3 added. | `7a5f827` |
 | S19 | 2026-08-25 | 02 (off the critical path) | D3 — Pi-M bringup salvage, motion requirements, root-note removal | **O16 and O18 addressed; O15 fixed in the repository but unproven on Pi-M.** `scripts/setup_motion_pi.sh` takes `gpiozero` and `lgpio` from apt and targets `~/johnny5-env`; `src/motion/requirements-motion.txt` and `docs/HARDWARE_pi_m_runtime.md` added; the six root notes salvaged and queued for `git rm`. Report at `docs/reports/J5-S19.md`; verified against the repository 2026-08-25. **No branch was created and nothing was committed** — the work sits in the working tree. | pending |
-| S19-O | 2026-08-25 | Orchestration | Verify S19, update state, dispatch D7 | This row's own turn. S19 verified with nothing failing and no factual error found in it; one judgement call overruled in part. O16 and O18 closed against Andrew's command block, O15 held open until Pi-M runs it, O19 opened, D7 queued, and the queue's numbering frozen. | pending |
+| S19-O | 2026-08-25 | Orchestration | Verify S19, update state, dispatch D7 | This row's own turn. S19 verified with nothing failing and no factual error found in it; one judgement call overruled in part. O16 and O18 closed against Andrew's command block, O15 held open until Pi-M runs it, O19 opened, D7 queued, and the queue's numbering frozen. | `ebdea9e` |
+| S20 | 2026-08-26 | 02 (off the critical path) | D7 — documentation and drawing maintenance | **Stopped at preconditions; nothing in scope was done.** `main` carried the S19-O state commit and neither of S19's two commits, so the brief's own stop test failed. O19, O17 and O4 untouched; the only file the session wrote is its report. Report at `docs/reports/J5-S20.md`; verified against the repository 2026-08-26 with every claim in it confirmed and nothing found wrong. | pending |
+| S20-O | 2026-08-26 | Orchestration | Verify S20, update state, re-dispatch D7 | This row's own turn. S20 verified and its stop upheld. O16 and O18 requalified as fixed-not-closed, O19 widened to a second instance found this turn, O20 opened, D7 re-dispatched as J5-S21 behind Andrew's block, and two defects in S19's command block corrected before it is run. | pending |
 
 ---
 
@@ -144,7 +149,9 @@ order to dispatch in is stated in prose below, because a queue whose numbers shi
 every document that cites one. Anything citing a number below D4 and dated before 2026-08-25
 predates the renumber.
 
-**Ready now:** D7, and only if a session is wanted at all. **Blocked:** D4, D5, D6.
+**Ready now:** nothing. **Blocked:** D7 on Andrew running S19's git block; D4, D5 and D6 on the
+physical work behind them. D7 was attempted as S20 on 2026-08-26 and stopped correctly at its
+first precondition.
 **Not a session:** B1 and B2, the two print jobs, are the whole of what stands between the
 project and the Phase 02 gate.
 
@@ -168,6 +175,14 @@ block that removes the notes, are in `docs/reports/J5-S19.md` section 6. O16 and
 those commits. **O15 does not** — the script has never run on Pi-M, and it closes when Andrew
 re-runs it there.
 
+**Status as of 2026-08-26: the block has still not been run.** `main` @ `ebdea9e` carries the
+S19-O state update and `docs/reports/J5-S19.md`, and neither of S19's two commits. The two halves
+of that handover went to Andrew together and one landed. Two defects in the block itself were
+found at S20-O and must be fixed before it runs: its first commit message claims it closes O15,
+which this file has held open since 2026-08-25 and which no commit can close, and the block
+creates `fix/pi-m-bringup` without ever merging it, so running it verbatim leaves `main` unchanged
+and D7's precondition still false. The corrected block was handed to Andrew with this turn.
+
 **D4 — Phase 02 Task 6b, Floor Integration Test.** *Blocked on B1–B4. Was D3.*
 Do not dispatch until the tub and drivetrain are printed, motors are bolted in and the
 drive wiring is off breadboard. When those are done: floor run, verify straight-line
@@ -180,8 +195,8 @@ Opus if the sim-to-real deltas are large enough to force revisiting reward shapi
 
 **D6 — Phase 03 kickoff, Manipulation.** *Blocked on D5. Was D5.*
 
-**D7 — Documentation and drawing maintenance.** *Ready now. One session, small. Added
-2026-08-25.* Three carried items that have accumulated to about a session's worth between them
+**D7 — Documentation and drawing maintenance.** *Blocked on the S19 block. One session, small.
+Added 2026-08-25; attempted and stopped 2026-08-26.* Three carried items that have accumulated to about a session's worth between them
 and none of which move Task 6b: O19, the `1807` counts figure in `docs/HARDWARE_drive_bringup.md`
 line 16, which needs the same clarifying half-sentence O14 gave `BOM.md`; O17, the six redundant
 `#5218` row prefixes in the wiring key of `docs/diagrams/bench_full_schematic.svg`, which O17
@@ -189,6 +204,12 @@ itself says to do when that drawing is next revised — this is that revision; a
 whether the installed FreeCAD MCP addon exposes `get_rpc_status`, which decides whether O4 is
 already satisfied. **This is a maintenance session and should be dispatched as one, not dressed
 up as progress.** Session config: Sonnet, Standard, Medium.
+
+**Attempted as S20 on 2026-08-26 and stopped at preconditions.** Nothing in scope was done and
+the scope is unchanged in shape, larger by two lines: O19 now covers `docs/HARDWARE_drive_bringup.md`
+line 73 as well as line 16, and O20 joins the list. Re-dispatched as **J5-S21** behind the S19
+block. The single FreeCAD probe O4 authorises is still unspent — S20 declined to spend it past a
+stop, which was the right call and leaves it available.
 
 ---
 
@@ -206,17 +227,19 @@ else. S17, S18 and both orchestrator turns since have hit this. Say so in every 
 
 | Branch | Role |
 |---|---|
-| `main` | The trunk. `7a5f827`. Matches `origin/main`, which is pushed. Carries all of S17 and all of S18. |
+| `main` | The trunk. `ebdea9e`. Matches `origin/main`, which is pushed. Carries all of S17, all of S18 and the S19-O state update — but **not** S19's own work. |
 
 `docs/repo-hygiene` was fast-forwarded into `main` and deleted on 2026-08-25, and
 `docs/power-harness-schematic` before it on the same day.
 
-**`fix/pi-m-bringup` does not exist yet.** S19's three files — `scripts/setup_motion_pi.sh`,
-`src/motion/requirements-motion.txt` and `docs/HARDWARE_pi_m_runtime.md` — are **uncommitted in
-the working tree**, along with `docs/reports/J5-S19.md` and this file's own update. The branch is
-created by the first line of the command block in `docs/reports/J5-S19.md` section 6. Until that
-block runs, the repository does not carry the Pi-M fix and section 7's O16 and O18 are closed
-against a commit that has not been made.
+**`fix/pi-m-bringup` still does not exist, and that is now the project's live defect.** S19's
+three files — `scripts/setup_motion_pi.sh` (modified), `src/motion/requirements-motion.txt` and
+`docs/HARDWARE_pi_m_runtime.md` (both untracked) — are **uncommitted in the working tree**, where
+S19 left them on 2026-08-25. `ebdea9e` committed the S19-O state update and `docs/reports/J5-S19.md`
+on 2026-08-26 without them, so the repository now records O16 and O18 as closed by a commit it does
+not contain, and the six root notes are still tracked. Verified 2026-08-26 by `git ls-tree -r main`,
+`git for-each-ref` and `git --no-optional-locks status --porcelain`. It clears when Andrew runs the
+corrected block; no session can move it. Section 7's O16 and O18 have been requalified accordingly.
 
 **The merge was a fast-forward, not a squash, and that is fine.** `CLAUDE.md` says "squash
 merge to `main` via PR". S17's branch went in as its two own commits, `9e5191f` and
@@ -286,10 +309,11 @@ Carried non-blocking items. Blocking ones live in section 2.
 | ~~O13~~ | **CLOSED 2026-08-25 (S18).** The entry is struck through rather than deleted, on the file's own convention for resolved items, and now states 1531 g against the 1.6 kg ceiling with 69 g of headroom and 1578 g at +25 % on the printed parts. Verified by running `mechanical/preview/mass_budget.py` in a scratch copy: `ASSEMBLED TOTAL 1531 g (95.7% of ceiling)`. That is the script, not a document — the figure this project quoted by hand for two months came from a script that was crashing. Original text: **`BOM.md` carries a superseded mass claim.** Its open-items list still reads "the assembled total is 1655 g against a 1.6 kg ceiling". The identical paragraph was deleted from `phases/PHASE_00_HARDWARE.md` on 2026-08-23 as stale, and section 3 evidences the Phase 00 gate at 1531 g. As written, `BOM.md` says a met gate condition is breached. | Worker | D2 | 2026-08-25 |
 | ~~O14~~ | **CLOSED 2026-08-25 (S18).** `BOM.md` section 1 now reads "1807 counts/output-rev at 4× quadrature, which is **not** the operative figure", names `COUNTS_PER_OUTPUT_REV` as 451.74 with 450.6 measured at S10, and points at `TUNING.md`. Clarified rather than deleted, as the item asked. Verified in place. Original text: **`BOM.md` section 1 quotes 1807 counts per output revolution.** S10 settled that `gpiozero.RotaryEncoder` decodes 1× and that the operative constant is 451.74, with 450.6 measured. 1807 is defensible as the raw 4× quadrature figure but reads as the operative one. Wants a clarifying half-sentence, not a deletion. | Worker | D2 | 2026-08-25 |
 | O15 | **Fixed in the repository at S19; unverified on Pi-M, and not closed on `bash -n`.** `scripts/setup_motion_pi.sh` now installs `python3-gpiozero` and `python3-lgpio` from apt, creates the venv with `--system-site-packages`, repairs an existing `pyvenv.cfg` in place with `sed`, and defaults `JOHNNY5_VENV` to `~/johnny5-env`. None of it has been executed on Pi-M; no agent session can reach `192.168.1.217`. The apt route and the `include-system-site-packages` flag have a witness — the 2026-07-12 bench bringup did exactly that — but the `sed` repair, the `pip install -r` path and the three added verification imports have none. **Closes when Andrew re-runs `bash scripts/setup_motion_pi.sh` on Pi-M** and the run ends with `gpiozero` and `lgpio` resolving under `/usr/lib/python3/dist-packages`. Closing it before then would be a gate met against an unbuilt artifact, which this project has already done once. While on the box: look for an orphaned `~/johnny5/venv` from a run at the old default and delete it. Original text: **`scripts/setup_motion_pi.sh` carries an install line known to fail on Pi-M, and a venv default that is not the venv.** Line 76 ran `pip install onnxruntime numpy smbus2 gpiozero lgpio rpi-hardware-pwm paho-mqtt`; `lgpio` cannot pip-build on Trixie with Python 3.13. Both corrections had lived only in the root note `johnny5-pi-m-env.md` since 2026-07-12. | Andrew | Next Pi-M contact | 2026-08-25 |
-| ~~O16~~ | **CLOSED 2026-08-25 (S19), landing with the `fix/pi-m-bringup` commit.** `src/motion/requirements-motion.txt` added — `onnxruntime>=1.18`, `numpy<3`, `smbus2>=0.4`, `rpi-hardware-pwm>=0.2`, `paho-mqtt>=2.1` — as floors rather than exact pins, because Pi-M installs from the piwheels mirror whose versions can lag PyPI, and with `gpiozero` and `lgpio` deliberately absent under a header block naming the apt command. `setup_motion_pi.sh` now reads that file instead of carrying a second list, which is the drift that produced O15. Verified 2026-08-25: every declared package traces to a real import — `numpy` at module scope in `locomotion_policy.py`, `onnxruntime` lazily at its line 78, `smbus2` lazily in `mpu6050.py`, `rpi_hardware_pwm` lazily in `motor_driver.py` — except `paho-mqtt`, which the file itself states is not yet imported and says why. Pins are **not** verified against Pi-M. Original text: **Pi-M runtime dependencies are undeclared.** `src/motion/` imports `numpy` at module scope and `onnxruntime` inside `LocomotionPolicy`; `scripts/setup_motion_pi.sh` installs seven packages inline and no requirements file names any of them. `numpy` appears declared only because `simulation/chassis/requirements-train.txt` happens to list it, which is the training environment, not the Pi. Same class of gap as O8, which covered Pi-V only. | Worker | D3 | 2026-08-25 |
+| O16 | **FIXED 2026-08-25 (S19); NOT CLOSED — the commit it lands with has not been made.** Requalified 2026-08-26 at S20-O, on S20's recommendation: this entry read CLOSED and struck through from 2026-08-25 against a commit that does not exist, and section 7 is where a later reader looks to see whether an item is done. It closes when `main` carries `src/motion/requirements-motion.txt`. Original close text follows. `src/motion/requirements-motion.txt` added — `onnxruntime>=1.18`, `numpy<3`, `smbus2>=0.4`, `rpi-hardware-pwm>=0.2`, `paho-mqtt>=2.1` — as floors rather than exact pins, because Pi-M installs from the piwheels mirror whose versions can lag PyPI, and with `gpiozero` and `lgpio` deliberately absent under a header block naming the apt command. `setup_motion_pi.sh` now reads that file instead of carrying a second list, which is the drift that produced O15. Verified 2026-08-25: every declared package traces to a real import — `numpy` at module scope in `locomotion_policy.py`, `onnxruntime` lazily at its line 78, `smbus2` lazily in `mpu6050.py`, `rpi_hardware_pwm` lazily in `motor_driver.py` — except `paho-mqtt`, which the file itself states is not yet imported and says why. Pins are **not** verified against Pi-M. Original text: **Pi-M runtime dependencies are undeclared.** `src/motion/` imports `numpy` at module scope and `onnxruntime` inside `LocomotionPolicy`; `scripts/setup_motion_pi.sh` installs seven packages inline and no requirements file names any of them. `numpy` appears declared only because `simulation/chassis/requirements-train.txt` happens to list it, which is the training environment, not the Pi. Same class of gap as O8, which covered Pi-V only. | Worker | D3 | 2026-08-25 |
 | O17 | **`docs/diagrams/bench_full_schematic.svg`'s wiring key now prefixes both columns `#5218`.** Correct and redundant: with no left/right variant the column headers are the only thing telling them apart, so the per-row part number is noise. Change the six row prefixes to `LEFT`/`RIGHT` and drop the part number from the rows. Cosmetic; do it whenever that drawing is next revised, not on its own. | Worker | Next revision of that drawing | 2026-08-25 |
-| ~~O18~~ | **CLOSED 2026-08-25 (S19), landing with the removal commit.** The line goes with the file rather than being corrected in place: `simulation/chassis/TUNING.md` line 72 already carries the correct `LEFT = channel A, RIGHT = channel B`, and carrying a corrected copy forward would re-create the duplication that made the error possible. Verified 2026-08-25 with `git grep 5219` excluding `docs/archive/` and `docs/reports/`: the only hits are that note, `BOM.md`'s two deliberate corrections and this file's own history. Original text: **`johnny5-phase02-locomotion.MD` still states `#5218 = LEFT (ch A) / #5219 = RIGHT (ch B)`.** The same defect O12 closed, in a fourth file. S18's definition of done scoped its grep to `BOM.md docs simulation`, and this note sits at the repository root. Closes with the file's removal in D3; if the file survives that decision, the line must be corrected instead. | Worker | D3 | 2026-08-25 |
-| O19 | **`docs/HARDWARE_drive_bringup.md` line 16 quotes “≈ **1807 counts / output rev** (quadrature)” in its Hardware table with nothing beside it saying that `COUNTS_PER_OUTPUT_REV` is 451.74.** Defensible as the raw 4× figure and reads as the operative one — the same defect O14 had `BOM.md` clarify, in a document O12 and O14 both edited for other reasons. Wants the same clarifying half-sentence and a pointer to `simulation/chassis/TUNING.md`, not a deletion. Found by S19, out of its scope. | Worker | D7 | 2026-08-25 |
+| O18 | **FIXED 2026-08-25 (S19); NOT CLOSED — the removal commit has not been made.** Requalified 2026-08-26 at S20-O, same reason as O16. It closes when `git ls-files` no longer lists `johnny5-phase02-locomotion.MD`. Original close text follows. The line goes with the file rather than being corrected in place: `simulation/chassis/TUNING.md` line 72 already carries the correct `LEFT = channel A, RIGHT = channel B`, and carrying a corrected copy forward would re-create the duplication that made the error possible. Verified 2026-08-25 with `git grep 5219` excluding `docs/archive/` and `docs/reports/`: the only hits are that note, `BOM.md`'s two deliberate corrections and this file's own history. Original text: **`johnny5-phase02-locomotion.MD` still states `#5218 = LEFT (ch A) / #5219 = RIGHT (ch B)`.** The same defect O12 closed, in a fourth file. S18's definition of done scoped its grep to `BOM.md docs simulation`, and this note sits at the repository root. Closes with the file's removal in D3; if the file survives that decision, the line must be corrected instead. | Worker | D3 | 2026-08-25 |
+| O19 | **`docs/HARDWARE_drive_bringup.md` line 16 quotes “≈ **1807 counts / output rev** (quadrature)” in its Hardware table with nothing beside it saying that `COUNTS_PER_OUTPUT_REV` is 451.74.** Defensible as the raw 4× figure and reads as the operative one — the same defect O14 had `BOM.md` clarify, in a document O12 and O14 both edited for other reasons. Wants the same clarifying half-sentence and a pointer to `simulation/chassis/TUNING.md`, not a deletion. Found by S19, out of its scope. **Widened 2026-08-26 at S20-O: line 73 of the same file carries the identical figure** — “12 CPR × 150.58:1 ≈ 1807 counts/output-rev” — and pairs it directly with `gpiozero.RotaryEncoder`, the decoder S10 established returns 451.74 rather than 1807. That instance is worse than line 16's, which at least stands alone in a table. Both are in scope; `grep -n 1807 docs/HARDWARE_drive_bringup.md` returns exactly these two lines. | Worker | D7 | 2026-08-25 |
+| O20 | **`.claude/` is untracked but not ignored.** Section 6 lists it as deliberately untracked and it has shown as `??` in every `git status` since the migration; S19 and S20 each spent a paragraph of their reports saying it should stay that way. One line in `.gitignore` ends that permanently. Cosmetic; fold into D7. | Worker | D7 | 2026-08-26 |
 
 ---
 
@@ -348,6 +372,40 @@ Most recent first. Migrated from `INITIATING_PROMPT.md`'s decision log, which ra
 2026-06-20 to 2026-08-11, and from the four session handoffs in
 `phases/PHASE_00_HARDWARE.md`, which carry Sessions 03 and 04 that the former never
 received. **Never truncate this section.** Archive by year or phase if it outgrows the file.
+
+### 2026-08-26 — S20 and S20-O — a handover that half-landed
+
+- **S20's stop is upheld and was the right call.** Its three scope items are two text edits and
+  a read-only probe, none of them touching a file S19's block touches, and it could have done
+  them. Doing them would have cut `docs/drawing-and-figure-fixes` from `ebdea9e`, leaving two
+  branches to land in an order nobody chose and `main` briefly carrying a documentation revision
+  while still missing the Pi-M fix this file already recorded as closed. The brief said stop and
+  the brief was right. S20 also declined to spend O4's single read-only FreeCAD probe past the
+  stop, reasoning that carrying anything past a stop is how a stop stops meaning anything. Both
+  calls stand.
+- **The failure is in the handover, not in any session.** S19-O handed Andrew two things at once:
+  S19's two-commit block and its own state commit. One landed. Nothing in the protocol says which
+  order they go in or that the state commit depends on the other, and a state document that
+  records work as done ahead of the work landing is the same shape of defect as a gate met against
+  an unbuilt artifact. **The rule taken from this: an orchestrator's state commit does not go to
+  Andrew ahead of the worker block it describes.** Either they are handed over as one ordered
+  block with the worker's commits first, or the state entry is written as pending and corrected
+  next turn — which is what section 4's `pending` column already exists to do.
+- **Two defects found in S19's command block before it ran.** Its first commit message claims
+  “Closes O15 and O16”; O15 cannot be closed by a commit and this file has said so since
+  2026-08-25, so that message would have put a false claim into permanent history. And the block
+  creates `fix/pi-m-bringup` and never merges it, so running it verbatim would leave `main`
+  unchanged and D7's precondition still false. Both corrected in the block handed over this turn.
+  S20 reproduced the block verbatim, correctly — it was reporting what existed, not re-authoring
+  it — and verbatim reproduction is exactly how a defect survives a session that is being careful.
+- **O16 and O18 requalified from CLOSED to fixed-not-closed**, on S20's recommendation. The
+  strike-through convention this file uses for resolved items reads as done at a glance, and both
+  were struck against a commit that does not exist. O15's phrasing was already right and is the
+  model.
+- **O19 widened, not re-opened.** Line 73 of `docs/HARDWARE_drive_bringup.md` carries the same
+  1807 figure as line 16 and puts it beside `gpiozero.RotaryEncoder`, which is the decoder that
+  makes it wrong. S19 found line 16 and O19 named only line 16; the grep that would have found
+  both was not run until this turn.
 
 ### 2026-08-25 — S19 and S19-O — Pi-M bringup salvage, and the notes leaving the repository
 
@@ -874,6 +932,8 @@ by the script.** When a number appears in a report, ask which script printed it.
 
 | 2026-08-25 | `docs/repo-hygiene` @ `f31e687`, and `main` @ `769c618` | The `docs/reports/J5-S18.md` close-out report against the repository. `f31e687` touches exactly the eight claimed paths and no others; `30fef4d`, the pre-amend commit, still exists as a dangling object, so the amend the report describes happened as described. Bare `python -m pytest -q` from the repository root: **48 passed**, exit 0, no path argument — and the same run with `--override-ini="testpaths="` reproduces both collection errors, so the fix is load-bearing. `scripts/check_harness_nets.py` re-run from `main`: exit 0, all six checks, 64 nets, 38 BOM line items, 145 endpoints, 11 % fuse margin, identical to the report. `grep -c 5219` returns 0 in all three named files. `mechanical/preview/mass_budget.py` run in a scratch copy prints `ASSEMBLED TOTAL 1531 g (95.7% of ceiling)`, matching the new `BOM.md` entry. All eight blobs CR-free by a `git cat-file` CR count read from the object database, and `i/lf w/lf` by `git ls-files --eol`; `git diff --ignore-cr-at-eol` was not used. The SVG parses as well-formed XML. The `TUNING.md` diff is one line and both measured crossovers are untouched. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`. | **Nothing in the report failed verification.** Two corrections to it, neither material to its deliverables. It reads the four post-S17 commits as "S17's work merged as four ordinary commits"; `06783fe` and `769c618` are the orchestrator turn's own, and that turn had no ledger row — both fixed here, and the `-O` convention adopted. Its `5219` grep was scoped to `BOM.md docs simulation`, which missed `johnny5-phase02-locomotion.MD` at the repository root still carrying `#5218 = LEFT / #5219 = RIGHT`; that is now O18. Defects in *this* file: the header and section 6 were stale again in the same two places — `main` at `344c8b7` where it is `769c618`, and a branch table naming `docs/power-harness-schematic`, which was merged and deleted. Section 6 asserted `main` does not carry the harness schematic; it does. |
 | 2026-08-25 (evening, local) | `main` @ `7a5f827`, and the uncommitted S19 working tree | The `docs/reports/J5-S19.md` close-out report against the repository. Sections 1 and 6 of this file re-derived from `git for-each-ref` and `git log`: `main` at `7a5f827`, `origin/main` identical, one branch, no `.git` lock files. `bash -n scripts/setup_motion_pi.sh` exit 0. Bare `python -m pytest -q` from the repository root: **48 passed**, exit 0. `scripts/check_harness_nets.py`: exit 0, all six checks, 64 nets, 145 endpoints resolving to 24 line items, `6.65 A of 7.50 A fuse (11 % margin)` — identical to what S17 and S18 reported. The section 3(b) diff re-derived independently from `git show main:scripts/setup_motion_pi.sh` piped through `diff -u`: reproduces the report hunk for hunk with nothing extra. Every package in `requirements-motion.txt` traced to a real import in `src/motion/`, `paho-mqtt` excepted and declared as such. CR count 0 on all four new or changed text files. `johnny5-pi-m-env.md` read in full against `docs/HARDWARE_pi_m_runtime.md`: 17 lines, 8 of them frontmatter, every content fact present at the destination lines the report names, only the dead wikilink dropped. `git grep 5219` excluding `docs/archive/` and `docs/reports/`. `git grep` for references to the six notes from every other tracked file: only this file and `docs/ORCHESTRATION.md`, both narrative, no code. | **Nothing in the report failed verification and no factual error was found in it** — the first close-out in this project of which that is true without qualification. One judgement call overruled in part: `sandbox-no-torch.md`'s mechanism is preserved in `docs/ORCHESTRATION.md` section 7 rather than dropped with the file. Defects in *this* file, in the same two places as the previous two turns: the header and section 6 still had `main` at `769c618` with `docs/repo-hygiene` awaiting a merge that had already happened. Section 4's S18-O row still read `pending` for `7a5f827`. Section 9 records why this recurs and the procedural fix. |
+
+| 2026-08-26 (evening, local) | `main` @ `ebdea9e`, and the still-uncommitted S19 working tree | The `docs/reports/J5-S20.md` close-out report against the repository. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`: `main` at `ebdea9e`, `origin/main` and `origin/HEAD` identical, one branch, three tags unchanged, no `.git` lock files. `ebdea9e` shown by `--stat` to touch exactly `PROJECT_STATE.md`, `docs/ORCHESTRATION.md` and `docs/reports/J5-S19.md` and nothing else. `git ls-tree -r main` confirms `src/motion/requirements-motion.txt` and `docs/HARDWARE_pi_m_runtime.md` absent from `main` and all six root notes still tracked. `git --no-optional-locks status --porcelain` reproduces S20's output line for line. S20's copy of S19's command block diffed against `docs/reports/J5-S19.md` section 6: identical, seven lines. mtimes on all six files in play: S19's three at 2026-08-25 22:42, D7's two targets at 2026-08-25 22:34 and untouched, `docs/reports/J5-S20.md` alone at 2026-08-26 19:31 — so the report's central claim that it edited nothing else holds independently of the report. `grep -n 1807 docs/HARDWARE_drive_bringup.md` and `grep -n 5218 docs/diagrams/bench_full_schematic.svg` confirm O19 and O17 untouched. CR count 0 on the report. No test or guard was run: no code changed, so there was no figure to trace. | **Nothing in the report failed verification.** Its stop, its diagnosis and both of its recommendations about this file are correct, and its verbatim copy of S19's block is accurate. Two things it did not find, both in S19's block rather than in S20: the first commit message claims it closes O15, which this file has held open since 2026-08-25; and the block never merges `fix/pi-m-bringup`, so it cannot satisfy the precondition written against `main`. One thing beyond its scope: `grep -n 1807` returns two lines in `docs/HARDWARE_drive_bringup.md`, not the one O19 names. Defects in *this* file, in the same two places as the previous three turns: the header and section 6 had `main` at `7a5f827`; section 4's S19-O row read `pending` for `ebdea9e`. Section 7 carried O16 and O18 struck through as closed against a commit that does not exist — the first time this staleness reached the open items register rather than only the header. |
 
 **Attribution note, 2026-08-25.** `d1d4c2b` is dated 2026-08-24 but its content is the
 document demotion that section 9 records as S15's work on 2026-08-23. It is logged against S15
