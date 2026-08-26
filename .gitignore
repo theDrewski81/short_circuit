@@ -22,3 +22,6 @@ simulation/**/*.mjb
 .pytest_cache/
 *.egg-info/
 simulation/chassis/smoke_run/*.onnx
+
+# Session-local. Deliberately untracked; see PROJECT_STATE.md section 6.
+.claude/

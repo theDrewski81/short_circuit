@@ -149,10 +149,10 @@
 
     <text x="72" y="1010" font-weight="700" fill="#24292f">LEFT motor #5218 (ch A)        RIGHT motor #5218 (ch B)</text>
     <rect x="60" y="1016" width="1080" height="20" fill="#f6f8fa"/>
-    <text x="72" y="1030">#5218 RED / BLK</text><text x="360" y="1030">M1+ / M2</text><text x="560" y="1030">AO1 / AO2</text><text x="860" y="1030">#5218 RED/BLK &#8594; BO1/BO2</text>
-    <text x="72" y="1050">#5218 BLU / GRN</text><text x="360" y="1050">Vcc / GND</text><text x="560" y="1050">+ rail / &#8211; rail</text><text x="860" y="1050">#5218 BLU/GRN &#8594; + rail / &#8211; rail</text>
+    <text x="72" y="1030">LEFT RED / BLK</text><text x="360" y="1030">M1+ / M2</text><text x="560" y="1030">AO1 / AO2</text><text x="860" y="1030">RIGHT RED/BLK &#8594; BO1/BO2</text>
+    <text x="72" y="1050">LEFT BLU / GRN</text><text x="360" y="1050">Vcc / GND</text><text x="560" y="1050">+ rail / &#8211; rail</text><text x="860" y="1050">RIGHT BLU/GRN &#8594; + rail / &#8211; rail</text>
     <rect x="60" y="1056" width="1080" height="20" fill="#f6f8fa"/>
-    <text x="72" y="1070">#5218 YEL / WHT</text><text x="360" y="1070">A / B</text><text x="560" y="1070">GPIO17 / GPIO27</text><text x="860" y="1070">#5218 YEL/WHT &#8594; GPIO22 / GPIO23</text>
+    <text x="72" y="1070">LEFT YEL / WHT</text><text x="360" y="1070">A / B</text><text x="560" y="1070">GPIO17 / GPIO27</text><text x="860" y="1070">RIGHT YEL/WHT &#8594; GPIO22 / GPIO23</text>
   </g>
 
   <!-- ============ Notes ============ -->

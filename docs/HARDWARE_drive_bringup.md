@@ -13,7 +13,7 @@ speed, braking, encoder feedback, and a fail-safe standby interlock.
 | Driver | Pololu #713 — TB6612FNG dual H-bridge carrier (VM 4.5–13.5 V, VCC 2.7–5.5 V, 1 A cont. / 3 A peak per ch) |
 | Motor rail (VM) | Battery-direct 2S LiPo, ~7.4 V nom (8.4 V full) — within TB6612 range; 1000 µF across VM |
 | Logic rail (VCC) | 3.3 V from Pi-M (so all logic + encoder outputs are 3.3 V, GPIO-safe) |
-| Encoder | 12 CPR on the motor shaft × 150.58 gearbox ≈ **1807 counts / output rev** (quadrature) |
+| Encoder | 12 CPR on the motor shaft × 150.58 gearbox ≈ **1807 counts / output rev** at 4× quadrature, which is **not** the operative figure: the `gpiozero.RotaryEncoder` decode below is 1×, so `COUNTS_PER_OUTPUT_REV` is **451.74** (450.6 measured at S10; see `simulation/chassis/TUNING.md`) |
 
 ## Wiring — Pi-M (BCM) ↔ TB6612FNG ↔ motors
 
@@ -70,12 +70,12 @@ on the loop. `gpiozero` with the `lgpio` pin factory (installed by
 
 ## Encoders
 
-12 CPR × 150.58:1 ≈ 1807 counts/output-rev. Decode quadrature with interrupt/callback
-counting (`gpiozero.RotaryEncoder` or `pigpio` edge callbacks) — never poll in the
-loop. `EncoderReader` publishes signed left/right tick counts to the motion loop;
-the sign must match motor "forward". Used in Phase 02 for closed-loop checks and in
-Phase 05 for odometry. (Forward velocity for the policy obs is derived from these —
-see `TUNING.md`.)
+12 CPR × 150.58:1 ≈ 1807 counts/output-rev at 4× quadrature, which is **not** the operative figure: the `gpiozero.RotaryEncoder` decode below is 1×, so `COUNTS_PER_OUTPUT_REV` is **451.74** (450.6 measured at S10; see `simulation/chassis/TUNING.md`).
+Decode quadrature with interrupt/callback counting (`gpiozero.RotaryEncoder` or
+`pigpio` edge callbacks) — never poll in the loop. `EncoderReader` publishes signed
+left/right tick counts to the motion loop; the sign must match motor "forward". Used
+in Phase 02 for closed-loop checks and in Phase 05 for odometry. (Forward velocity
+for the policy obs is derived from these — see `TUNING.md`.)
 
 ## Bench bringup procedure (`scripts/test_motors.py`)
 
