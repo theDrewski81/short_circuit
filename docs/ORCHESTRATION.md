@@ -129,6 +129,14 @@ own state.
 
 Only then update `PROJECT_STATE.md`, in one edit, and log the verification in its section 10.
 
+**Reconcile the previous turn before verifying this one.** `PROJECT_STATE.md` is always written
+before the commits it describes, because every git write is Andrew's and happens after the turn
+ends — so the SHAs in it are correct only once he has run the block, and the header, section 6
+and the previous ledger row's `pending` entries are the places that go stale. An orchestrator
+turn's first act after reading is therefore to re-derive the header and section 6 from
+`git for-each-ref` and `git log`, and fill in or correct the previous turn's `pending` commits.
+Those exact two places were wrong at three consecutive turns before this was written down.
+
 If a report and the repository disagree, **the repository wins**, and say so to Andrew plainly
 — not softened, and not dressed up as a process observation.
 
@@ -212,7 +220,13 @@ Carried forward because every session otherwise rediscovers them at cost.
   with stale STLs is a GUI save, never a build, because `main()` exports before it saves.
 - **A document appearing in `list_documents` usually means it was left open**, not that it was
   just built.
-- **The agent sandbox cannot install PyTorch.** All ML training runs on the home lab.
+- **The agent sandbox cannot install PyTorch.** All ML training runs on the home lab. The
+  mechanism, recorded here in 2026-08-25 as the one fact worth keeping out of the root note
+  that carried it: the proxy 403-blocks `download.pytorch.org`, the CUDA wheels from PyPI
+  stall mid-download, and the default PyPI `torch` is the CUDA build, which hard-fails
+  import on a missing `libcublasLt.so`. Do not spend a session rediscovering this. What does
+  install is enough to de-risk an environment without torch — `simulation/chassis/cem_smoke.py`
+  is the precedent.
 - **Verification belongs in the build, not in the parameters.** `validate.py` compared numbers
   to numbers and reported ALL CHECKS PASS while three defects reached the print bed. Boolean
   guards inside `main()` are what catch real defects. Require them in any CAD session's
@@ -227,7 +241,9 @@ Carried forward because every session otherwise rediscovers them at cost.
 - **The connected folder is the wrong folder.** Cowork sessions are connected to
   `C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5`, the copy retired on
   2026-08-23, and it is empty. The repository is at `C:\dev\johnny5`. Request access to that
-  path before anything else. Two sessions have now hit this; every brief should say so.
+  path before anything else. **Every session so far has hit this** — the count was being
+  incremented by hand and kept going stale, which is its own small illustration; every brief
+  should say so.
 
 ---
 
