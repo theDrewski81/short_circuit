@@ -1,0 +1,44 @@
+# Runtime dependencies for the Pi-M motion stack.
+#
+#   pip install -r src/motion/requirements-motion.txt
+#
+# Derived from the install line in `scripts/setup_motion_pi.sh`, which now reads
+# this file rather than carrying its own list. Sited beside the code it serves on
+# the `src/vision/requirements-vision.txt` precedent.
+#
+# TWO PACKAGES ARE NOT IN THIS FILE AND MUST COME FROM apt:
+#
+#     sudo apt-get install -y python3-gpiozero python3-lgpio
+#
+# `gpiozero` (H-bridge direction and STBY lines, quadrature encoders) and `lgpio`
+# (its pin factory) cannot be pip-installed on Pi-M. Raspberry Pi OS Trixie ships
+# Python 3.13; there is no cp313 piwheel for lgpio, and the sdist links against a
+# system `-llgpio` that is not present, with or without swig. The venv reaches the
+# apt copies through `include-system-site-packages = true` in its `pyvenv.cfg`,
+# which `setup_motion_pi.sh` now sets. See `docs/HARDWARE_pi_m_runtime.md`.
+#
+# THE PINS BELOW ARE NOT VERIFIED AGAINST Pi-M. No agent session can reach the Pi.
+# They are current PyPI releases as of 2026-08-25 and are floors, not exact pins,
+# because Pi-M installs from the piwheels mirror whose available versions may lag
+# PyPI. If a `pip install -r` on the Pi disagrees with a working install, the Pi
+# wins and this file should be corrected to match it.
+
+# Locomotion policy inference (src/motion/locomotion_policy.py, lazy import).
+# MUST be the aarch64 build -- see the arch check in setup_motion_pi.sh.
+onnxruntime>=1.18
+
+# Observation assembly (src/motion/locomotion_policy.py, module scope).
+numpy<3
+
+# MPU-6050 and ADS1115 over I2C (src/motion/mpu6050.py, lazy import).
+smbus2>=0.4
+
+# Kernel hardware-PWM peripheral on GPIO12/13, motor speed
+# (src/motion/motor_driver.py, lazy import).
+rpi-hardware-pwm>=0.2
+
+# johnny5/intent and johnny5/status per src/shared/PROTOCOL.md.
+# NOT YET IMPORTED by any module: src/motion/main.py's MQTT functions are still
+# Phase 01 stubs. Declared because the setup script has installed it since Task 1
+# and Task 6b's live offline-fallback test is what will first need it.
+paho-mqtt>=2.1
