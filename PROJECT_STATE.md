@@ -380,8 +380,25 @@ is and is exactly the symptom O27 describes. Nothing here is a defect in any ses
 anything happened to the files but because S23's `*.FCBak` pattern now covers them. They are
 still on disk.
 
-**Do not commit the FreeCAD lines blind.** Whether `drivetrain_v1.FCStd`'s new state is wanted is
-Andrew's to say, not something to infer from a timestamp.
+**`drivetrain_v1.FCStd`'s modification was opened and read at S23-O, and it carries no
+engineering content.** Andrew confirmed FreeCAD is closed, so the file was unzipped and compared
+entry by entry against `HEAD`. All 35 entries are present in both and **every one of the twelve
+geometry entries is byte-identical** — the six `.brp` shape files, `track_loop_running.brp`, and
+all four `.Map.txt` companions, by md5. Exactly three entries differ: `Document.xml`, same 17,484
+bytes, differing in one field, `LastModifiedDate` from `2026-08-26T20:30:53-07:00` to
+`21:08:02-07:00`; `GuiDocument.xml`, +18 bytes, seven `treeRank` attributes moving from `-1` to
+2861–2867 as FreeCAD numbers the tree widget, plus the camera's `nearDistance` and `farDistance`
+from a view fit; and a regenerated 780 → 888 byte thumbnail. **No object was added, removed or
+rebuilt and no parameter moved.** This is the byte-level proof of the rule
+`docs/ORCHESTRATION.md` section 7 states from timestamps: a fresh `.FCStd` with stale STLs is a
+GUI save, never a build. The STLs are stamped 20:38, with `ecb244f`.
+
+**Recommendation: restore it rather than commit it.** `drivetrain_v1.FCStd` is a 1.28 MB binary
+and git stores a whole new copy per commit, so committing buys 1.28 MB of history for a
+timestamp, a camera clip plane and a tree-sort order. `git checkout -- ` on that one path loses
+nothing that exists. The sources and their exported STLs are all at their committed state at
+`9765f71` and `validate.py` passes, so there is nothing to rebuild either. Recorded as O28,
+which is about the recurrence rather than about this instance.
 
 **The merge was a fast-forward, not a squash, and that is fine.** `CLAUDE.md` says "squash
 merge to `main` via PR". S17's branch went in as its two own commits, `9e5191f` and
@@ -470,6 +487,7 @@ Carried non-blocking items. Blocking ones live in section 2.
 | O25 | **Phase 04's camera guidance names a different OS than the box runs, and a different library than the repository uses.** `phases/PHASE_04_COGNITION.md` task 2 and its Known Constraints both specify `picamera2` on Bookworm and warn that its APIs differ between OS versions; this file puts both Pis on Trixie. The only program in the repository that captures a frame, `scripts/whats_this_color.py`, uses `rpicam-still`, so the Phase 04 pipeline will be the first `picamera2` code on that box. Neither `picamera2` nor `rpicam-apps` is declared in any requirements file. Not worth a session of its own; fold into the next Phase 04 edit. Found by S22. | Worker | Phase 04 | 2026-08-26 |
 | O26 | **No systemd unit exists for either Pi.** `deploy_motion.sh` and `deploy_vision.sh` both restart a unit their own comments call TBD and tolerate the failure, so neither script currently does the second half of its job. Symmetric across the two Pis, so not part of the Pi-V asymmetry. Found by S22. | Worker | Phase 05 | 2026-08-26 |
 | O27 | **Half fixed at S23 (2026-08-27), not closed.** `.gitignore` line 31 is `*.FCBak`, unscoped deliberately, and `git check-ignore -v --no-index` names that line for all four files; the two untracked sidecars stopped appearing in `git status` the moment it landed. **The pattern cannot untrack what is already tracked** — `git ls-files` still lists all four — so this closes only when Andrew runs the four `git rm --cached` lines in `docs/reports/J5-S23.md` section 6, and the `.gitignore` edit itself is uncommitted until then. Original text: **Four `.FCBak` files are tracked, so FreeCAD's ordinary backup rotation shows up in git as a deletion.** `chassis_assembly_v1.20260821-143150.FCBak`, `drivetrain_v1.20260821-142329.FCBak`, `head_assembly_v1.20260619-220703.FCBak`, `torso_assembly_v1.20260619-220703.FCBak`. They are FreeCAD's own snapshots of superseded document states, regenerated on every save and of no value the `.FCStd` history does not already carry. `.gitignore` has no pattern for them. The fix is one `.gitignore` line plus a `git rm --cached` block, which is Andrew's; the pattern alone would not untrack what is already tracked. Surfaced 2026-08-26 when a save from an open FreeCAD put ` D ` in `git status` for a file nobody had touched. | Worker (`.gitignore`) + Andrew (`git rm --cached`) | D9 | 2026-08-26 |
+| O28 | **Opening a FreeCAD document and closing it modifies its `.FCStd` with no engineering content, and each one is a megabyte-scale binary.** Established at S23-O on `drivetrain_v1.FCStd`, whose uncommitted 2026-08-26 21:08 save was unzipped and compared against `HEAD`: all twelve geometry entries byte-identical, and the only differences a `LastModifiedDate` string, seven `treeRank` attributes going from `-1` to 2861–2867, two camera clip-plane distances, and a regenerated thumbnail. Same family as O27 — FreeCAD's routine behaviour showing up as a git change — but this one cannot be fixed with a `.gitignore` pattern, because the `.FCStd` is the tracked artifact and must stay tracked. **The recipe, so nobody re-derives it:** `git show HEAD:<path> > head.FCStd`, then compare `zipfile` member md5s. If every `.brp` and `.Map.txt` matches, the save is GUI state and the working-tree copy can be restored with `git checkout -- <path>`; if any differs, geometry moved and it is a real change. **Do not use a size or timestamp comparison for this** — the two files here differ by 203 bytes and the geometry is identical. No standing action: the judgement is per-instance and it is Andrew's, because only he knows whether he meant to change something. | Andrew | No due date; recurring | 2026-08-27 |
 
 ---
 
@@ -569,6 +587,19 @@ session to fill the slot would be ceremony outweighing the work, which `docs/ORC
 section 2 names as its own failure mode. The one job that does exist is this file's archive pass,
 and it cannot go to a worker because no worker edits this file — so it belongs to the next
 orchestrator turn, not to the dispatch queue.
+
+**The uncommitted `drivetrain_v1.FCStd` carries no engineering content, and it was opened rather
+than reasoned about.** Andrew confirmed FreeCAD was closed, so the file was unzipped and compared
+member by member against `HEAD`. All twelve geometry entries are byte-identical by md5; the only
+differences are a `LastModifiedDate` string, seven `treeRank` attributes going from `-1` to
+2861–2867, two camera clip-plane distances and a regenerated thumbnail. Nothing was added,
+removed or rebuilt, and the sources and their STLs are all at their committed state with
+`validate.py` passing, so there was nothing to rebuild either. **Recommended restore rather than
+commit** — a 1.28 MB binary blob of history for a camera clip plane is a bad trade, and the
+`.FCStd` history carries no information the geometry does not. This also puts a byte-level proof
+under a rule the project had only from timestamps: a fresh `.FCStd` with stale STLs is a GUI
+save, never a build. Recurrence recorded as O28, with the diagnostic recipe, because a size or
+timestamp comparison would have got this wrong — the two files differ by 203 bytes.
 
 **Two smaller findings, recorded rather than opened as items.** S23 reports that
 `docs/ORCHESTRATION.md` section 7's Python-import hazard did not reproduce: `mass_budget.py`,
