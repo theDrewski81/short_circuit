@@ -25,3 +25,7 @@ simulation/chassis/smoke_run/*.onnx
 
 # Session-local. Deliberately untracked; see PROJECT_STATE.md section 6.
 .claude/
+
+# FreeCAD backup sidecars. Rotated on every save and holding nothing the .FCStd
+# history does not; see PROJECT_STATE.md section 7, O27.
+*.FCBak
