@@ -371,15 +371,18 @@ def _shelf_screw_xy():
 def pi_shelf_columns():
     """Columns carrying the electronics shelf. Returns (solid, cuts).
 
-    Was two solid 8.4 x 73 mm ribs. The shelf now runs 38 mm further aft so it
-    can carry the IMU as well as the Pi, and ribs at that length would have been
-    58 g of wall; three columns a side do the same job for 23 g, and the gaps
-    between them are where wiring crosses underneath.
+    Was two solid 8.4 x 73 mm ribs. The shelf now runs 62 mm further aft so it
+    can carry the IMU breadboard as well as the Pi, and ribs at that length
+    would have been 58 g of wall; three columns a side do the same job for 23 g,
+    and the gaps between them are where wiring crosses underneath.
 
     Columns also delete the idler-rod notch. The rod crosses this band at axle
     height, and the old rib had a hole cut through it to let the rod pass;
     pi_column_ys instead places the forward column clear of the rod's travel, so
-    there is nothing to notch and nothing to mis-align on assembly.
+    there is nothing to notch and nothing to mis-align on assembly. It clamps
+    the aft column off the motor cradles for the same reason: the plate reaches
+    back over them now, and a column at its aft edge would stand in the motor
+    drop-in pocket.
     """
     z = Z0 + WALL + P["pi_shelf_z"]
     depth = P["motor_cap_screw_depth"]
@@ -407,10 +410,21 @@ def pi_shelf_plate():
     accelerometer picked up during tank turns. The floor windows that were cut
     for weight then had nothing left to undermine.
 
+    The IMU is not screwed to the plate directly any more. It sits on a
+    38.1 x 50.8 mm solderable mini breadboard so the sensor, its pull-ups and
+    its connectors can be built up and tested as one piece off the robot, and
+    that board's four mounting holes are a 31.8 x 44.5 mm rectangle rather than
+    the GY-521's 15 mm square. Its long axis runs along Y: 50.8 mm did not fit
+    between the Pi board's aft edge and the old plate edge, which is what took
+    pi_shelf_aft_ext from 38 to 62. Turned crosswise it would have fitted the
+    old plate to within 2 mm a side and sat straight on top of the loom slot.
+
     Three passthroughs: two beside the Pi for sensor and servo wiring, one aft
     for the battery and motor loom coming up from the floor. Nothing forward --
     the 4 mm gap between the plate's front edge and the tub's front wall is
-    where the ToF wiring already runs.
+    where the ToF wiring already runs. The aft slot has to stay clear of the
+    breadboard's footprint: the board stands 5 mm off the plate, and a loom
+    surfacing under it would have to turn twice inside that gap to get out.
     """
     t = P["pi_shelf_t"]
     cy = P["pi_shelf_cy"]
@@ -420,13 +434,14 @@ def pi_shelf_plate():
             solid = solid.fuse(L.standoff(dx, P["pi_board_cy"] - cy + dy, t,
                                           P["pi_standoff_h"], P["boss_od"],
                                           P["m25_tap_dia"]))
-    h = P["imu_hole_cc"] / 2.0
-    for dx in (-h, h):
-        for dy in (-h, h):
+    hx = P["imu_hole_cc_x"] / 2.0
+    hy = P["imu_hole_cc_y"] / 2.0
+    for dx in (-hx, hx):
+        for dy in (-hy, hy):
             solid = solid.fuse(L.standoff(P["imu_pos_x"] + dx,
                                           P["imu_pos_y"] - cy + dy, t,
                                           P["pi_standoff_h"], P["boss_od"],
-                                          P["m2_tap_dia"]))
+                                          P["imu_screw_tap_dia"]))
     for sx, sy in _shelf_screw_xy():
         solid = solid.cut(L.cyl(P["m2_tap_dia"] / 2.0 + 0.3, t + 2, sx, sy - cy, -1))
     for sx in (-1, 1):
@@ -434,7 +449,18 @@ def pi_shelf_plate():
                                 sx * P["pi_wire_slot_x"],
                                 P["pi_board_cy"] - cy, -1))
     solid = solid.cut(L.box(P["pi_loom_slot_w"], P["pi_loom_slot_l"], t + 2,
-                            0, P["pi_shelf_aft_y"] + 5.5 - cy, -1))
+                            0, P["pi_loom_slot_cy"] - cy, -1))
+    # Narrow tail. Everything aft of the cradle face gives up the outboard
+    # 8.5 mm a side so the motor retention caps stay liftable and their inboard
+    # screws stay drivable with the shelf fitted. The breadboard and its
+    # standoffs are inside what is left.
+    step_w = P["pi_shelf_half_w"] - P["pi_shelf_aft_half_w"]
+    step_l = P["pi_shelf_step_y"] - P["pi_shelf_aft_y"]
+    for sx in (-1, 1):
+        solid = solid.cut(L.box(
+            step_w, step_l, t + 2,
+            sx * (P["pi_shelf_half_w"] + P["pi_shelf_aft_half_w"]) / 2.0,
+            (P["pi_shelf_step_y"] + P["pi_shelf_aft_y"]) / 2.0 - cy, -1))
     return solid
 
 
@@ -814,9 +840,13 @@ def main():
     # the two do not want the same space -- the same class of error as the old
     # floor pad, where the battery bay and the IMU both wanted the centroid and
     # neither knew about the other.
+    # 12 mm is the height budget above the standoffs, not a measurement. Both
+    # stacks measure about 21 mm off the plate as bought and are cut down at the
+    # GPIO headers to fit it; there is 14.2 mm to the rim, so the budget has
+    # 2.2 mm in hand and the rim check below is what holds it.
     z_top = Z0 + WALL + P["pi_shelf_z"] + P["pi_shelf_t"] + P["pi_standoff_h"]
     board = L.box(P["pi_w"], P["pi_l"], 12.0, 0, P["pi_board_cy"], z_top)
-    imu = L.box(P["imu_hole_cc"] + 8, P["imu_hole_cc"] + 8, 12.0,
+    imu = L.box(P["imu_board_w"], P["imu_board_l"], 12.0,
                 P["imu_pos_x"], P["imu_pos_y"], z_top)
     clash = board.common(imu).Volume
     if clash > 1e-6:
@@ -829,6 +859,16 @@ def main():
         if env.BoundBox.ZMax > ZTOP:
             raise RuntimeError(f"{nm} stands {env.BoundBox.ZMax - ZTOP:.1f} mm "
                                "proud of the tub rim; the deck will not close")
+
+    # The aft loom slot has to surface beside the breadboard, not under it.
+    # Footprints only -- both are projected up from the plate, so this is a 2D
+    # overlap dressed as a volume.
+    loom = L.box(P["pi_loom_slot_w"], P["pi_loom_slot_l"], 12.0,
+                 0, P["pi_loom_slot_cy"], z_top)
+    clash = imu.common(loom).Volume
+    if clash > 1e-6:
+        raise RuntimeError(f"the IMU breadboard covers the aft loom slot by "
+                           f"{clash:.1f} mm3 of footprint")
 
     # Shelf in its assembled position: it should touch the rib tops and nothing
     # else, and every screw must find a tapped hole under it.
@@ -847,6 +887,25 @@ def main():
         if blocked > 1e-6:
             raise RuntimeError(f"no tapped hole under the shelf screw at "
                                f"({sx:+.1f}, {sy:+.1f}): {blocked:.1f} mm3")
+
+    # The plate reaches back over both motor cradles now, so it has to stay out
+    # from over the retention caps. Sweep each fitted cap straight up to the
+    # rim: anything of the shelf in that column is a cap that cannot come out
+    # and, at 20 mm inboard, a cap screw with no driver over it -- the same
+    # buried-fastener defect that took the IMU off the tub floor.
+    for sgn in (-1, 1):
+        lo, hi = _pocket_span(sgn)
+        fitted = cap_shape.copy()
+        fitted.translate(Vector((lo + hi) / 2.0, Y_REAR, AXLE))
+        cb = fitted.BoundBox
+        lift = L.box(cb.XLength, cb.YLength, ZTOP - cb.ZMax,
+                     (cb.XMin + cb.XMax) / 2.0, (cb.YMin + cb.YMax) / 2.0, cb.ZMax)
+        roofed = lift.common(placed).Volume
+        if roofed > 1e-6:
+            side = "right" if sgn > 0 else "left"
+            raise RuntimeError(f"the shelf roofs {roofed:.0f} mm3 of the {side} "
+                               "motor cap's lift path; the cap cannot come out "
+                               "with the shelf fitted")
 
     # The bay's aft end must be open so the pack can run back past the ring.
     # Probe the cavity, not the ring: the ring's side walls overlap the cradle

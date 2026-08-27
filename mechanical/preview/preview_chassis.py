@@ -80,6 +80,11 @@ def draw(ax):
     # Pi-M shelf board
     add(ax, box_faces(0, yb - 28 + 0, Z0 + P["tub_wall"] + P["pi_shelf_z"] + P["pi_standoff_h"],
                       P["pi_w"], P["pi_l"], 1.6), "#1f6feb", 0.9, ec="#0b3")
+    # IMU carrier breadboard, aft on the same shelf
+    add(ax, box_faces(P["imu_pos_x"], P["imu_pos_y"],
+                      Z0 + P["tub_wall"] + P["pi_shelf_z"] + P["pi_standoff_h"],
+                      P["imu_board_w"], P["imu_board_l"], 1.6),
+        "#7c3aed", 0.9, ec="#3b1d80")
     # ground
     gx, gy = np.meshgrid([-110, 110], [-110, 110])
     ax.plot_surface(gx, gy, np.zeros_like(gx), color="#eee", alpha=0.25)

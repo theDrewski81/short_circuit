@@ -75,11 +75,13 @@ pi_standoff_h,5,mm,pi,0,Standoff height under Pi
 pi_shelf_z,26,mm,pi,0,Shelf height above tub floor (above battery)
 pi_rib_x_in,22,mm,pi,0,Support column inner face; must sit outboard of the battery bay ring or the pack cannot seat
 pi_shelf_half_w,29,mm,pi,0,Shelf plate half-width; must reach past the rib centreline far enough to seat an M2 head
+pi_shelf_aft_half_w,20.5,mm,pi,0,Half-width of the plate's aft tail, from the motor cradle face back. At full width the tail roofed both retention caps and one cap screw each -- a buried fastener of exactly the kind the IMU was moved off the tub floor to avoid. Steps in to clear the cap footprint by 0.9 mm and still carry the breadboard standoffs with 1.1 mm to spare
 pi_shelf_screw_inset,6,mm,pi,0,Retained for the aft column inset from the plate edge
-pi_shelf_aft_ext,38,mm,pi,0,How much further aft the shelf runs than a Pi-only plate. Carries the IMU: one electronics shelf that can be built up outside the tub and dropped in
+pi_shelf_aft_ext,62,mm,pi,0,How much further aft the shelf runs than a Pi-only plate. Carries the IMU breadboard: one electronics shelf that can be built up outside the tub and dropped in. Set by the aft stack -- 4.1 mm behind the Pi board, 50.8 mm of breadboard, 3.6 mm to the loom slot, the 4 mm slot, 3.5 mm of material behind it
 pi_shelf_t,2.4,mm,pi,0,Shelf plate thickness. Was 2.0 hardcoded; a 111 mm plate now carrying the IMU wants the extra
 pi_columns_per_side,3,count,pi,0,Support columns replacing the two solid ribs. The ribs were 8.4 x 73 mm walls; extending them to 111 mm would have cost 58 g, and columns take that to 23 g
 pi_column_len,14,mm,pi,0,Column length along Y
+pi_column_cradle_clear,1.5,mm,pi,0,Gap the aft support column leaves in front of the motor cradle. The shelf runs back over the cradles now; a column at the plate's aft edge would stand inside the motor drop-in pocket, so the aft column stops here and the plate cantilevers the rest
 pi_wire_slot_w,5,mm,pi,0,Side wire-passthrough slot width, between the Pi board edge and the columns
 pi_wire_slot_l,30,mm,pi,0,Side wire-passthrough slot length
 pi_wire_slot_x,18.5,mm,pi,0,Side slot centre X
@@ -109,9 +111,13 @@ boss_od,7.0,mm,fastener,0,Default screw-boss outer dia
 tof_window_w,12,mm,sensor,0,VL53L1X front window width
 tof_window_h,8,mm,sensor,0,VL53L1X front window height
 tof_hole_cc,18,mm,sensor,0,Pololu 3415 mount hole spacing
-imu_hole_cc,15,mm,sensor,0,GY-521 mount hole spacing (square)
-imu_pos_x,0,mm,sensor,0,IMU centre X **on the Pi-M shelf**. Back on the centreline: the offset to 35 existed only to clear the battery bay ring on the tub floor, and off the floor there is nothing to clear. Kills the accelerometer lever-arm term outright
-imu_pos_y,-22,mm,sensor,0,IMU centre Y on the shelf, aft of the Pi board
+imu_board_w,38.1,mm,sensor,0,Solderable mini breadboard X extent. The IMU is not screwed to the shelf directly any more -- it rides this board so the sensor and its connectors can be soldered up and tested off the robot
+imu_board_l,50.8,mm,sensor,0,Breadboard Y extent
+imu_hole_cc_x,31.8,mm,sensor,0,Breadboard mount hole spacing across X (short axis)
+imu_hole_cc_y,44.5,mm,sensor,0,Breadboard mount hole spacing along Y (long axis)
+imu_screw_tap_dia,2.5,mm,sensor,0,Thread-form pilot in the breadboard standoffs. M3 assumed -- a 38.1 x 50.8 board on this hole pattern normally carries 3.2 mm holes. Set to 1.7 if the board measures M2
+imu_pos_x,0,mm,sensor,0,Breadboard centre X **on the Pi-M shelf**. On the centreline: the offset to 35 existed only to clear the battery bay ring on the tub floor, and off the floor there is nothing to clear. Kills the accelerometer lever-arm term outright
+imu_pos_y,-30,mm,sensor,0,Breadboard centre Y on the shelf, aft of the Pi board. Sits between two fixed neighbours: 4.1 mm behind the Pi board's aft edge and 3.6 mm ahead of the aft loom slot
 #
 # --- Torso interface (top deck) ---
 torso_iface_dx,70,mm,iface,0,Torso bolt rectangle X (M3 heat-set)

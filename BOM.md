@@ -35,7 +35,8 @@ Arm design budget: ≤50 g and ≤90 mm effective lever per arm (keeps shoulder 
 | Part | Spec | Qty | Est. cost | Supplier / notes |
 |---|---|---|---|---|
 | ToF distance | VL53L1X carrier, 400 cm, regulated + level-shifted | 1 | $13 | Pololu #3415. I²C 0x29. XSHUT → Pi-M GPIO. |
-| IMU | MPU-6050 (GY-521) | 1 | $4 | I²C 0x68. 3.3 V. |
+| IMU | MPU-6050 (GY-521) | 1 | $4 | I²C 0x68. 3.3 V. Mounted on the carrier breadboard below rather than screwed to the shelf directly. |
+| IMU carrier | Solderable mini breadboard, 38.1 × 50.8 mm, mount holes 31.8 × 44.5 mm | 1 | $3 | Added 2026-08-26. The IMU, its pull-ups and its connectors solder up as one piece that can be tested off the robot and then dropped onto the Pi-M shelf on four 5 mm standoffs. Cost the shelf plate 24 mm of length (111 → 135 mm, +3 g net of the narrowed tail) and the budget ~8 g of FR-4. |
 
 ## 4. Audio (all on Pi-V)
 

@@ -150,20 +150,62 @@ chk("Shelf screw inset clears the plate edge",
     f'{P["pi_shelf_screw_inset"]:.0f} >= {P["boss_od"]/2:.1f}')
 chk("Pi board fits the shelf plate", P["pi_w"] <= 2 * P["pi_shelf_half_w"],
     f'{P["pi_w"]:.0f} <= {2*P["pi_shelf_half_w"]:.0f}')
-imu_half = (P["imu_hole_cc"] + 8) / 2
-# The IMU rides the Pi-M shelf now, not the tub floor, so the checks are about
-# sharing a plate with the Pi rather than dodging the battery bay ring.
-chk("IMU sits aft of the Pi board on the shelf",
-    P["imu_pos_y"] + imu_half + 3 <= P["pi_board_cy"] - P["pi_l"] / 2,
-    f'IMU front edge {P["imu_pos_y"] + imu_half:.1f} <= board aft edge '
+imu_half_x = P["imu_board_w"] / 2
+imu_half_y = P["imu_board_l"] / 2
+# The IMU rides the Pi-M shelf now, not the tub floor, and it rides it on a
+# breadboard rather than on its own four screws -- so the footprint that has to
+# fit is the board's, and it is no longer square. The checks are about sharing
+# a plate with the Pi and with the aft loom slot, not dodging the battery bay.
+chk("IMU breadboard sits aft of the Pi board on the shelf",
+    P["imu_pos_y"] + imu_half_y + 3 <= P["pi_board_cy"] - P["pi_l"] / 2,
+    f'breadboard front edge {P["imu_pos_y"] + imu_half_y:.1f} <= Pi aft edge '
     f'{P["pi_board_cy"] - P["pi_l"]/2:.1f}')
-chk("IMU fits across the shelf",
-    abs(P["imu_pos_x"]) + imu_half <= P["pi_shelf_half_w"],
-    f'{abs(P["imu_pos_x"]) + imu_half:.1f} <= {P["pi_shelf_half_w"]:.0f}')
-chk("Shelf reaches aft of the IMU",
-    P["pi_shelf_aft_y"] <= P["imu_pos_y"] - imu_half - 3,
-    f'shelf aft {P["pi_shelf_aft_y"]:.1f} <= IMU aft edge - 3 '
-    f'{P["imu_pos_y"] - imu_half - 3:.1f}')
+chk("IMU breadboard fits across the shelf tail",
+    abs(P["imu_pos_x"]) + imu_half_x <= P["pi_shelf_aft_half_w"],
+    f'{abs(P["imu_pos_x"]) + imu_half_x:.1f} <= {P["pi_shelf_aft_half_w"]:.1f}')
+chk("Breadboard standoff bosses fit the shelf tail",
+    abs(P["imu_pos_x"]) + P["imu_hole_cc_x"] / 2 + P["boss_od"] / 2
+    <= P["pi_shelf_aft_half_w"],
+    f'{abs(P["imu_pos_x"]) + P["imu_hole_cc_x"]/2 + P["boss_od"]/2:.1f} <= '
+    f'{P["pi_shelf_aft_half_w"]:.1f}')
+_cap_xmin = (P["tub_width"] / 2 - P["tub_wall"] - P["cradle_l"]
+             + P["motor_cap_wall_clear"])
+chk("Shelf tail clears the motor cap footprint",
+    P["pi_shelf_aft_half_w"] + 0.5 <= _cap_xmin,
+    f'tail edge {P["pi_shelf_aft_half_w"]:.1f} + 0.5 <= cap inboard edge '
+    f'{_cap_xmin:.1f}')
+chk("Shelf tail step sits aft of the last column",
+    P["pi_shelf_step_y"] <= min(j5_params.pi_column_ys(P)) - P["pi_column_len"] / 2,
+    f'step {P["pi_shelf_step_y"]:.1f} <= aft column face '
+    f'{min(j5_params.pi_column_ys(P)) - P["pi_column_len"]/2:.1f}')
+chk("Shelf reaches aft of the IMU breadboard",
+    P["pi_shelf_aft_y"] <= P["imu_pos_y"] - imu_half_y - 3,
+    f'shelf aft {P["pi_shelf_aft_y"]:.1f} <= breadboard aft edge - 3 '
+    f'{P["imu_pos_y"] - imu_half_y - 3:.1f}')
+# The loom comes up beside the board, not under it: the board stands 5 mm off
+# the plate and a loom surfacing beneath it has to turn twice to get clear.
+chk("Aft loom slot clears the IMU breadboard",
+    P["pi_loom_slot_cy"] + P["pi_loom_slot_l"] / 2 <= P["imu_pos_y"] - imu_half_y - 2,
+    f'slot front edge {P["pi_loom_slot_cy"] + P["pi_loom_slot_l"]/2:.1f} <= '
+    f'breadboard aft edge - 2 {P["imu_pos_y"] - imu_half_y - 2:.1f}')
+chk("Shelf keeps material aft of the loom slot",
+    P["pi_shelf_aft_y"] <= P["pi_loom_slot_cy"] - P["pi_loom_slot_l"] / 2 - 3,
+    f'shelf aft {P["pi_shelf_aft_y"]:.1f} <= slot aft edge - 3 '
+    f'{P["pi_loom_slot_cy"] - P["pi_loom_slot_l"]/2 - 3:.1f}')
+_bb_sep = min(
+    ((P["imu_pos_x"] + sx * P["imu_hole_cc_x"] / 2 - ax) ** 2
+     + (P["imu_pos_y"] + sy * P["imu_hole_cc_y"] / 2 - ay) ** 2) ** 0.5
+    for sx in (-1, 1) for sy in (-1, 1)
+    for ax in (-P["pi_rib_cx"], P["pi_rib_cx"])
+    for ay in j5_params.pi_column_ys(P))
+_bb_need = P["boss_od"] / 2 + P["m2_tap_dia"] / 2 + 0.3
+chk("Breadboard standoffs clear the shelf screw holes",
+    _bb_sep >= _bb_need,
+    f'closest pair {_bb_sep:.1f} mm apart, needs {_bb_need:.1f}')
+chk("Shelf plate fits bed",
+    P["pi_shelf_len"] <= P["bed_y"] and 2 * P["pi_shelf_half_w"] <= P["bed_x"],
+    f'{2*P["pi_shelf_half_w"]:.0f} x {P["pi_shelf_len"]:.0f} <= '
+    f'{P["bed_x"]:.0f} x {P["bed_y"]:.0f}')
 chk("Electronics stack clears the tub rim",
     (P["ground_clearance"] + P["tub_wall"] + P["pi_shelf_z"] + P["pi_shelf_t"]
      + P["pi_standoff_h"] + 12) <= P["ground_clearance"] + P["tub_height"],
@@ -175,6 +217,15 @@ chk("Shelf columns clear the idler rod",
     <= P["idler_y_nom"] - P["idler_axle_dia"] / 2 - 2,
     f'front column face {max(_cols) + P["pi_column_len"]/2:.1f} <= rod aft '
     f'{P["idler_y_nom"] - P["idler_axle_dia"]/2 - 2:.1f}')
+chk("Shelf columns clear the motor cradle",
+    min(_cols) - P["pi_column_len"] / 2
+    >= -P["wheelbase"] / 2 + P["cradle_w"] / 2 + 1.0,
+    f'aft column face {min(_cols) - P["pi_column_len"]/2:.1f} >= cradle front '
+    f'{-P["wheelbase"]/2 + P["cradle_w"]/2 + 1.0:.1f}')
+chk("Shelf aft cantilever stays within budget",
+    (min(_cols) - P["pi_column_len"] / 2) - P["pi_shelf_aft_y"] <= 25.0,
+    f'{(min(_cols) - P["pi_column_len"]/2) - P["pi_shelf_aft_y"]:.1f} mm of '
+    'plate aft of the last column, budget 25')
 chk("Shelf columns clear the battery bay ring",
     P["pi_rib_x_in"] >= (P["battery_w"] + 2 * P["battery_clear"]) / 2 + 2,
     f'{P["pi_rib_x_in"]:.1f} >= {(P["battery_w"] + 2*P["battery_clear"])/2 + 2:.1f}')

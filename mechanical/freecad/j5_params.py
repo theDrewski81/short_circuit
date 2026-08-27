@@ -52,15 +52,25 @@ def derive(p):
     # shelf plate's clearance holes cannot land in different places.
     p["pi_rib_t"] = p["tub_wall"] + 6.0
     p["pi_rib_cx"] = p["pi_rib_x_in"] + p["pi_rib_t"] / 2.0
-    # One electronics shelf: the Pi board forward, the IMU aft. Front edge stays
-    # where the Pi-only plate had it; the aft edge runs back over ground the IMU
-    # used to occupy on the tub floor.
+    # One electronics shelf: the Pi board forward, the IMU breadboard aft.
+    # Front edge stays where the Pi-only plate had it; the aft edge runs back
+    # over ground the IMU used to occupy on the tub floor, and now far enough
+    # past it to take the breadboard's 50.8 mm long axis plus the loom slot.
     p["pi_board_cy"] = p["wheelbase"] / 2.0 - 28.0
     p["pi_shelf_fwd_y"] = p["pi_board_cy"] + (p["pi_l"] + 8.0) / 2.0
     p["pi_shelf_aft_y"] = (p["pi_board_cy"] - (p["pi_l"] + 8.0) / 2.0
                            - p["pi_shelf_aft_ext"])
     p["pi_shelf_len"] = p["pi_shelf_fwd_y"] - p["pi_shelf_aft_y"]
     p["pi_shelf_cy"] = (p["pi_shelf_fwd_y"] + p["pi_shelf_aft_y"]) / 2.0
+    # Aft loom slot centre. Derived here because the plate cuts it and the
+    # breadboard-clearance guards measure against it, and those were about to
+    # carry two private copies of the same 5.5 mm offset.
+    p["pi_loom_slot_cy"] = p["pi_shelf_aft_y"] + 5.5
+    # Where the plate steps in to its narrow tail: the motor cradle's forward
+    # face, which is the first Y at which a full-width plate would start
+    # roofing a retention cap. Aft of the last support column, so the step
+    # never eats into a shelf screw.
+    p["pi_shelf_step_y"] = -p["wheelbase"] / 2.0 + p["cradle_w"] / 2.0
     # Battery bay ring stops clear of the motor cradle, so it is shorter than
     # the pack and open at the aft end.
     p["bay_aft_y"] = -p["wheelbase"] / 2.0 + p["cradle_w"] / 2.0 + p["battery_bay_aft_clear"]
@@ -136,10 +146,19 @@ def pi_column_ys(p):
     the rod crosses the column band at axle height, and a column notched for it
     would be mostly notch. The plate cantilevers the last 14 mm to its front
     edge, which is carrying nothing but air.
+
+    The aft column is clamped the same way, off the motor cradles. The plate
+    reaches back over both of them to carry the IMU breadboard, and a column at
+    its aft edge would stand inside the motor drop-in pocket, where the
+    retention cap has to come out. So the last column sits in front of the
+    cradle face and the plate cantilevers the remainder -- about 21 mm, loaded
+    only by the breadboard.
     """
     n = int(p["pi_columns_per_side"])
     half = p["pi_column_len"] / 2.0
     aft = p["pi_shelf_aft_y"] + 2.0 + half
+    cradle_fwd = -p["wheelbase"] / 2.0 + p["cradle_w"] / 2.0
+    aft = max(aft, cradle_fwd + p["pi_column_cradle_clear"] + half)
     fwd = p["idler_y_nom"] - p["idler_axle_dia"] / 2.0 - 3.0 - half
     if n < 2:
         return [(aft + fwd) / 2.0]
