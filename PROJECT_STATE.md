@@ -7,22 +7,31 @@ Phase documents in `/phases/` say what the work *is*; this file says where the w
 Owner: the orchestrator session. No worker session edits this file. A worker that
 believes it is wrong reports that to the orchestrator.
 
-**Last verified: 2026-08-26 (night, local) against `main` @ `248a41d`.**
+**Last verified: 2026-08-27 (afternoon, local) against `main` @ `9765f71`.**
 
-**Reconciliation flag for the next turn.** `248a41d` is where `main` stood while this turn ran,
-and S22's deliverable is already on it — the S20-O ordering rule working as intended for the
-second consecutive cycle. The only thing `main` will not carry is this turn's own state commit.
-The working tree is **not clean**, and for the first time the reason has nothing to do with a
-session: FreeCAD was open on Andrew's desktop while this turn ran and saved
-`mechanical/freecad/drivetrain_v1.FCStd` at 21:08 local, which also rotated its `.FCBak`
-sidecars. Section 6 records what that looks like in `git status` and why one line of it reads
-as a deletion. Re-derive the header, section 6 and section 4's `pending` row from
-`git for-each-ref` and `git log` before relying on any of them.
+**Reconciliation flag for the next turn.** `9765f71` is where `main` stood while this turn ran.
+It carries the S22-O state commit, which is what section 4's `pending` row has been filled in
+from; it does **not** carry S23's three edited files, which sit uncommitted in the working tree,
+nor this turn's own state commit. Both are in the block at `docs/reports/J5-S23.md` section 6 —
+hand the worker's three commits over **before** the state commit, per the S20-O ordering rule.
+The working tree is **not clean** and the reason is still not a session's: FreeCAD remains open
+on Andrew's desktop, `mechanical/freecad/drivetrain_v1.FCStd` is modified, and a tracked `.FCBak`
+sidecar it rotated shows as a deletion. Section 6 records both. Re-derive the header, section 6
+and section 4's two `pending` rows from `git for-each-ref` and `git log` before relying on any
+of them.
+
+**This file is over its line ceiling and the archive pass is the next orchestrator turn's job.**
+`docs/ORCHESTRATION.md` section 10 sets about 1,200 lines and names the remedy: move closed
+material into `docs/archive/`. It cannot be dispatched to a worker, because no worker edits this
+file. Section 7's struck-through items and section 9's 2026-06 and 2026-07 entries are the
+obvious candidates; section 9 is archived, never truncated.
 
 **One item in section 7 needs action before the next push and is not a session: O22.**
-`.env.example` carries a live LiteLLM virtual key as a literal value, the GitHub remote was
-confirmed public on 2026-08-26, and the key has been in that repository's history since
-`22ad422` on 2026-06-20.
+`.env.example` carries a live LiteLLM virtual key as a literal value in this repository's
+history, the GitHub remote was confirmed public on 2026-08-26, and the key has been in that
+history since `22ad422` on 2026-06-20. S23 replaced the literal in the working file with a
+placeholder; **that is hygiene and it removes nothing from history.** Rotation on the AOS proxy
+is the remediation and it is still outstanding.
 
 ---
 
@@ -47,9 +56,11 @@ on `main`. What S22 found while writing is worth more than what it wrote: an exp
 (O22), and the fact that **Pi-V has never had a bringup session at all** (O24), which is a real
 gap in the project rather than a documentation one and which nobody had stated before.
 
-One session's worth of remediation now exists behind that — **D9**, which is small and which the
-queue would not otherwise have. Everything that moves Task 6b
-is a printer or a bench job.
+**D9 was that remediation and S23 spent it on 2026-08-27.** With it done the dispatch queue holds
+nothing ready-now: D4, D5 and D6 sit behind B1–B4, the Pi-V bringup sits behind the same physical
+work, and every remaining open item is Andrew's, informational, or due in a phase that has not
+started. **This turn therefore dispatches no worker session**, which is the honest answer rather
+than a gap in the record. Everything that moves Task 6b is a printer or a bench job.
 
 Gate condition, verbatim from `phases/PHASE_02_LOCOMOTION.md`:
 
@@ -96,7 +107,7 @@ Phase 02 critical path.
 
 | Phase | Name | Gate condition (abbreviated) | State | Since | Evidence |
 |---|---|---|---|---|---|
-| 00 | Hardware Design & BOM | BOM finalized and approved; body design baselined in FreeCAD | **MET** (re-met after reopening) | 2026-08-21 | `c88033b` — drivetrain built and guarded, 1531 g against a 1.6 kg ceiling, `mass_budget.py` and `validate.py` both clean. **The mass has since moved: 1542 g at `ecb244f`** (see below) |
+| 00 | Hardware Design & BOM | BOM finalized and approved; body design baselined in FreeCAD | **MET** (re-met after reopening) | 2026-08-21 | `c88033b` — drivetrain built and guarded, 1531 g against a 1.6 kg ceiling, `mass_budget.py` and `validate.py` both clean. **The mass has since moved: 1542 g, all of it at `23157ef`** (see below) |
 | 01 | Infrastructure & Repository | Both Pis communicate with each other and with home lab LiteLLM; offline fallback functional | **MET** | 2026-06-22 | `0b13d84`, tagged `v1.0`. See caveat below. |
 | 02 | Locomotion | Robot drives forward, backward and turns on command via a trained policy | **ACTIVE** | 2026-06-22 | Tasks 1–5, 6a complete; 6b blocked on B1–B4 |
 | 03 | Manipulation | Shoulder and head servos respond to commanded positions with position/load feedback; home, wave and attention behaviors execute | Not started | — | — |
@@ -109,14 +120,20 @@ had never been printed. Printing it reopened the phase at Session 03 on 2026-08-
 the first physical tub proved unbuildable. Re-closed at Session 04 on 2026-08-21. The
 lesson is recorded in the decision record: a gate met against an unbuilt artifact is not met.
 
-**The Phase 00 mass figure moved on 2026-08-26 and the gate still holds.** Andrew's two CAD
-commits that evening — `23157ef`, the IMU carrier breadboard, and `ecb244f`, the circular track
-loop print — added mass. `mechanical/preview/mass_budget.py` run from `248a41d` now prints
-**`ASSEMBLED TOTAL 1542 g (96.4% of ceiling)`**, 58 g of headroom, 1597 g at +25 % on the
-printed parts, still under the 1.6 kg ceiling in both cases; `mechanical/preview/validate.py`
-still reports `ALL CHECKS PASS` across all 16 checks. Both were run by the orchestrator on
-2026-08-26 rather than taken from a document. The gate is unaffected. **`BOM.md` was not
-updated and still states 1531 g in two places**, which is O23.
+**The Phase 00 mass figure moved on 2026-08-26 and the gate still holds.** **One** of Andrew's
+two CAD commits that evening moved it: `23157ef`, the IMU carrier breadboard and the Pi-M shelf
+plate that grew to take it, is the whole 11 g. `ecb244f`, the circular track loop print, revised
+`components.csv` the same evening and moved no mass at all — band mass is a function of path
+length and thickness, not of the shape the band is printed in. This file and O23 both said the
+figure moved because of both commits until 2026-08-27; S23 found otherwise and the orchestrator
+reproduced it, running `mass_budget.py` at `23157ef^`, `23157ef` and `ecb244f` from clean
+`git show` extractions: **1531 g, 1542 g, 1542 g**. `mechanical/preview/mass_budget.py` run from
+`9765f71` prints **`ASSEMBLED TOTAL 1542 g (96.4% of ceiling)`**, 58 g of headroom, 1597 g at
++25 % on the printed parts, still under the 1.6 kg ceiling in both cases;
+`mechanical/preview/validate.py` still reports `ALL CHECKS PASS` across all 16 checks. Both were
+re-run by the orchestrator on 2026-08-27 rather than taken from a document. The gate is
+unaffected. **`BOM.md` now carries 1542 g in both places** — S23's edit, uncommitted at the time
+of writing; O23 closes when it lands.
 
 **Phase 01 gate caveat.** Clause 3, offline fallback, was satisfied as unit-tested pure
 logic — 8/8 in `tests/test_offline_fallback.py`, covering all three state transitions plus
@@ -171,7 +188,9 @@ mix the authoring machine's local time and UTC; both are shown as git records th
 | S21 | 2026-08-26 | 02 (off the critical path) | D7 — documentation and drawing maintenance, re-dispatch | **Complete. All four scope items done.** Both `1807` instances in `docs/HARDWARE_drive_bringup.md` clarified in `BOM.md`'s O14 words; the six `#5218` row prefixes in the bench schematic's wiring key changed to `LEFT`/`RIGHT`; `.claude/` added to `.gitignore`; O4's FreeCAD probe spent and answered negatively. Report at `docs/reports/J5-S21.md`; verified against the repository 2026-08-26, nothing failed. Three files uncommitted at close; **committed by Andrew as `10650f2` on 2026-08-26**. | `10650f2` |
 | S21-O | 2026-08-26 | Orchestration | Verify S21, update state, close D7 | This row's own turn. S21 verified with nothing failing and no factual error found in it. O16 and O18 closed against commits that now exist; O17, O19 and O20 closed; O4 answered and re-scoped; O21 opened on a working-tree line-ending survey S21 flagged but did not run. D7 closed, D8 queued as optional. | `38569a1` |
 | S22 | 2026-08-26 | Orchestration/docs | D8 — Pi-V runtime document | **Complete.** `docs/HARDWARE_pi_v_runtime.md`, 197 lines, every fact traced to a named repository file or marked unverified. Proceeded past a precondition whose evidence form had gone stale, flagged it prominently, and was upheld at close-out. Its open threads are worth more than its deliverable: O22, O24, O25, O26. Report at `docs/reports/J5-S22.md`; verified against the repository 2026-08-26, nothing failed. | `248a41d` |
-| S22-O | 2026-08-26 | Orchestration | Verify S22, update state, dispatch D9 | This row's own turn. S22 verified with nothing failing and no factual error found in it — the third close-out of which that is true. Andrew's two unlogged CAD commits reconciled below; the Phase 00 mass figure re-derived at 1542 g; O1 pointed at the document that now exists; O22 through O27 opened; D8 closed and D9 queued. | pending |
+| S22-O | 2026-08-26 | Orchestration | Verify S22, update state, dispatch D9 | This row's own turn. S22 verified with nothing failing and no factual error found in it — the third close-out of which that is true. Andrew's two unlogged CAD commits reconciled below; the Phase 00 mass figure re-derived at 1542 g; O1 pointed at the document that now exists; O22 through O27 opened; D8 closed and D9 queued. | `9765f71` |
+| S23 | 2026-08-27 | Orchestration/repo | D9 — remediation of what S22 turned up | **Complete. All three scope items done as files.** `.env.example`'s literal LiteLLM key replaced with `<set-on-litellm-proxy>` plus three comment lines saying where the real value lives; `BOM.md` lines 173 and 181 re-quoted at 1542 g from the script that prints it; `.gitignore` gains `*.FCBak`. **Found that O23's stated cause was half wrong** — `ecb244f` moved no mass — and proved it by running `mass_budget.py` at three revisions rather than asserting it. Report at `docs/reports/J5-S23.md`; verified against the repository 2026-08-27, nothing failed. Three files uncommitted at close; Andrew's block is in the report's section 6. | pending |
+| S23-O | 2026-08-27 | Orchestration | Verify S23, update state, close D9 | This row's own turn. S23 verified with nothing failing and no factual error found in it — the fourth close-out of which that is true. Section 3 and O23 corrected on the 11 g attribution, O27 requalified as fixed-not-closed, O5's wording made precise. **No worker session dispatched: the queue holds nothing ready-now**, and the one job that is owed — this file's archive pass — cannot go to a worker. | pending |
 
 **Commits on `main` that came from no dispatched session.** Andrew works at the bench and in
 FreeCAD between turns, and that work reaches `main` directly. It gets no session number, because
@@ -199,15 +218,19 @@ order to dispatch in is stated in prose below, because a queue whose numbers shi
 every document that cites one. Anything citing a number below D4 and dated before 2026-08-25
 predates the renumber.
 
-**Ready now:** **D9**, remediation of what S22 turned up. **Blocked:** D4, D5 and D6 on the
-physical work behind them. **Deferred:** the Pi-V bringup session (O24), which needs the box and
-the audio hardware and sits behind the same physical work as everything else.
-**Not a session, and not D9:** rotating the exposed LiteLLM key (O22) is Andrew's and should
-happen before the next push, independently of whether D9 is ever dispatched. Editing
-`.env.example` forward does not remove the value from git history; rotation is the remediation
-and the file edit is hygiene that follows it.
+**Ready now: nothing.** D9 was the last ready-now item and S23 spent it on 2026-08-27.
+**Blocked:** D4, D5 and D6 on the physical work behind them. **Deferred:** the Pi-V bringup
+session (O24), which needs the box and the audio hardware and sits behind the same physical work
+as everything else.
+**Not a session:** rotating the exposed LiteLLM key (O22) is Andrew's and should happen before
+the next push. S23 replaced the literal in `.env.example` with a placeholder; that removes
+nothing from git history. Rotation is the remediation and the file edit is hygiene that follows
+it.
 **Not a session:** B1 and B2, the two print jobs, are the whole of what stands between the
-project and the Phase 02 gate. D7 closed at S21 and D8 at S22, both on 2026-08-26.
+project and the Phase 02 gate. D7 closed at S21, D8 at S22, D9 at S23.
+**Not dispatchable, and owed:** this file's own archive pass. It is over the ceiling
+`docs/ORCHESTRATION.md` section 10 sets and no worker may edit it, so it belongs to the next
+orchestrator turn rather than to this queue.
 
 **D1 — Power wiring and harness schematic.** **COMPLETE (S17, 2026-08-25).**
 Delivered on `docs/power-harness-schematic` and merged to `main` the same day as `9e5191f`
@@ -297,6 +320,16 @@ and the four tracked files go in a `git rm --cached` block for Andrew.
 **Do not dispatch this expecting it to close O22.** The file edit is hygiene; the rotation is
 the remediation and it is Andrew's. Session config: Sonnet, Standard, Medium.
 
+**Delivered by S23 on 2026-08-27, uncommitted at the time of this turn.** `.env.example` carries
+`LITELLM_API_KEY=<set-on-litellm-proxy>` in `MQTT_PASSWORD`'s form with three comment lines
+saying the real value lives in the per-Pi `.env`; `BOM.md` lines 173 and 181 both carry 1542 g
+with `mass_budget.py` named as the source; `.gitignore` gains `*.FCBak` above a comment pointing
+at O27. Report at `docs/reports/J5-S23.md`, verified 2026-08-27, nothing failed. O23 closes with
+the `BOM.md` commit **and its text was wrong about the cause** — the 11 g is `23157ef` alone,
+corrected here and in section 3. O27's `.gitignore` half is done; its `git rm --cached` half is
+in the report's block. **O22 does not close and nothing in S23 should be read as closing it.**
+**D9 is spent and the queue now holds nothing ready-now.**
+
 ---
 
 ## 6. Repository map
@@ -307,13 +340,14 @@ the remediation and it is Andrew's. Session config: Sonnet, Standard, Medium.
 **Dispatch hazard.** The folder connected to a Cowork session is
 `C:\Users\apsus\Nextcloud\Documents\VS Code\Johnny5\Johnny 5`, the retired copy, and it
 is **empty**. Every session must request access to `C:\dev\johnny5` before doing anything
-else. Every session through S22 has hit this. Say so in every brief.
+else. Every session through S23 has hit this, this orchestrator turn included. Say so in
+every brief.
 
 **Branches — one.**
 
 | Branch | Role |
 |---|---|
-| `main` | The trunk. `248a41d` at the time of this turn. Matches `origin/main` and `origin/HEAD`, both pushed. Carries all of S17 through S22, including S21's `10650f2`, the S21-O state commit `38569a1`, Andrew's two CAD commits `23157ef` and `ecb244f`, and S22's `248a41d`. **Not** this turn's state commit, which is in the block handed over with this update. |
+| `main` | The trunk. `9765f71` at the time of this turn. Matches `origin/main` and `origin/HEAD`, both pushed. Carries all of S17 through S22, including S21's `10650f2`, the S21-O state commit `38569a1`, Andrew's two CAD commits `23157ef` and `ecb244f`, S22's `248a41d`, and the S22-O state commit `9765f71`. **Not** S23's three edited files, which are uncommitted, and **not** this turn's state commit. Both are in the block at `docs/reports/J5-S23.md` section 6; S23's three commits go over first. |
 
 `docs/repo-hygiene` was fast-forwarded into `main` and deleted on 2026-08-25, and
 `docs/power-harness-schematic` before it on the same day.
@@ -324,26 +358,29 @@ fix plus `src/motion/requirements-motion.txt` and `docs/HARDWARE_pi_m_runtime.md
 +187/-11) and `a1f0111` (the five root notes and `MEMORY.md` removed, 6 files, -101). Both verified
 2026-08-26 by `git show --stat` and `git for-each-ref`. O16 and O18 close against them.
 
-**Uncommitted at the time of this turn, and none of it is a session's:**
+**Uncommitted at the time of this turn:**
 
 ```
+ M .env.example
+ M .gitignore
+ M BOM.md
  D mechanical/freecad/drivetrain_v1.20260821-142329.FCBak
  M mechanical/freecad/drivetrain_v1.FCStd
-?? docs/reports/J5-S22.md
-?? mechanical/freecad/chassis_assembly_v1.20260826-141152.FCBak
-?? mechanical/freecad/drivetrain_v1.20260826-203851.FCBak
+?? docs/reports/J5-S23.md
 ```
 
-`docs/reports/J5-S22.md` is S22's report and lands with this turn's state commit, per
-`docs/ORCHESTRATION.md` section 4. **Everything else is FreeCAD, open on Andrew's desktop while
-this turn ran.** It saved `drivetrain_v1.FCStd` at 21:08 local — two minutes before this turn
-began — and rotated its backup sidecars in the same act, which is what the deletion line is:
-`drivetrain_v1.20260821-142329.FCBak` is a **tracked** file that FreeCAD rotated out from under
-git. The STLs are still stamped 20:38, so this was a GUI save and not a build, exactly as
-`docs/ORCHESTRATION.md` section 7 says to read that pattern. Nothing here is a defect in any
-session's work; the tracked `.FCBak` files are O27.
+The first three are S23's deliverable and land with the block in `docs/reports/J5-S23.md`
+section 6. That report is the fourth, and lands with this turn's state commit per
+`docs/ORCHESTRATION.md` section 4. **The last two are FreeCAD's, still open on Andrew's
+desktop**: `drivetrain_v1.FCStd` is modified, and `drivetrain_v1.20260821-142329.FCBak` is a
+**tracked** sidecar that FreeCAD's ordinary rotation replaced, which is what the deletion line
+is and is exactly the symptom O27 describes. Nothing here is a defect in any session's work.
 
-**Do not commit any of it blind.** Whether `drivetrain_v1.FCStd`'s new state is wanted is
+**The two untracked sidecars listed here at S22-O are gone from the listing**, not because
+anything happened to the files but because S23's `*.FCBak` pattern now covers them. They are
+still on disk.
+
+**Do not commit the FreeCAD lines blind.** Whether `drivetrain_v1.FCStd`'s new state is wanted is
 Andrew's to say, not something to infer from a timestamp.
 
 **The merge was a fast-forward, not a squash, and that is fine.** `CLAUDE.md` says "squash
@@ -410,7 +447,7 @@ Carried non-blocking items. Blocking ones live in section 2.
 | O2 | **SSH key auth for both Pis.** Deferred, not abandoned. Both currently use password auth via Devolutions RDM. When retrying: clear RDM's cached host key for the IP/entry first — a stale host fingerprint produced a false "public key doesn't match" error last attempt. | Andrew | Phase 05 | 2026-06-20 |
 | O3 | **`.env` secrets management** — local per-Pi files versus the Agentic OS secrets manager. Unresolved; no preference stated. | Andrew | Phase 05 | 2026-06-22 |
 | O4 | **FreeCAD MCP addon update. Confirmed 2026-08-26 (S21), and independently reproduced by the orchestrator the same evening — the item stands, it is not already satisfied.** Both calls returned `<Fault 1: '<class 'Exception'>:method "get_rpc_status" is not supported'>`. That is an XML-RPC fault, not a timeout: something on `127.0.0.1:9875` parsed the request, looked the method up and reported it absent, so FreeCAD was running with the addon loaded and the addon simply predates the method. **A second fact worth carrying: the Cowork bridge advertises `mcp__remote-devices__freecad__get_rpc_status` with a full schema, and the addon behind it refuses the call.** A name in the tool inventory is not evidence the addon services it. The remaining work is the addon update itself, which is Andrew's — it is a Windows FreeCAD install no session can reach. Original text: The installed neka-nat addon predates `get_rpc_status`, which would diagnose the intermittent GUI-dispatch jam in one call instead of by elimination. | Andrew | Before the next CAD session | 2026-08-21 |
-| O5 | **`preview/` massing not updated** for the new drivetrain parts. | Worker | Phase 06 | 2026-08-21 |
+| O5 | **`preview/` massing not updated** for the new drivetrain parts. **Scope made precise 2026-08-27:** the mass ledger *is* current — `mechanical/preview/components.csv` carries all eleven drivetrain lines, every one of them marked measured, and `mass_budget.py` totals them. What is stale is the massing *render*: `mechanical/preview/preview_robot.py` has not been touched since `73ce4a0` on 2026-06-19 and names no drivetrain part. `preview_chassis.py` does carry sprocket, idler and road wheels. Read the item as being about `preview_robot.py`. | Worker | Phase 06 | 2026-08-21 |
 | ~~O6~~ | **CLOSED 2026-08-25 (S17, and Andrew at the bench).** Both drive motors are Pololu **#5218**; the #5219 was bought deliberately as a fit test and does not fit the chassis cleanly. `BOM.md` corrected to $32.45 each, $65 the pair. The wrong references left behind are now O12. Original text: **Drive motor part number contradiction.** S12 fixes the motor as Pololu **#5218** (150:1 HPCB 12 V, 12 CPR encoder, back connector). The 2026-06-26 decision entry prices **#5219** at ~$32.45 each and flags BOM Section 1 as running ~$25 over. One of the two is wrong and `BOM.md` should say which. | Worker | Before ordering (with D1) | 2026-08-23 |
 | ~~O7~~ | **CLOSED 2026-08-25 (S18).** `pyproject.toml` added with `[tool.pytest.ini_options] testpaths = ["tests"]` and a comment naming both offending files and why neither is a unit test. Verified: bare `python -m pytest -q` from the repository root gives `48 passed`, exit 0; the same command with `--override-ini="testpaths="` still dies with the two collection errors, so the fix is what is doing the work. Original text: **No pytest configuration.** Bare `pytest` at the repo root collects `scripts/test_llm_client.py` and `simulation/chassis/test_env.py` and fails collection. The real suite is `python -m pytest tests\ -q`, 48 tests. | Worker | D2 | 2026-08-23 |
 | ~~O8~~ | **CLOSED 2026-08-25 (S18), with the item's own premise corrected.** `src/vision/requirements-vision.txt` added, pinning `httpx==0.28.1` and `python-dotenv==1.2.3`, sited beside the code it serves on the `requirements-train.txt` precedent. **`llm_client.py` imports `httpx` only**; `python-dotenv` is imported by `scripts/test_llm_client.py` and `scripts/whats_this_color.py`, the two Pi-V bench programs that drive that module. Both packages still belong in one Pi-V file, so the deliverable is unchanged. The pins are current PyPI releases and are **not** verified against Pi-V, which no agent can reach; the file says so. Pi-M's equivalent gap is O16. Original text: **`httpx` and `python-dotenv` undeclared.** Imported by `src/vision/llm_client.py`; present in no requirements file. Only `simulation/chassis/requirements-train.txt` exists. | Worker | D2 | 2026-08-23 |
@@ -428,11 +465,11 @@ Carried non-blocking items. Blocking ones live in section 2.
 | ~~O20~~ | **CLOSED 2026-08-26 (S21).** `.gitignore` line 27 is `.claude/`, above it a comment pointing at section 6 of this file. `git --no-optional-locks status --porcelain` no longer lists it and nothing under `.claude/` was ever tracked, so the ignore removes nothing. S21 also normalised `.gitignore`'s working-tree copy from CRLF to LF in the same edit, which is what turned up O21. Verified in place by the orchestrator. Original text: **`.claude/` is untracked but not ignored.** Section 6 lists it as deliberately untracked and it has shown as `??` in every `git status` since the migration; S19 and S20 each spent a paragraph of their reports saying it should stay that way. One line in `.gitignore` ends that permanently. Cosmetic; fold into D7. | Worker | D7 | 2026-08-26 |
 | O21 | **The working tree is mostly CRLF, and section 6 said for months that it was not.** `git ls-files --eol` reports `i/lf w/crlf` on **75 of 152 tracked files** and `i/crlf` on none. Every blob is LF, which is the half that matters and is unchanged; the checkout is not, and `core.autocrlf = input` has been hiding it by normalising on read. **Nothing is broken** — no CRLF can reach a blob through a normal `git add` while that config holds, which is why nothing has ever shown as modified. Two things follow. First, section 6's claim is corrected and this entry exists so the next reader does not re-derive it a third time. Second, the open question is whether to leave it: a `git add --renormalize` was considered and rejected on 2026-08-23 for the tracked side, and the working-tree side is cosmetic. **Recommendation: leave it, and never certify a commit from a working-tree CR count alone** — read the blob, as `docs/ORCHESTRATION.md` section 6 prescribes. Raised as a one-line observation by S21, surveyed and quantified by the orchestrator the same evening. | Worker | No due date; informational | 2026-08-26 |
 | **O22** | **A live LiteLLM virtual key is committed in `.env.example`, and the GitHub remote is public.** `LITELLM_API_KEY=sk-ft-osuRqKu2Eldav3HgAVw` is a literal value, not a placeholder; every other secret in that file is one (`MQTT_PASSWORD=<set-on-broker-deploy>`). Found by S22, which correctly said it could not check the remote's visibility. **The orchestrator checked: `https://github.com/theDrewski81/short_circuit` loads as a public repository.** `git log -S` puts the value in the tree since `22ad422` on 2026-06-20, so it has been public for sixty-eight days. Scope, stated so this is neither under- nor over-read: the key authorises the AOS LiteLLM proxy at `192.168.1.223:4000`, an RFC1918 address, so it is not directly callable from the internet — the exposure is of a credential that is useful to anyone who reaches that LAN, and of the proxy's existence and addressing. **Rotate the key on the AOS proxy.** Editing the file forward does not remove the value from history, so rotation is the remediation and the `.env.example` edit is hygiene that follows it (D9). A history rewrite was considered and is not recommended: the value is already public, a rewrite breaks every clone and tag, and it buys nothing a rotation has not already bought. | **Andrew** | **Before the next push** | 2026-08-26 |
-| O23 | **`BOM.md` states a mass the script no longer prints.** Lines 173 and 181 both say 1531 g against the 1.6 kg ceiling, 69 g headroom, 1578 g at +25 %. `mechanical/preview/mass_budget.py` run from `248a41d` prints **1542 g, 96.4 % of ceiling, 58 g headroom, 1597 g at +25 %**, because of `23157ef` and `ecb244f`. The gate still holds and section 3 records the new figure; `BOM.md` does not. Same defect class as O13, which corrected the same paragraph from 1655 g four days earlier, and the same lesson: quote the script, and re-run it when the geometry moves. | Worker | D9 | 2026-08-26 |
+| O23 | **Fixed in the working tree at S23 (2026-08-27); closes when Andrew's block lands. Its own stated cause was wrong and is corrected here.** `BOM.md` lines 173 and 181 now both read 1542 g, 96.4 % of ceiling, 58 g headroom, 1597 g at +25 %, with `mass_budget.py` named as the source. **The clause below reading "because of `23157ef` and `ecb244f`" is false**: `ecb244f` moved no mass. The whole 11 g is `23157ef`, the IMU carrier breadboard and the shelf plate that grew to take it; `ecb244f` revised `components.csv`'s track-loop note only, and band mass depends on path length and thickness rather than on printed shape. Established by running `mass_budget.py` at `23157ef^`, `23157ef` and `ecb244f` from clean `git show` extractions — 1531 g, 1542 g, 1542 g — by S23 and reproduced independently by the orchestrator. Not struck through yet, because the edit is uncommitted. Original text: **`BOM.md` states a mass the script no longer prints.** Lines 173 and 181 both say 1531 g against the 1.6 kg ceiling, 69 g headroom, 1578 g at +25 %. `mechanical/preview/mass_budget.py` run from `248a41d` prints **1542 g, 96.4 % of ceiling, 58 g headroom, 1597 g at +25 %**, because of `23157ef` and `ecb244f`. The gate still holds and section 3 records the new figure; `BOM.md` does not. Same defect class as O13, which corrected the same paragraph from 1655 g four days earlier, and the same lesson: quote the script, and re-run it when the geometry moves. | Worker | D9 | 2026-08-26 |
 | O24 | **Pi-V has never had a bringup session, and nothing provisions it.** `setup_motion_pi.sh` provisions Pi-M; there is no `setup_vision_pi.sh`; `deploy_vision.sh` is deployment, not provisioning; the steps that were actually run exist only as prose in `phases/PHASE_01_INFRASTRUCTURE.md` task 2 and were performed by hand at S05 on 2026-06-20. Re-provisioning Pi-V today means re-reading that task list and repeating it manually. Two further absences belong to the same session rather than to separate items: **no `config.txt` line is recorded anywhere for hardware PWM on Pi-V**, though `BOM.md` puts the 1 W navigation light on GPIO13 as hardware PWM into a MOSFET gate and `docs/HARDWARE_power_harness.md` carries it as `SIG_NAV_PWM` — on Pi-M the equivalent needed an explicit `dtoverlay=pwm-2chan` and a reboot, and its absence looked like dead hardware; and **O1's audio overlay**, which is a `config.txt` question about the same box. **Do not write `setup_vision_pi.sh` from a session.** S22 recommended against it and the orchestrator agrees: it could be written today from Phase 01 task 2 and never tested, which is exactly where O15 has sat for two days. Write it at the bench, the way Pi-M's corrections came out of 2026-07-12. If a checklist is wanted sooner, a numbered runbook in `docs/HARDWARE_pi_v_runtime.md` is the smaller and more honest deliverable. | Andrew (bench) + Worker | Phase 04, behind the physical work | 2026-08-26 |
 | O25 | **Phase 04's camera guidance names a different OS than the box runs, and a different library than the repository uses.** `phases/PHASE_04_COGNITION.md` task 2 and its Known Constraints both specify `picamera2` on Bookworm and warn that its APIs differ between OS versions; this file puts both Pis on Trixie. The only program in the repository that captures a frame, `scripts/whats_this_color.py`, uses `rpicam-still`, so the Phase 04 pipeline will be the first `picamera2` code on that box. Neither `picamera2` nor `rpicam-apps` is declared in any requirements file. Not worth a session of its own; fold into the next Phase 04 edit. Found by S22. | Worker | Phase 04 | 2026-08-26 |
 | O26 | **No systemd unit exists for either Pi.** `deploy_motion.sh` and `deploy_vision.sh` both restart a unit their own comments call TBD and tolerate the failure, so neither script currently does the second half of its job. Symmetric across the two Pis, so not part of the Pi-V asymmetry. Found by S22. | Worker | Phase 05 | 2026-08-26 |
-| O27 | **Four `.FCBak` files are tracked, so FreeCAD's ordinary backup rotation shows up in git as a deletion.** `chassis_assembly_v1.20260821-143150.FCBak`, `drivetrain_v1.20260821-142329.FCBak`, `head_assembly_v1.20260619-220703.FCBak`, `torso_assembly_v1.20260619-220703.FCBak`. They are FreeCAD's own snapshots of superseded document states, regenerated on every save and of no value the `.FCStd` history does not already carry. `.gitignore` has no pattern for them. The fix is one `.gitignore` line plus a `git rm --cached` block, which is Andrew's; the pattern alone would not untrack what is already tracked. Surfaced 2026-08-26 when a save from an open FreeCAD put ` D ` in `git status` for a file nobody had touched. | Worker (`.gitignore`) + Andrew (`git rm --cached`) | D9 | 2026-08-26 |
+| O27 | **Half fixed at S23 (2026-08-27), not closed.** `.gitignore` line 31 is `*.FCBak`, unscoped deliberately, and `git check-ignore -v --no-index` names that line for all four files; the two untracked sidecars stopped appearing in `git status` the moment it landed. **The pattern cannot untrack what is already tracked** — `git ls-files` still lists all four — so this closes only when Andrew runs the four `git rm --cached` lines in `docs/reports/J5-S23.md` section 6, and the `.gitignore` edit itself is uncommitted until then. Original text: **Four `.FCBak` files are tracked, so FreeCAD's ordinary backup rotation shows up in git as a deletion.** `chassis_assembly_v1.20260821-143150.FCBak`, `drivetrain_v1.20260821-142329.FCBak`, `head_assembly_v1.20260619-220703.FCBak`, `torso_assembly_v1.20260619-220703.FCBak`. They are FreeCAD's own snapshots of superseded document states, regenerated on every save and of no value the `.FCStd` history does not already carry. `.gitignore` has no pattern for them. The fix is one `.gitignore` line plus a `git rm --cached` block, which is Andrew's; the pattern alone would not untrack what is already tracked. Surfaced 2026-08-26 when a save from an open FreeCAD put ` D ` in `git status` for a file nobody had touched. | Worker (`.gitignore`) + Andrew (`git rm --cached`) | D9 | 2026-08-26 |
 
 ---
 
@@ -491,6 +528,57 @@ Most recent first. Migrated from `INITIATING_PROMPT.md`'s decision log, which ra
 2026-06-20 to 2026-08-11, and from the four session handoffs in
 `phases/PHASE_00_HARDWARE.md`, which carry Sessions 03 and 04 that the former never
 received. **Never truncate this section.** Archive by year or phase if it outgrows the file.
+
+### 2026-08-27 — S23 and S23-O — D9 spent, and a causal claim the repository contradicted
+
+**D9's three corrections are done as files and none of them is committed.** `.env.example`
+carries `LITELLM_API_KEY=<set-on-litellm-proxy>` in `MQTT_PASSWORD`'s form, with three comment
+lines saying the real value lives in the per-Pi `.env`; `BOM.md` lines 173 and 181 both carry
+1542 g from the script that prints it; `.gitignore` gains `*.FCBak`. The diffs are three added
+lines and one changed value, exactly two changed lines, and four added lines. Andrew's block is
+in `docs/reports/J5-S23.md` section 6 and lands before this turn's state commit.
+
+**O23 said the mass moved because of two commits and only one of them moved it.** So did the D9
+brief, and so did section 3 of this file. S23 ran `mass_budget.py` at `23157ef^`, `23157ef` and
+`ecb244f` from clean `git show` extractions of its four inputs and got 1531 g, 1542 g, 1542 g;
+the orchestrator reproduced all three independently before recording anything. The whole 11 g is
+`23157ef`. `ecb244f` touched `components.csv`, which is why it reads as causal in a `--stat`,
+but it revised the track loop's note only — band mass is a function of path length and thickness,
+not of the shape the band is printed in, and the commit says so itself. Section 3 and O23 are
+both corrected. This is `docs/ORCHESTRATION.md` section 4's rule about tracing every figure to
+the script that produced it catching a wrong attribution inside the item that was itself about a
+wrong figure.
+
+**The `.FCBak` pattern is unscoped, and that is deliberate.** `*.FCBak` rather than
+`mechanical/freecad/*.FCBak`: a `.FCBak` is never wanted anywhere in this repository and FreeCAD
+writes one beside whatever document is open, so the narrow form would only be a future gap.
+`.gitignore` already mixes global and scoped patterns. The pattern cannot untrack the four files
+already tracked, so O27 is requalified as fixed-in-the-working-tree rather than closed — the same
+distinction O16 and O18 spent a day in.
+
+**Editing `.env.example` forward is not the O22 remediation, and nothing here closes it.** The
+value has been in the history of a public repository since `22ad422` on 2026-06-20. Rotation on
+the AOS proxy is the remediation, it is Andrew's, and it is still open. S23 said this in its
+report, in its commit message and in its handover; it is repeated here because a placeholder in
+the working file is exactly the kind of half-fix that reads as a close six weeks later.
+
+**The queue is empty and this turn dispatches nobody.** D9 was the last ready-now item. D4, D5
+and D6 sit behind four physical blockers, the Pi-V bringup sits behind the same, and every other
+open item is Andrew's, informational, or due in a phase that has not started. Manufacturing a
+session to fill the slot would be ceremony outweighing the work, which `docs/ORCHESTRATION.md`
+section 2 names as its own failure mode. The one job that does exist is this file's archive pass,
+and it cannot go to a worker because no worker edits this file — so it belongs to the next
+orchestrator turn, not to the dispatch queue.
+
+**Two smaller findings, recorded rather than opened as items.** S23 reports that
+`docs/ORCHESTRATION.md` section 7's Python-import hazard did not reproduce: `mass_budget.py`,
+`validate.py` and `check_harness_nets.py` all ran in place from the mount, and the orchestrator's
+runs did too. The bullet stands unedited — a hazard that fails intermittently is more dangerous
+than one that fails always, and one clean session is not a disproof. And O5's wording was
+imprecise in a way nothing had forced anyone to look at: `components.csv` carries all eleven
+drivetrain lines measured, so the mass ledger is current; what is stale is
+`mechanical/preview/preview_robot.py`, untouched since `73ce4a0` on 2026-06-19 and naming no
+drivetrain part. O5 now says which of the two it means.
 
 ### 2026-08-26 (night) — S22 and S22-O — the Pi-V document, and what writing it found
 
@@ -1156,6 +1244,8 @@ by the script.** When a number appears in a report, ask which script printed it.
 | 2026-08-26 (late evening, local) | `main` @ `91aab43`, and the uncommitted S21 working tree | The `docs/reports/J5-S21.md` close-out report against the repository. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`: `main` at `91aab43`, `origin/main` and `origin/HEAD` identical, one branch, three tags unchanged, no `.git` lock files. **Andrew's corrected S19 block confirmed run**: `382ee10` shown by `--stat` to touch exactly `scripts/setup_motion_pi.sh`, `src/motion/requirements-motion.txt` and `docs/HARDWARE_pi_m_runtime.md` (+187/-11), `a1f0111` to remove exactly the five root notes and `MEMORY.md` (-101), both above `ebdea9e` and below `91aab43`. All eight of S21's definition-of-done checks reproduced independently: `grep -n 1807 docs/HARDWARE_drive_bringup.md` returns exactly two lines, each carrying `451.74` and `simulation/chassis/TUNING.md` on the line itself; `grep -c "#5218" docs/diagrams/bench_full_schematic.svg` returns 3 at lines 81, 88 and 150 with all six key rows reading `LEFT`/`RIGHT`; the SVG parses as well-formed XML; `.gitignore` line 27 is `.claude/` and `git --no-optional-locks status --porcelain` no longer lists it; `tr -cd '\r' \| wc -c` returns 0 on all three edited files and `git ls-files --eol` reports `i/lf w/lf` on each; `python -m pytest -q` gives **48 passed** (pytest absent from the session shell and installed first, as S21 also reported); `scripts/check_harness_nets.py` exits 0 with all six checks, 64 nets, 145 endpoints and the 11 % fuse margin. The three diffs read in full: `.gitignore` +3 including a blank separator, the schematic exactly six `<text>` elements with no attribute touched, `HARDWARE_drive_bringup.md` one table row and one re-wrapped paragraph, 104 lines before and after. **O4's probe spent a second time by the orchestrator** rather than taken on trust, returning the identical XML-RPC fault. `git ls-files --eol` run across the whole tree. | **Nothing in the report failed verification and no factual error was found in it** — the second close-out of which that is true, after S19. Two additions rather than corrections. Its open thread about `.gitignore` being CRLF is right and much larger than one file: 75 of 152 tracked files are `i/lf w/crlf`, which makes section 6's line-endings paragraph wrong in a clause it has carried since the migration; now O21. Its note that `ORCHESTRATOR_PROMPT.md` is absent from the working copy is also right, and section 6's untracked table was describing a file that is not there; corrected. One immaterial imprecision: the report says two lines were appended to `.gitignore` where the diff is three, the third being a blank separator. **Defects in *this* file: for the first turn in five, none in the header or section 6's branch table** — Andrew's block landed before the state commit, which is exactly what the S20-O ordering rule was written to produce. |
 
 | 2026-08-26 (night, local) | `main` @ `248a41d` | The `docs/reports/J5-S22.md` close-out report against the repository. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`: `main` at `248a41d`, `origin/main` and `origin/HEAD` identical, one branch, three tags unchanged, no `.git` lock files. **Andrew's S21 block confirmed run** — `10650f2` and `38569a1` are on `main`, filling section 4's two `pending` rows. **Two commits found that no ledger row explained**, `23157ef` and `ecb244f`, both `git show --stat`-verified and both Andrew's own CAD work. S22's deliverable checked as the object database rather than as a file: `git cat-file -e main:docs/HARDWARE_pi_v_runtime.md` present, 197 lines, blob `3c0b29bc…` and worktree md5 `c6dd6021…` both matching the report exactly, CR count 0 on the blob, `git ls-files --eol` `i/lf w/lf`. `git diff --stat ecb244f 248a41d` returns one file and 197 insertions, which is the authoritative form of the report's "no file outside the deliverable is modified". The report's grep of every IP, hostname and path in the deliverable reproduced byte for byte, same sixteen hits at the same sixteen line numbers, `192.168.1.217` absent as claimed, one em-dash and it is the empty-table-cell marker the report says it is. Every cited source opened and confirmed in place: `phases/PHASE_01_INFRASTRUCTURE.md:72`, `scripts/_common.sh:11-14`, `scripts/deploy_vision.sh:17`, `scripts/deploy_motion.sh:16`, `.env.example`, and `BOM.md` section 7 at line 81. Regression: `python -m pytest -q` **48 passed** (pytest absent from the session shell and installed first), `scripts/check_harness_nets.py` exit 0 with all six checks, 64 nets, 145 endpoints and the 11 % fuse margin. **Both mechanical guards re-run because Andrew's two commits changed geometry:** `mass_budget.py` prints `ASSEMBLED TOTAL 1542 g (96.4% of ceiling)` and `validate.py` `ALL CHECKS PASS` across 16 checks. All six of S22's open threads checked against the repository: no `setup_vision_pi.sh` in `git ls-files`; `whats_this_color.py:36` uses `rpicam-still` while `PHASE_04_COGNITION.md:69,181` specify `picamera2` on Bookworm; both deploy scripts' systemd units TBD; `BOM.md:58` and `docs/HARDWARE_power_harness.md:130` carry the Pi-V GPIO13 nav-light PWM with no `config.txt` line anywhere. **Thread 2 escalated rather than confirmed:** `git grep` finds exactly one secret-shaped literal in the tree, `git log -S` dates it to `22ad422` on 2026-06-20, and the GitHub remote was fetched and **loads as a public repository**. | **Nothing in the report failed verification and no factual error was found in it** — the third close-out of which that is true, after S19 and S21. One judgement call put to the orchestrator by the report and **upheld**: proceeding past a precondition whose evidence form had gone stale while its substance held. The finding belongs to the brief rather than the worker and section 9 records the change. **Defects in *this* file: none in the header or section 6's branch table for the second consecutive turn**, which is the S20-O ordering rule holding. What was wrong here instead was everything downstream of two commits nobody logged: section 3 evidenced the Phase 00 gate at a mass the script no longer prints, section 4 had no place to record work Andrew does between turns, and section 6 named `91aab43`. All corrected. **One finding outranks the entire session:** a live LiteLLM virtual key has been readable in a public GitHub repository since 2026-06-20. S22 found it, said plainly that it could not check the remote's visibility, and called it the most consequential thing in its report. It was right on both counts. O22. |
+
+| 2026-08-27 (afternoon, local) | `main` @ `9765f71`, and the uncommitted S23 working tree | The `docs/reports/J5-S23.md` close-out report against the repository. Sections 1 and 6 re-derived from `git for-each-ref` and `git log`: `main` at `9765f71`, `origin/main` and `origin/HEAD` identical, one branch, three tags unchanged, no `.git` lock files. **The S22-O state commit confirmed run** as `9765f71`, shown by `--stat` to touch exactly `PROJECT_STATE.md` and `docs/reports/J5-S22.md`, which fills section 4's `pending` row. All three of S23's edits read as diffs rather than as description: `.env.example` gains three comment lines and replaces one value with nothing else in the file touched; `BOM.md` shows exactly two hunk headers at `-173 +173` and `-181 +181` under `diff --unified=0`, 183 lines before and after; `.gitignore` gains four lines including a blank separator. `git grep -n "sk-ft-"` excluding `docs/archive/`, `docs/reports/` and this file returns nothing, exit 1, and all three excluded hits were opened and are deliberate records of the exposure. `grep -c 1531 BOM.md` returns 0. All three blob hashes reproduced and byte-identical to the report's, with `git hash-object --path` equal to `git hash-object -t blob` on each, so the filters have nothing to do; `git ls-files --eol` reports `i/lf w/lf` on all three. `git check-ignore -v --no-index` names `.gitignore:31:*.FCBak` for all four tracked sidecars and the plain form names it for the untracked ones, while `git ls-files` still lists all four — the pattern cannot untrack, as the report says. Regression: `python -m pytest -q` **48 passed** (pytest absent from the session shell and installed first), `scripts/check_harness_nets.py` exit 0 with all six checks, 64 nets, 145 endpoints and the 11 % fuse margin, `mechanical/preview/validate.py` `ALL CHECKS PASS`. **The report's central novel claim reproduced independently:** `mass_budget.py` run from clean `git show` extractions at `23157ef^`, `23157ef` and `ecb244f` prints 1531 g, 1542 g and 1542 g. `mechanical/preview/preview_robot.py` and `components.csv` checked against O5. | **Nothing in the report failed verification and no factual error was found in it** — the fourth close-out of which that is true, after S19, S21 and S22. Its thread 1 is correct, and what it found is a defect in *this* file rather than in its own work: section 3 and O23 both attributed the 11 g to `23157ef` and `ecb244f`, and `ecb244f` moved no mass. Both corrected. **Defects in the header or section 6's branch table: none, for the third consecutive turn**, which is the S20-O ordering rule holding. Two things the report did not say, neither material: `phases/PHASE_00_HARDWARE.md` carries 1531 g at lines 220 and 258, both inside a dated Session 04 engineering log, so both are correct history and not a second instance of O23; and O5's wording is imprecise between the mass ledger and the massing render, now fixed in place. **This file crossed its 1,200-line ceiling with this update and the archive pass is now owed.** |
 
 **Attribution note, 2026-08-25.** `d1d4c2b` is dated 2026-08-24 but its content is the
 document demotion that section 9 records as S15's work on 2026-08-23. It is logged against S15
