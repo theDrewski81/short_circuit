@@ -246,6 +246,39 @@ chk("Ground run always spans several chevrons",
      / P["tread_count"]) >= 4,
     f'{P["track_straight_len"] / ((2*P["track_straight_len"] + 2*math.pi*P["tread_valley_r"])/P["tread_count"]):.1f} chevrons in contact')
 
+# --- track print form ----------------------------------------------------
+# The loop is printed as a circle of the same inner path rather than in its
+# running shape. See track_print_r in j5_params.derive() for the argument.
+_r_p = P["track_print_r"]
+_k_wrap = 1 / P["track_inner_r"]                 # curvature round a wheel
+_k_print = 1 / _r_p                              # curvature as printed
+_swing_run = _k_wrap                             # born flat or born wrapped
+_swing_print = max(_k_print, _k_wrap - _k_print)
+chk("Printed circle closes on the loop's own path",
+    abs(2 * math.pi * _r_p - P["track_inner_path"]) < 1e-9,
+    f'r {_r_p:.2f} -> {2*math.pi*_r_p:.2f} mm == inner path '
+    f'{P["track_inner_path"]:.2f}')
+chk("Printed loop fits bed",
+    2 * (_r_p + P["track_thickness"]) <= min(P["bed_x"], P["bed_y"]),
+    f'{2*(_r_p + P["track_thickness"]):.0f} mm across <= '
+    f'{min(P["bed_x"], P["bed_y"]):.0f}')
+chk("Circular print lowers peak bending swing",
+    _swing_print < _swing_run,
+    f'{_swing_print:.4f} < {_swing_run:.4f} /mm '
+    f'(-{100*(1-_swing_print/_swing_run):.0f}%); outer fibre through a rib '
+    f'{100*_swing_run*P["track_thickness"]/2:.2f}% -> '
+    f'{100*_swing_print*P["track_thickness"]/2:.2f}%')
+# Offsetting a closed convex curve outward by dr adds exactly 2 pi dr whatever
+# the shape, so the chevrons keep their pitch across the form change. If this
+# ever fails, the tread count means two different things in the two forms.
+_valley_run = (2 * P["track_straight_len"]
+               + 2 * math.pi * P["tread_valley_r"])
+_valley_print = 2 * math.pi * (_r_p + P["track_thickness"] - P["tread_depth"])
+chk("Tread pitch survives the form change",
+    abs(_valley_run - _valley_print) < 1e-9,
+    f'valley path {_valley_run:.2f} mm in both forms, '
+    f'{_valley_run/P["tread_count"]:.2f} mm pitch')
+
 # Bearings sit in the wheel hubs, so the wall carries only a locating feature.
 # The idler's is now a slot, and the carrier clamped over it is what gives the
 # rod its bearing length -- the old inner-face pad is gone with the fixed hole.

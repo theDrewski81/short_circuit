@@ -40,7 +40,7 @@ Idler wheel (PLA),printed,2,22,base,0,measured
 Road wheel (PLA),printed,4,11,base,0,measured
 Idler tensioner carrier (PLA),printed,2,3,base,0,measured
 Axle collar (PLA),printed,6,1,base,0,measured; two per rod
-TPU track loop,printed,2,36,base,0,measured; herringbone treads relieved out of the band drop the continuous section to 2.0 mm
+TPU track loop,printed,2,36,base,0,measured; herringbone treads relieved out of the band drop the continuous section to 2.0 mm. Printed as a 123 mm circle rather than in its running shape from 2026-08-26; the solid computes 35.5 g, unchanged by the form since band area depends only on path length and thickness
 Axle rod 3 mm steel,hardware,3,7,base,0,176 mm each: idler + 2 road wheel. Never budgeted before
 Bearings 623ZZ + MR106ZZ,hardware,1,17,base,0,8 x 623ZZ + 2 x MR106ZZ. Never budgeted before
 Misc brackets / mounts (PLA),printed,1,20,base,1,sensor mounts and board standoffs; caps and shelf now itemised

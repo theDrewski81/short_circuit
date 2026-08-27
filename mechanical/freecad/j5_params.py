@@ -91,6 +91,26 @@ def derive(p):
                                - math.pi * p["sprocket_pitch_dia"]) / 2.0
     p["idler_y_nom"] = -p["wheelbase"] / 2.0 + p["track_straight_len"]
     p["track_inner_r"] = p["sprocket_pitch_dia"] / 2.0
+    # The loop is PRINTED as a circle of the same inner path, not in the shape
+    # it runs in. Nothing is pre-stressed into a printed part, so what the print
+    # shape fixes is the curvature at which each element of the band is
+    # stress-free; the strain in service is the deviation from it. Every element
+    # travels the whole loop and so sees the same history -- kappa = 0 on the two
+    # straight runs, kappa = 1/track_inner_r round a wheel. Built in the running
+    # shape an element is born at one extreme or the other and swings the full
+    # 0.0500 /mm. Built as a circle every element is born at 1/58 and the worst
+    # swing is max(1/58, 1/20 - 1/58) = 0.0328 /mm, a third less, which takes
+    # outer-fibre bending strain through a tread rib from 8.75 % to 5.73 %.
+    #
+    # The radius is not a free choice and the circle is not merely better than
+    # the alternatives, it is the best of them. Any closed plane curve has the
+    # integral of kappa ds equal to 2 pi, so mean curvature is pinned at
+    # 2 pi / inner_path whatever shape is picked, and max(k0, kw - k0) is convex
+    # in k0 -- so by Jensen no non-uniform form beats uniform curvature on
+    # either the worst case or the average. The theoretical optimum would be a
+    # 40 mm radius, exactly midway between flat and wrapped; no closed 364 mm
+    # curve can hold that everywhere.
+    p["track_print_r"] = p["track_inner_path"] / (2.0 * math.pi)
     p["track_outer_r"] = p["track_inner_r"] + p["track_thickness"]
     p["track_lug_root_w"] = p["track_lug_tip_w"] + 2 * p["track_lug_chamfer"]
     # The wheel groove is trapezoidal, matching the lug's flare. Two reasons:

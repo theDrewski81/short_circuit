@@ -38,8 +38,17 @@ Every part is built about the origin. The wheels keep their assembled axis
 bed is the slicer's business -- but they are shaped so that with the axis
 vertical nothing needs support: the lightening is full-width through-features
 (vertical walls), and both the groove ceiling and the track's lug flanks are
-45 deg or steeper. The track loop is built in its print orientation, loop plane
-in XY with the width running up +Z, and rotated into place only for the checks.
+45 deg or steeper. The track loop is built with its loop plane in XY and the
+width running up +Z, and is rotated into place only for the checks.
+
+The loop is built in two forms from one parameter set and one traversal
+function. "running" is the shape it takes on the robot, wrapped round a
+sprocket and an idler track_straight_len apart: every clearance question is
+asked in that state, so that is the form the assembly checks and the document
+view use. "print" is a circle of the same inner path, r = 58.0, and is the form
+that becomes the STL -- see track_print_r in j5_params.derive() for why a
+circle, and why the radius is not a free choice. The two are pinned together at
+the end of main().
 """
 
 import math
@@ -308,14 +317,16 @@ def axle_collar():
 
 # --- TPU track loop ------------------------------------------------------
 
-def _path_point(s_arc, r=None):
+def _path_point(s_arc, r=None, straight=None):
     """(position, outward-normal angle in degrees) at arc length s_arc along the
-    path at radius r, in the loop's print frame: long axis Y, short axis X.
+    path at radius r, in the loop's build frame: long axis Y, short axis X.
 
-    Defaults to the inner surface, where the lugs live; the treads call it with
-    the outer valley radius instead.
+    Defaults to the inner surface of the running form, where the lugs live; the
+    treads call it with the outer valley radius instead. The print form passes
+    straight=0, which degenerates the stadium into a circle and needs no second
+    traversal function -- the two straight branches below simply never fire.
     """
-    S = P["track_straight_len"]
+    S = P["track_straight_len"] if straight is None else straight
     if r is None:
         r = R_IN
     arc = math.pi * r
@@ -389,22 +400,47 @@ def _chevron_piece(z0, dz, lean, ov=0.3):
     return bar
 
 
-def track_loop():
-    """Closed TPU loop in print orientation: loop plane XY, width along +Z."""
-    S = P["track_straight_len"]
+def _loop_form(form):
+    """(inner radius, straight-run length) for one build form of the loop.
+
+    Both forms have the same inner path, so every feature keeps its pitch across
+    them, and offsetting a closed convex curve outward by dr adds exactly
+    2 pi dr to its length whatever the shape -- so the tread valley path comes
+    out the same in both as well, and all 24 chevrons carry over untouched.
+    """
+    if form == "print":
+        return P["track_print_r"], 0.0
+    if form == "running":
+        return R_IN, P["track_straight_len"]
+    raise ValueError(f"unknown track loop form {form!r}")
+
+
+def track_loop(form="print"):
+    """Closed TPU loop, loop plane XY, width along +Z.
+
+    Defaults to the print form because that is the one that becomes an STL.
+    Pass form="running" for the wrapped shape the assembly checks need.
+    """
+    r_in, S = _loop_form(form)
+    r_out = r_in + P["track_thickness"]
     W = P["track_width"]
 
     def region(r):
+        """Filled plan outline at radius r. A zero-length box is not a legal
+        solid, so the circle is built as the disc it is rather than as a
+        stadium with degenerate straights."""
+        if S <= 0:
+            return L.cyl(r, W, 0, 0, 0, axis="z")
         body = L.box(2 * r, S, W, 0, 0, 0)
         body = body.fuse(L.cyl(r, W, 0, S / 2.0, 0, axis="z"))
         body = body.fuse(L.cyl(r, W, 0, -S / 2.0, 0, axis="z"))
         return body
 
-    band = region(R_OUT).cut(region(R_IN))
+    band = region(r_out).cut(region(r_in))
     lug = _lug_solid()
     lugs = []
     for i in range(int(P["track_lug_count"])):
-        (px, py), ang = _path_point(i * P["track_lug_pitch"])
+        (px, py), ang = _path_point(i * P["track_lug_pitch"], r_in, S)
         piece = lug.copy()
         piece.rotate(Vector(0, 0, 0), Vector(0, 0, 1), ang)
         piece.translate(Vector(px, py, 0))
@@ -416,8 +452,8 @@ def track_loop():
     # keeps the tip radius at 23.5 -- proud grousers would have raised the robot,
     # lengthened the rolling radius and taken 6 % off a drive that has about 1x
     # continuous torque margin to give.
-    rv = P["tread_valley_r"]
-    band = band.cut(region(R_OUT).cut(region(rv)))
+    rv = r_out - P["tread_depth"]
+    band = band.cut(region(r_out).cut(region(rv)))
     core = band                       # pre-tread, for the attachment check
     n = int(P["tread_count"])
     path = 2 * S + 2 * math.pi * rv
@@ -427,13 +463,13 @@ def track_loop():
         s0 = i * path / n
         for z0, dz, lean, s_off in _chevron_segments():
             piece = _chevron_piece(z0, dz, lean)
-            (px, py), ang = _path_point((s0 + s_off) % path, rv)
+            (px, py), ang = _path_point((s0 + s_off) % path, rv, S)
             piece.rotate(Vector(0, 0, 0), Vector(0, 0, 1), ang)
             piece.translate(Vector(px, py, 0))
             treads.append(piece)
     for z0, dz, lean, s_off in _chevron_segments():
         piece = _chevron_piece(z0, dz, lean)
-        (px, py), ang = _path_point((worst + s_off) % path, rv)
+        (px, py), ang = _path_point((worst + s_off) % path, rv, S)
         piece.rotate(Vector(0, 0, 0), Vector(0, 0, 1), ang)
         piece.translate(Vector(px, py, 0))
         probe.append(piece)
@@ -449,14 +485,25 @@ def track_loop():
     # own width: the tread arms end square at the edges, which is what they
     # should do anyway. Safe to apply to the whole band -- the band and the lugs
     # are already inside 0..track_width.
-    slab = L.box(4 * R_OUT, 2 * S + 4 * R_OUT, P["track_width"], 0, 0, 0)
+    slab = L.box(4 * r_out, 2 * S + 4 * r_out, P["track_width"], 0, 0, 0)
     return band.multiFuse(treads).common(slab)
 
 
 def track_assembled(loop, sgn=1, idler_y=None):
-    """Move a printed loop into place on side `sgn` with the idler at idler_y."""
+    """Move a loop into place on side `sgn` with the idler at idler_y.
+
+    Translates and rotates; it cannot bend. Give it the running form. A loop in
+    the print form is a 123 mm ring and would sit in the tub as one, which is
+    the kind of thing that passes every clearance check for the wrong reason.
+    """
     if idler_y is None:
         idler_y = Y_IDLER
+    if loop.BoundBox.YLength < P["track_straight_len"]:
+        raise RuntimeError("track_assembled was handed a loop only "
+                           f"{loop.BoundBox.YLength:.1f} mm long, shorter than "
+                           f"the {P['track_straight_len']:.1f} mm straight run "
+                           "it has to span -- that is the print form, not the "
+                           "running form")
     s = loop.copy()
     # print frame -> assembled: rotate about Y so the loop plane becomes YZ and
     # the width runs along +X.
@@ -484,18 +531,19 @@ def main():
     rw = road_wheel()
     car = idler_carrier()
     col = axle_collar()
-    trk = track_loop()
+    trk = track_loop("print")            # exported
+    trk_run = track_loop("running")      # checked and displayed
 
     parts = (("drive_sprocket", spr), ("front_idler", idl), ("road_wheel", rw),
              ("idler_carrier", car), ("axle_collar", col),
-             ("track_loop", trk))
+             ("track_loop", trk), ("track_loop_running", trk_run))
     for nm, shp in parts:
         n = len(shp.Solids)
         if n != 1:
             raise RuntimeError(f"{nm} built as {n} solids -- refusing to export")
 
-    # --- loop closure -----------------------------------------------------
-    bb = trk.BoundBox
+    # --- loop closure, asked of the running form --------------------------
+    bb = trk_run.BoundBox
     # With the ground face relieved, the loop's extreme Y falls between the
     # valley and a tread tip depending on where a chevron lands; only the X
     # extremes are guaranteed to sit on one, because the straight runs are an
@@ -517,7 +565,37 @@ def main():
         raise RuntimeError(f"continuous band only {P['track_band_t']:.2f} mm "
                            "after the tread relief")
 
-    loop = track_assembled(trk, 1)
+    # --- the printed form is the same part, rolled up ---------------------
+    # Two forms sharing one traversal function diverge one way: someone changes
+    # a path the other never walks. Four things pin them together.
+    pb = trk.BoundBox
+    tip_d = 2 * (P["track_print_r"] + P["track_thickness"])
+    val_d = 2 * (P["track_print_r"] + P["track_thickness"] - P["tread_depth"])
+    if abs(pb.ZLength - P["track_width"]) > 1e-6:
+        raise RuntimeError(f"printed loop width {pb.ZLength:.2f} != "
+                           f"{P['track_width']:.2f}")
+    # Across the tips where a chevron lands, across the valley where none does.
+    # A stadium would read 332 x 94 here and fail on the first bound.
+    for got, ax in ((pb.XLength, "X"), (pb.YLength, "Y")):
+        if not val_d - 0.05 <= got <= tip_d + 0.6:
+            raise RuntimeError(f"printed loop is {got:.2f} mm across {ax}, "
+                               f"outside {val_d:.2f}..{tip_d:.2f} -- that is "
+                               "not a circle of the right size")
+    if max(pb.XLength, pb.YLength) > min(P["bed_x"], P["bed_y"]):
+        raise RuntimeError(f"printed loop is {max(pb.XLength, pb.YLength):.1f} mm "
+                           f"across, wider than the {min(P['bed_x'], P['bed_y']):.0f} mm bed")
+    # A band of thickness t and inner path Lp has cross-section area
+    # t * (Lp + pi * t) in ANY closed convex form, so the forms can only differ
+    # by how the lug roots and tread pieces chord onto their own curves -- a
+    # fraction of a percent, and less in the print form because its curves are
+    # gentler. Anything larger means one form grew a feature the other did not.
+    drift = abs(trk.Volume - trk_run.Volume) / trk_run.Volume
+    if drift > 0.02:
+        raise RuntimeError(f"printed and running loops differ by "
+                           f"{100 * drift:.2f} % in volume -- the two forms "
+                           "have diverged")
+
+    loop = track_assembled(trk_run, 1)
 
     # --- the track must actually touch every wheel ------------------------
     # A tangency cannot be measured with a boolean: two solids that just touch
@@ -630,6 +708,9 @@ def main():
           f"{int(P['track_lug_count'])} = {P['track_inner_path']:.2f} mm inner path")
     print(f"drivetrain: straight run {P['track_straight_len']:.2f} mm, idler "
           f"nominal y {Y_IDLER:+.2f}, sprocket phase {spin:.1f} deg")
+    print(f"drivetrain: loop prints as a circle r {P['track_print_r']:.2f} "
+          f"({tip_d:.1f} mm across), running form {bb.YLength:.1f} x "
+          f"{bb.XLength:.1f}; volumes differ {100 * drift:.2f} %")
     print(f"drivetrain: sprocket {spr.Volume * pla:5.1f} g   "
           f"idler {idl.Volume * pla:5.1f} g   road wheel {rw.Volume * pla:5.1f} g   "
           f"carrier {car.Volume * pla:5.1f} g   track {trk.Volume * tpu:5.1f} g")
